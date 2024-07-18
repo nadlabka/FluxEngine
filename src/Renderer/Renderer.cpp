@@ -4,6 +4,19 @@
 #include "../Application/WinAPI/WinApplication.h"
 #include "../Application/WinAPI/WinWindow.h"
 
+void Renderer::Init()
+{
+    m_useWarpDevice = false;
+    m_frameIndex = 0;
+    m_rtvDescriptorSize = 0;
+    auto& window = WinApplication::GetWindow();
+    m_viewport = CD3DX12_VIEWPORT(0.0f, 0.0f, static_cast<float>(window.GetWidth()), static_cast<float>(window.GetHeight()));
+    m_scissorRect = CD3DX12_RECT(0, 0, static_cast<LONG>(window.GetWidth()), static_cast<LONG>(window.GetHeight()));
+    WCHAR assetsPath[512];
+    GetAssetsPath(assetsPath, _countof(assetsPath));
+    m_assetsPath = assetsPath;
+}
+
 void Renderer::Render()
 {
     // Record all the commands we need to render the scene into the command list.
@@ -370,16 +383,4 @@ void Renderer::GetHardwareAdapter(IDXGIFactory1* pFactory, IDXGIAdapter1** ppAda
 std::wstring Renderer::GetAssetFullPath(LPCWSTR assetName)
 {
     return m_assetsPath + assetName;
-}
-
-Renderer::Renderer() : m_useWarpDevice(false),
-		m_frameIndex(0),
-		m_rtvDescriptorSize(0)
-{
-    auto& window = WinApplication::GetWindow();
-    m_viewport = CD3DX12_VIEWPORT(0.0f, 0.0f, static_cast<float>(window.GetWidth()), static_cast<float>(window.GetHeight()));
-    m_scissorRect = CD3DX12_RECT(0, 0, static_cast<LONG>(window.GetWidth()), static_cast<LONG>(window.GetHeight()));
-    WCHAR assetsPath[512];
-    GetAssetsPath(assetsPath, _countof(assetsPath));
-    m_assetsPath = assetsPath;
 }

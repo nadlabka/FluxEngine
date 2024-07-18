@@ -17,7 +17,7 @@ public:
     void OnKeyDown(EKeyboardKey key) {}
     void OnKeyUp(EKeyboardKey key) {}
 
-    void ParseCommandLineArgs(_In_reads_(argc) WCHAR* argv[], int argc);
+    void ParseCommandLineArgs(WCHAR* argv[], int argc);
 
 private:
     

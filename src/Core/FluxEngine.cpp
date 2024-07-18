@@ -18,6 +18,7 @@ FluxEngine::~FluxEngine()
 void FluxEngine::OnInit()
 {
     auto& renderer = Renderer::GetInstance();
+    renderer.Init();
     renderer.LoadPipeline();
     renderer.LoadAssets();
 }

@@ -20,6 +20,8 @@ public:
     Renderer(const Renderer& arg) = delete;
     Renderer& operator=(const Renderer& arg) = delete;
 
+    void Init();
+
     void Render();
 
     void LoadPipeline();
@@ -61,6 +63,6 @@ public:
     std::wstring m_assetsPath;
 
 private:
-    Renderer();
+    Renderer() {}
 
 };
