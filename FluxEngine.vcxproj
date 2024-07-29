@@ -159,6 +159,7 @@
     <ClInclude Include="src\Input\MouseKey.h" />
     <ClInclude Include="src\Input\MouseManager.h" />
     <ClInclude Include="src\Renderer\Renderer.h" />
+    <ClInclude Include="src\Renderer\RHI\D3D12\D3D12Common.h" />
     <ClInclude Include="src\Utils\DXSampleHelper.h" />
     <ClInclude Include="src\Utils\Math.h" />
     <ClInclude Include="src\Utils\RscPtr.h" />

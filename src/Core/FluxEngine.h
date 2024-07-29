@@ -9,10 +9,10 @@ public:
     FluxEngine();
     ~FluxEngine();
 
-    void OnInit();
-    void OnUpdate();
-    void OnRender();
-    void OnDestroy();
+    void Init();
+    void Update();
+    void Render();
+    void Destroy();
 
     void OnKeyDown(EKeyboardKey key) {}
     void OnKeyUp(EKeyboardKey key) {}

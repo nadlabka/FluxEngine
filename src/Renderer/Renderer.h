@@ -27,7 +27,8 @@ public:
     void LoadPipeline();
     void LoadAssets();
     void PopulateCommandList();
-    void WaitForPreviousFrame();
+    void MoveToNextFrame();
+    void WaitForGpu();
 
     void GetHardwareAdapter(IDXGIFactory1* pFactory, IDXGIAdapter1** ppAdapter, bool requestHighPerformanceAdapter);
 
@@ -43,7 +44,7 @@ public:
     RscPtr<IDXGISwapChain3> m_swapChain;
     RscPtr<ID3D12Device> m_device;
     RscPtr<ID3D12Resource> m_renderTargets[FrameCount];
-    RscPtr<ID3D12CommandAllocator> m_commandAllocator;
+    RscPtr<ID3D12CommandAllocator> m_commandAllocators[FrameCount];
     RscPtr<ID3D12CommandQueue> m_commandQueue;
     RscPtr<ID3D12RootSignature> m_rootSignature;
     RscPtr<ID3D12DescriptorHeap> m_rtvHeap;
@@ -58,7 +59,7 @@ public:
     UINT m_frameIndex;
     HANDLE m_fenceEvent;
     RscPtr<ID3D12Fence> m_fence;
-    UINT64 m_fenceValue;
+    UINT64 m_fenceValues[FrameCount];
 
     std::wstring m_assetsPath;
 

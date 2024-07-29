@@ -15,7 +15,7 @@ FluxEngine::~FluxEngine()
 
 }
 
-void FluxEngine::OnInit()
+void FluxEngine::Init()
 {
     auto& renderer = Renderer::GetInstance();
     renderer.Init();
@@ -23,22 +23,24 @@ void FluxEngine::OnInit()
     renderer.LoadAssets();
 }
 
-void FluxEngine::OnUpdate()
+void FluxEngine::Update()
 {
 }
 
-void FluxEngine::OnRender()
+void FluxEngine::Render()
 {
     auto& renderer = Renderer::GetInstance();
     renderer.Render();
 }
 
-void FluxEngine::OnDestroy()
+void FluxEngine::Destroy()
 {
     auto& renderer = Renderer::GetInstance();
     // Ensure that the GPU is no longer referencing resources that are about to be
     // cleaned up by the destructor.
-    renderer.WaitForPreviousFrame();
+    // Ensure that the GPU is no longer referencing resources that are about to be
+    // cleaned up by the destructor.
+    renderer.WaitForGpu();
 
     CloseHandle(renderer.m_fenceEvent);
 }

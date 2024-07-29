@@ -29,7 +29,7 @@ void Renderer::Render()
     // Present the frame.
     ThrowIfFailed(m_swapChain->Present(1, 0));
 
-    WaitForPreviousFrame();
+    MoveToNextFrame();
 }
 
 void Renderer::LoadPipeline()
@@ -127,16 +127,16 @@ void Renderer::LoadPipeline()
     {
         CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(m_rtvHeap->GetCPUDescriptorHandleForHeapStart());
 
-        // Create a RTV for each frame.
+        // Create a RTV and a command allocator for each frame.
         for (UINT n = 0; n < FrameCount; n++)
         {
             ThrowIfFailed(m_swapChain->GetBuffer(n, IID_PPV_ARGS(&m_renderTargets[n])));
             m_device->CreateRenderTargetView(m_renderTargets[n].ptr(), nullptr, rtvHandle);
             rtvHandle.Offset(1, m_rtvDescriptorSize);
+
+            ThrowIfFailed(m_device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_commandAllocators[n])));
         }
     }
-
-    ThrowIfFailed(m_device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_commandAllocator)));
 }
 
 void Renderer::LoadAssets()
@@ -193,7 +193,7 @@ void Renderer::LoadAssets()
     }
 
     // Create the command list.
-    ThrowIfFailed(m_device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_commandAllocator.ptr(), m_pipelineState.ptr(), IID_PPV_ARGS(&m_commandList)));
+    ThrowIfFailed(m_device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_commandAllocators[m_frameIndex].ptr(), m_pipelineState.ptr(), IID_PPV_ARGS(&m_commandList)));
 
     // Command lists are created in the recording state, but there is nothing
     // to record yet. The main loop expects it to be closed, so close it now.
@@ -241,8 +241,8 @@ void Renderer::LoadAssets()
 
     // Create synchronization objects and wait until assets have been uploaded to the GPU.
     {
-        ThrowIfFailed(m_device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_fence)));
-        m_fenceValue = 1;
+        ThrowIfFailed(m_device->CreateFence(m_fenceValues[m_frameIndex], D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_fence)));
+        m_fenceValues[m_frameIndex]++;
 
         // Create an event handle to use for frame synchronization.
         m_fenceEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
@@ -254,7 +254,7 @@ void Renderer::LoadAssets()
         // Wait for the command list to execute; we are reusing the same command 
         // list in our main loop but for now, we just want to wait for setup to 
         // complete before continuing.
-        WaitForPreviousFrame();
+        WaitForGpu();
     }
 }
 
@@ -263,12 +263,13 @@ void Renderer::PopulateCommandList()
     // Command list allocators can only be reset when the associated 
     // command lists have finished execution on the GPU; apps should use 
     // fences to determine GPU execution progress.
-    ThrowIfFailed(m_commandAllocator->Reset());
+    ThrowIfFailed(m_commandAllocators[m_frameIndex]->Reset());
 
     // However, when ExecuteCommandList() is called on a particular command 
     // list, that command list can then be reset at any time and must be before 
     // re-recording.
-    ThrowIfFailed(m_commandList->Reset(m_commandAllocator.ptr(), m_pipelineState.ptr()));
+    ThrowIfFailed(m_commandList->Reset(m_commandAllocators[m_frameIndex].ptr(), m_pipelineState.ptr()));
+
 
     // Set necessary state.
     m_commandList->SetGraphicsRootSignature(m_rootSignature.ptr());
@@ -296,26 +297,38 @@ void Renderer::PopulateCommandList()
     ThrowIfFailed(m_commandList->Close());
 }
 
-void Renderer::WaitForPreviousFrame()
+// Prepare to render the next frame.
+void Renderer::MoveToNextFrame()
 {
-    // WAITING FOR THE FRAME TO COMPLETE BEFORE CONTINUING IS NOT BEST PRACTICE.
-    // This is code implemented as such for simplicity. The D3D12HelloFrameBuffering
-    // sample illustrates how to use fences for efficient resource usage and to
-    // maximize GPU utilization.
+    // Schedule a Signal command in the queue.
+    const UINT64 currentFenceValue = m_fenceValues[m_frameIndex];
+    ThrowIfFailed(m_commandQueue->Signal(m_fence.ptr(), currentFenceValue));
 
-    // Signal and increment the fence value.
-    const UINT64 fence = m_fenceValue;
-    ThrowIfFailed(m_commandQueue->Signal(m_fence.ptr(), fence));
-    m_fenceValue++;
+    // Update the frame index.
+    m_frameIndex = m_swapChain->GetCurrentBackBufferIndex();
 
-    // Wait until the previous frame is finished.
-    if (m_fence->GetCompletedValue() < fence)
+    // If the next frame is not ready to be rendered yet, wait until it is ready.
+    if (m_fence->GetCompletedValue() < m_fenceValues[m_frameIndex])
     {
-        ThrowIfFailed(m_fence->SetEventOnCompletion(fence, m_fenceEvent));
-        WaitForSingleObject(m_fenceEvent, INFINITE);
+        ThrowIfFailed(m_fence->SetEventOnCompletion(m_fenceValues[m_frameIndex], m_fenceEvent));
+        WaitForSingleObjectEx(m_fenceEvent, INFINITE, FALSE);
     }
 
-    m_frameIndex = m_swapChain->GetCurrentBackBufferIndex();
+    // Set the fence value for the next frame.
+    m_fenceValues[m_frameIndex] = currentFenceValue + 1;
+}
+
+void Renderer::WaitForGpu()
+{
+    // Schedule a Signal command in the queue.
+    ThrowIfFailed(m_commandQueue->Signal(m_fence.ptr(), m_fenceValues[m_frameIndex]));
+
+    // Wait until the fence has been processed.
+    ThrowIfFailed(m_fence->SetEventOnCompletion(m_fenceValues[m_frameIndex], m_fenceEvent));
+    WaitForSingleObjectEx(m_fenceEvent, INFINITE, FALSE);
+
+    // Increment the fence value for the current frame.
+    m_fenceValues[m_frameIndex]++;
 }
 
 void Renderer::GetHardwareAdapter(IDXGIFactory1* pFactory, IDXGIAdapter1** ppAdapter, bool requestHighPerformanceAdapter)

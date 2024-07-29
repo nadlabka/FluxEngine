@@ -15,21 +15,22 @@ int WinApplication::Run(FluxEngine* engine, HINSTANCE hInstance, int nCmdShow, i
 
     m_window = WinWindow(WindowProc, hInstance, nCmdShow, windowWidth, windowHeight, title, engine);
 
-    engine->OnInit();
+    engine->Init();
 
     MSG msg = {};
     while (msg.message != WM_QUIT)
     {
-        if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+        while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
         {
             TranslateMessage(&msg);
             DispatchMessage(&msg);
         }
-        //engine->Update();
-        //engine->Render();
+
+        engine->Update();
+        engine->Render();
     }
 
-    engine->OnDestroy();
+    engine->Destroy();
 
     return static_cast<char>(msg.wParam);
 }
@@ -75,12 +76,13 @@ LRESULT WinApplication::WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARA
         return 0;
 
     case WM_PAINT:
-        if (engine)
-        {
-            engine->OnUpdate();
-            engine->OnRender();
-        }
+    {
+        PAINTSTRUCT ps;
+        HDC dc = BeginPaint(m_window.GetHwnd(), &ps);
+
+        EndPaint(m_window.GetHwnd(), &ps);
         return 0;
+    }     
 
     case WM_DESTROY:
         PostQuitMessage(0);
