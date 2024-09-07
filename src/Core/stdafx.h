@@ -21,10 +21,13 @@
 #include <dxgi1_6.h>
 #include <D3Dcompiler.h>
 #include <DirectXMath.h>
-#include <SimpleMath.h>
 
-#include "../Utils/RscPtr.h"
+#include <D3D12MemoryAllocator/include/D3D12MemAlloc.h>
 
 #include <string>
 #include <shellapi.h>
 #include <wrl.h>
+
+#include "../Utils/Math.h"
+#include "../Utils/RscPtr.h"
+#include "../Utils/DXSampleHelper.h"

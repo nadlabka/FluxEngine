@@ -1,0 +1,31 @@
+#include <stdafx.h>
+#include <stdexcept>
+#include "RHIContext.h"
+#include "D3D12/D3D12Factory.h"
+
+void RHI::RHIContext::Init(ERHIRenderingAPI api, const AdapterCreateDesc& adapterDesc, const DeviceCreateDesc& deviceDesc)
+{
+	if(api == ERHIRenderingAPI::eAPI_D3D12)
+	{
+		InitD3D12(adapterDesc, deviceDesc);
+	}
+	else if(api == ERHIRenderingAPI::eAPI_Vulkan)
+	{
+		throw std::runtime_error("Vulkan API support is not implemented");
+		InitVulkan(adapterDesc, deviceDesc);
+	}
+}
+
+void RHI::RHIContext::InitD3D12(const AdapterCreateDesc& adapterDesc, const DeviceCreateDesc& deviceDesc)
+{
+	m_factory = std::make_shared<D3D12Factory>();
+
+	m_adapter = m_factory->CreateAdapter(adapterDesc);
+
+	m_device = m_adapter->CreateDevice(deviceDesc);
+}
+
+void RHI::RHIContext::InitVulkan(const AdapterCreateDesc& adapterDesc, const DeviceCreateDesc& deviceDesc)
+{
+
+}

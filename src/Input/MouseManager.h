@@ -5,8 +5,8 @@
 
 struct MousePosition
 {
-	int XPos;
-	int YPos;
+	int xPos;
+	int yPos;
 };
 
 class MouseManager

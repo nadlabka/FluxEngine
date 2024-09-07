@@ -111,6 +111,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <AdditionalBMIDirectories>%(AdditionalBMIDirectories)</AdditionalBMIDirectories>
       <AdditionalIncludeDirectories>$(ProjectDir)vendor;$(ProjectDir)vendor\DirectXTK\Inc;$(ProjectDir)src\Core</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -147,6 +148,11 @@
     <ClCompile Include="src\Input\MouseManager.cpp" />
     <ClCompile Include="src\Main.cpp" />
     <ClCompile Include="src\Renderer\Renderer.cpp" />
+    <ClCompile Include="src\Renderer\RHI\D3D12\D3D12Adapter.cpp" />
+    <ClCompile Include="src\Renderer\RHI\D3D12\D3D12Device.cpp" />
+    <ClCompile Include="src\Renderer\RHI\D3D12\D3D12Factory.cpp" />
+    <ClInclude Include="src\Renderer\RHI\D3D12\D3D12Factory.h" />
+    <ClCompile Include="src\Renderer\RHI\RHIContext.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Application\WinAPI\WinApplication.h" />
@@ -159,7 +165,12 @@
     <ClInclude Include="src\Input\MouseKey.h" />
     <ClInclude Include="src\Input\MouseManager.h" />
     <ClInclude Include="src\Renderer\Renderer.h" />
-    <ClInclude Include="src\Renderer\RHI\D3D12\D3D12Common.h" />
+    <ClInclude Include="src\Renderer\RHI\Adapter.h" />
+    <ClInclude Include="src\Renderer\RHI\D3D12\D3D12Device.h" />
+    <ClInclude Include="src\Renderer\RHI\D3D12\D3D12Adapter.h" />
+    <ClInclude Include="src\Renderer\RHI\Factory.h" />
+    <ClInclude Include="src\Renderer\RHI\Device.h" />
+    <ClInclude Include="src\Renderer\RHI\RHIContext.h" />
     <ClInclude Include="src\Utils\DXSampleHelper.h" />
     <ClInclude Include="src\Utils\Math.h" />
     <ClInclude Include="src\Utils\RscPtr.h" />

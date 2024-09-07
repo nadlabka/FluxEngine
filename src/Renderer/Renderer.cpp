@@ -40,7 +40,7 @@ void Renderer::LoadPipeline()
     // Enable the debug layer (requires the Graphics Tools "optional feature").
     // NOTE: Enabling the debug layer after device creation will invalidate the active device.
     {
-        ComPtr<ID3D12Debug> debugController;
+        RscPtr<ID3D12Debug> debugController;
         if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController))))
         {
             debugController->EnableDebugLayer();
@@ -51,28 +51,28 @@ void Renderer::LoadPipeline()
     }
 #endif
 
-    ComPtr<IDXGIFactory4> factory;
+    RscPtr<IDXGIFactory4> factory;
     ThrowIfFailed(CreateDXGIFactory2(dxgiFactoryFlags, IID_PPV_ARGS(&factory)));
 
     if (m_useWarpDevice)
     {
-        ComPtr<IDXGIAdapter> warpAdapter;
+        RscPtr<IDXGIAdapter> warpAdapter;
         ThrowIfFailed(factory->EnumWarpAdapter(IID_PPV_ARGS(&warpAdapter)));
 
         ThrowIfFailed(D3D12CreateDevice(
-            warpAdapter.Get(),
-            D3D_FEATURE_LEVEL_11_0,
+            warpAdapter.ptr(),
+            D3D_FEATURE_LEVEL_12_0,
             IID_PPV_ARGS(&m_device)
         ));
     }
     else
     {
-        ComPtr<IDXGIAdapter1> hardwareAdapter;
-        GetHardwareAdapter(factory.Get(), &hardwareAdapter, true);
+        RscPtr<IDXGIAdapter1> hardwareAdapter;
+        GetHardwareAdapter(factory.ptr(), &hardwareAdapter, true);
 
         ThrowIfFailed(D3D12CreateDevice(
-            hardwareAdapter.Get(),
-            D3D_FEATURE_LEVEL_11_0,
+            hardwareAdapter.ptr(),
+            D3D_FEATURE_LEVEL_12_0,
             IID_PPV_ARGS(&m_device)
         ));
     }
@@ -95,7 +95,7 @@ void Renderer::LoadPipeline()
     swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
     swapChainDesc.SampleDesc.Count = 1;
 
-    ComPtr<IDXGISwapChain1> swapChain;
+    RscPtr<IDXGISwapChain1> swapChain;
     ThrowIfFailed(factory->CreateSwapChainForHwnd(
         m_commandQueue.ptr(),        // Swap chain needs the queue so that it can force a flush on it.
         WinApplication::GetWindow().GetHwnd(),
@@ -146,16 +146,16 @@ void Renderer::LoadAssets()
         CD3DX12_ROOT_SIGNATURE_DESC rootSignatureDesc;
         rootSignatureDesc.Init(0, nullptr, 0, nullptr, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
 
-        ComPtr<ID3DBlob> signature;
-        ComPtr<ID3DBlob> error;
+        RscPtr<ID3DBlob> signature;
+        RscPtr<ID3DBlob> error;
         ThrowIfFailed(D3D12SerializeRootSignature(&rootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, &signature, &error));
         ThrowIfFailed(m_device->CreateRootSignature(0, signature->GetBufferPointer(), signature->GetBufferSize(), IID_PPV_ARGS(&m_rootSignature)));
     }
 
     // Create the pipeline state, which includes compiling and loading shaders.
     {
-        ComPtr<ID3DBlob> vertexShader;
-        ComPtr<ID3DBlob> pixelShader;
+        RscPtr<ID3DBlob> vertexShader;
+        RscPtr<ID3DBlob> pixelShader;
 
 #if defined(_DEBUG)
         // Enable better shader debugging with the graphics debugging tools.
@@ -178,8 +178,8 @@ void Renderer::LoadAssets()
         D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc = {};
         psoDesc.InputLayout = { inputElementDescs, _countof(inputElementDescs) };
         psoDesc.pRootSignature = m_rootSignature.ptr();
-        psoDesc.VS = CD3DX12_SHADER_BYTECODE(vertexShader.Get());
-        psoDesc.PS = CD3DX12_SHADER_BYTECODE(pixelShader.Get());
+        psoDesc.VS = CD3DX12_SHADER_BYTECODE(vertexShader.ptr());
+        psoDesc.PS = CD3DX12_SHADER_BYTECODE(pixelShader.ptr());
         psoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
         psoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
         psoDesc.DepthStencilState.DepthEnable = FALSE;
@@ -333,11 +333,9 @@ void Renderer::WaitForGpu()
 
 void Renderer::GetHardwareAdapter(IDXGIFactory1* pFactory, IDXGIAdapter1** ppAdapter, bool requestHighPerformanceAdapter)
 {
-    *ppAdapter = nullptr;
+    RscPtr<IDXGIAdapter1> adapter;
 
-    ComPtr<IDXGIAdapter1> adapter;
-
-    ComPtr<IDXGIFactory6> factory6;
+    RscPtr<IDXGIFactory6> factory6;
     if (SUCCEEDED(pFactory->QueryInterface(IID_PPV_ARGS(&factory6))))
     {
         for (
@@ -360,14 +358,14 @@ void Renderer::GetHardwareAdapter(IDXGIFactory1* pFactory, IDXGIAdapter1** ppAda
 
             // Check to see whether the adapter supports Direct3D 12, but don't create the
             // actual device yet.
-            if (SUCCEEDED(D3D12CreateDevice(adapter.Get(), D3D_FEATURE_LEVEL_11_0, _uuidof(ID3D12Device), nullptr)))
+            if (SUCCEEDED(D3D12CreateDevice(adapter.ptr(), D3D_FEATURE_LEVEL_12_0, _uuidof(ID3D12Device), nullptr)))
             {
                 break;
             }
         }
     }
 
-    if (adapter.Get() == nullptr)
+    if (adapter.ptr() == nullptr)
     {
         for (UINT adapterIndex = 0; SUCCEEDED(pFactory->EnumAdapters1(adapterIndex, &adapter)); ++adapterIndex)
         {
@@ -383,14 +381,14 @@ void Renderer::GetHardwareAdapter(IDXGIFactory1* pFactory, IDXGIAdapter1** ppAda
 
             // Check to see whether the adapter supports Direct3D 12, but don't create the
             // actual device yet.
-            if (SUCCEEDED(D3D12CreateDevice(adapter.Get(), D3D_FEATURE_LEVEL_11_0, _uuidof(ID3D12Device), nullptr)))
+            if (SUCCEEDED(D3D12CreateDevice(adapter.ptr(), D3D_FEATURE_LEVEL_12_0, _uuidof(ID3D12Device), nullptr)))
             {
                 break;
             }
         }
     }
 
-    *ppAdapter = adapter.Detach();
+    ppAdapter = &adapter;
 }
 
 std::wstring Renderer::GetAssetFullPath(LPCWSTR assetName)
