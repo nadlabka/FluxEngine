@@ -1,4 +1,5 @@
 #pragma once
+#include "CommandQueue.h"
 
 namespace RHI
 {
@@ -10,5 +11,6 @@ namespace RHI
 	{
 		virtual ~IDevice() {}
 
+		virtual std::shared_ptr<ICommandQueue> CreateCommandQueue(QueueType queueType) const = 0;
 	};
 }

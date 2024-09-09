@@ -11,7 +11,7 @@ namespace RHI
 		D3D12Adapter(RscPtr<IDXGIAdapter1> adapter) : m_adapter(adapter) {}
 		~D3D12Adapter();
 
-		std::shared_ptr<IDevice> CreateDevice(DeviceCreateDesc deviceDesc);
+		std::shared_ptr<IDevice> CreateDevice(DeviceCreateDesc deviceDesc) const;
 
 		RscPtr<IDXGIAdapter1> m_adapter;
 	};

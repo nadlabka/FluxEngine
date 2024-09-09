@@ -149,9 +149,14 @@
     <ClCompile Include="src\Main.cpp" />
     <ClCompile Include="src\Renderer\Renderer.cpp" />
     <ClCompile Include="src\Renderer\RHI\D3D12\D3D12Adapter.cpp" />
+    <ClCompile Include="src\Renderer\RHI\D3D12\D3D12CommandQueue.cpp" />
     <ClCompile Include="src\Renderer\RHI\D3D12\D3D12Device.cpp" />
     <ClCompile Include="src\Renderer\RHI\D3D12\D3D12Factory.cpp" />
+    <ClCompile Include="src\Renderer\RHI\Surafce.cpp" />
+    <ClInclude Include="src\Renderer\RHI\CommandQueue.h" />
+    <ClInclude Include="src\Renderer\RHI\D3D12\D3D12CommandQueue.h" />
     <ClInclude Include="src\Renderer\RHI\D3D12\D3D12Factory.h" />
+    <ClCompile Include="src\Renderer\RHI\D3D12\D3D12Swapchain.cpp" />
     <ClCompile Include="src\Renderer\RHI\RHIContext.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -168,6 +173,10 @@
     <ClInclude Include="src\Renderer\RHI\Adapter.h" />
     <ClInclude Include="src\Renderer\RHI\D3D12\D3D12Device.h" />
     <ClInclude Include="src\Renderer\RHI\D3D12\D3D12Adapter.h" />
+    <ClInclude Include="src\Renderer\RHI\D3D12\D3D12Surface.h" />
+    <ClInclude Include="src\Renderer\RHI\D3D12\D3D12Swapchain.h" />
+    <ClInclude Include="src\Renderer\RHI\Swapchain.h" />
+    <ClInclude Include="src\Renderer\RHI\Surafce.h" />
     <ClInclude Include="src\Renderer\RHI\Factory.h" />
     <ClInclude Include="src\Renderer\RHI\Device.h" />
     <ClInclude Include="src\Renderer\RHI\RHIContext.h" />

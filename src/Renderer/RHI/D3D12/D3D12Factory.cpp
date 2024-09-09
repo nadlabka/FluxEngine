@@ -30,7 +30,7 @@ RHI::D3D12Factory::~D3D12Factory()
 {
 }
 
-std::shared_ptr<RHI::IAdapter> RHI::D3D12Factory::CreateAdapter(RHI::AdapterCreateDesc adapterDesc)
+std::shared_ptr<RHI::IAdapter> RHI::D3D12Factory::CreateAdapter(RHI::AdapterCreateDesc adapterDesc) const
 {
     RscPtr<IDXGIAdapter1> adapter;
     if(adapterDesc.useWarpDevice)

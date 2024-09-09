@@ -54,6 +54,15 @@
     <ClCompile Include="src\Renderer\RHI\D3D12\D3D12Factory.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Renderer\RHI\D3D12\D3D12CommandQueue.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Renderer\RHI\D3D12\D3D12Swapchain.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Renderer\RHI\Surafce.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Core\stdafx.h">
@@ -115,6 +124,24 @@
     </ClInclude>
     <ClInclude Include="src\Renderer\RHI\D3D12\D3D12Factory.h">
       <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Renderer\RHI\Surafce.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Renderer\RHI\CommandQueue.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Renderer\RHI\D3D12\D3D12CommandQueue.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Renderer\RHI\D3D12\D3D12Swapchain.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Renderer\RHI\Swapchain.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Renderer\RHI\D3D12\D3D12Surface.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

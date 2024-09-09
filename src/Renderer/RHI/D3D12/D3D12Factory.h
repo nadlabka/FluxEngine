@@ -8,7 +8,7 @@ namespace RHI
 		D3D12Factory();
 		~D3D12Factory();
 
-		std::shared_ptr<IAdapter> CreateAdapter(AdapterCreateDesc adapterDesc);
+		std::shared_ptr<IAdapter> CreateAdapter(AdapterCreateDesc adapterDesc) const;
 
 		RscPtr<IDXGIFactory4> m_factory;
 	};

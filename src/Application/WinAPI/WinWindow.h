@@ -11,16 +11,16 @@ public:
 	WinWindow(WNDPROC winProc, HINSTANCE hInstance, bool nCmdShow, int width, int height, const std::wstring& title, FluxEngine* engine);
 	~WinWindow();
 
-	HWND GetHwnd() { return m_hwnd; }
+	HWND GetHwnd() const { return m_hwnd; }
 
 	void SetTitle(const std::wstring& title);
 
 	void Resize(int width, int height);
 
-	int GetHeight() { return m_height; }
-	int GetWidth() { return m_width; }
+	int GetHeight() const { return m_height; }
+	int GetWidth() const { return m_width; }
 
-	float GetAspectRatio() { return m_aspectRatio; }
+	float GetAspectRatio() const { return m_aspectRatio; }
 
 	static uint32_t GetTotalWindowsNum() { return m_totalWindowsNum; }
 
