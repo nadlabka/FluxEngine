@@ -1,6 +1,8 @@
 #pragma once
 #include <stdafx.h>
 #include "../Device.h"
+#include "../Swapchain.h"
+#include "../Surface.h"
 
 namespace RHI
 {

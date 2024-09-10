@@ -152,7 +152,7 @@
     <ClCompile Include="src\Renderer\RHI\D3D12\D3D12CommandQueue.cpp" />
     <ClCompile Include="src\Renderer\RHI\D3D12\D3D12Device.cpp" />
     <ClCompile Include="src\Renderer\RHI\D3D12\D3D12Factory.cpp" />
-    <ClCompile Include="src\Renderer\RHI\Surafce.cpp" />
+    <ClCompile Include="src\Renderer\RHI\Surface.cpp" />
     <ClInclude Include="src\Renderer\RHI\CommandQueue.h" />
     <ClInclude Include="src\Renderer\RHI\D3D12\D3D12CommandQueue.h" />
     <ClInclude Include="src\Renderer\RHI\D3D12\D3D12Factory.h" />
@@ -176,7 +176,7 @@
     <ClInclude Include="src\Renderer\RHI\D3D12\D3D12Surface.h" />
     <ClInclude Include="src\Renderer\RHI\D3D12\D3D12Swapchain.h" />
     <ClInclude Include="src\Renderer\RHI\Swapchain.h" />
-    <ClInclude Include="src\Renderer\RHI\Surafce.h" />
+    <ClInclude Include="src\Renderer\RHI\Surface.h" />
     <ClInclude Include="src\Renderer\RHI\Factory.h" />
     <ClInclude Include="src\Renderer\RHI\Device.h" />
     <ClInclude Include="src\Renderer\RHI\RHIContext.h" />

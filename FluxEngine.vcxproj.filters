@@ -60,7 +60,7 @@
     <ClCompile Include="src\Renderer\RHI\D3D12\D3D12Swapchain.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Renderer\RHI\Surafce.cpp">
+    <ClCompile Include="src\Renderer\RHI\Surface.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -125,7 +125,7 @@
     <ClInclude Include="src\Renderer\RHI\D3D12\D3D12Factory.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Renderer\RHI\Surafce.h">
+    <ClInclude Include="src\Renderer\RHI\Surface.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Renderer\RHI\CommandQueue.h">
