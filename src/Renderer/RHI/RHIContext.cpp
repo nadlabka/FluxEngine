@@ -2,6 +2,7 @@
 #include <stdexcept>
 #include "RHIContext.h"
 #include "D3D12/D3D12Factory.h"
+#include "D3D12/D3D12Allocator.h"
 
 void RHI::RHIContext::Init(ERHIRenderingAPI api, const AdapterCreateDesc& adapterDesc, const DeviceCreateDesc& deviceDesc)
 {
@@ -25,6 +26,8 @@ void RHI::RHIContext::InitD3D12(const AdapterCreateDesc& adapterDesc, const Devi
 	m_adapter = m_factory->CreateAdapter(adapterDesc);
 
 	m_device = m_adapter->CreateDevice(deviceDesc);
+
+	m_allocator = std::make_shared<D3D12Allocator>(m_device, m_adapter);
 }
 
 void RHI::RHIContext::InitVulkan(const AdapterCreateDesc& adapterDesc, const DeviceCreateDesc& deviceDesc)
