@@ -6,7 +6,7 @@
 
 namespace RHI
 {
-	struct D3D12Allocator : IAllocator
+	struct D3D12Allocator : public IAllocator
 	{
 		D3D12Allocator(std::shared_ptr<IDevice>, std::shared_ptr<IAdapter>);
 

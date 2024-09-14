@@ -4,7 +4,7 @@
 
 namespace RHI
 {
-	struct D3D12Factory : IFactory
+	struct D3D12Factory : public IFactory
 	{
 		D3D12Factory();
 		~D3D12Factory();

@@ -6,7 +6,7 @@
 
 namespace RHI
 {
-	struct D3D12Device : IDevice
+	struct D3D12Device : public IDevice
 	{
 		D3D12Device();
 		D3D12Device(RscPtr<ID3D12Device> device) :  m_device(device) {}

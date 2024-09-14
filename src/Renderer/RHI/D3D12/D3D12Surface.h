@@ -4,7 +4,7 @@
 
 namespace RHI
 {
-	struct D3D12Surface : ISurface
+	struct D3D12Surface : public ISurface
 	{
 		D3D12Surface(const void* windowHandle, uint32_t width, uint32_t height)
 			: m_windowHandle(windowHandle), m_width(width), m_height(height) {}

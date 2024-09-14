@@ -110,7 +110,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <AdditionalBMIDirectories>%(AdditionalBMIDirectories)</AdditionalBMIDirectories>
-      <AdditionalIncludeDirectories>$(ProjectDir)vendor;$(ProjectDir)vendor\DirectXTK\Inc;$(ProjectDir)src\Core</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)vendor\D3D12MemoryAllocator\include;$(ProjectDir)vendor;$(ProjectDir)vendor\DirectXTK\Inc;$(ProjectDir)src\Core</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
@@ -154,13 +154,14 @@
     <ClCompile Include="src\Renderer\RHI\D3D12\D3D12Device.cpp" />
     <ClCompile Include="src\Renderer\RHI\D3D12\D3D12Factory.cpp" />
     <ClCompile Include="src\Renderer\RHI\Surface.cpp" />
-    <ClCompile Include="vendor\D3D12MemoryAllocator\include\D3D12MemAlloc.cpp">
+    <ClCompile Include="vendor\D3D12MemoryAllocator\src\D3D12MemAlloc.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClInclude Include="src\Renderer\RHI\Allocator.h" />
     <ClInclude Include="src\Renderer\RHI\CommandQueue.h" />
     <ClInclude Include="src\Renderer\RHI\D3D12\D3D12Allocator.h" />
     <ClInclude Include="src\Renderer\RHI\D3D12\D3D12CommandQueue.h" />
+    <ClInclude Include="src\Renderer\RHI\D3D12\D3D12DescriptorHeap.h" />
     <ClInclude Include="src\Renderer\RHI\D3D12\D3D12Factory.h" />
     <ClCompile Include="src\Renderer\RHI\D3D12\D3D12Swapchain.cpp" />
     <ClCompile Include="src\Renderer\RHI\RHIContext.cpp" />

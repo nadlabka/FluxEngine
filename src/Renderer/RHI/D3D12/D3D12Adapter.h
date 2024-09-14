@@ -5,7 +5,7 @@
 
 namespace RHI
 {
-	struct D3D12Adapter : IAdapter
+	struct D3D12Adapter : public IAdapter
 	{
 		D3D12Adapter();
 		D3D12Adapter(RscPtr<IDXGIAdapter1> adapter) : m_adapter(adapter) {}

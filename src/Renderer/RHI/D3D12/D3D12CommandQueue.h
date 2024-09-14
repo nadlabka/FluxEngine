@@ -4,7 +4,7 @@
 
 namespace RHI
 {
-	struct D3D12CommandQueue : ICommandQueue
+	struct D3D12CommandQueue : public ICommandQueue
 	{
 		D3D12CommandQueue();
 		D3D12CommandQueue(RscPtr<ID3D12CommandQueue> commandQueue) : m_commandQueue(commandQueue) {}
