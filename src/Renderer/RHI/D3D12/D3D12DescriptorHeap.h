@@ -4,9 +4,8 @@
 
 namespace RHI
 {
-	struct D3D12DescriptorHeap : DirectX::DescriptorHeap
+	struct D3D12DescriptorHeap : public IndicesRangeSolidVector, DirectX::DescriptorHeap
 	{
-
-		IndicesRangeSolidVector descriptorsIndicesRange;
+		D3D12DescriptorHeap() = default;
 	};
 }

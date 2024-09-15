@@ -69,6 +69,9 @@
     <ClCompile Include="vendor\D3D12MemoryAllocator\src\D3D12MemAlloc.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Renderer\RHI\D3D12\Managers\DescriptorHeapManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Core\stdafx.h">
@@ -162,6 +165,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Utils\DataStructures\IndicesRangeSolidVector.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Renderer\RHI\D3D12\Managers\DescriptorHeapManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Utils\DataStructures\SolidVector.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
