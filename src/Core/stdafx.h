@@ -10,7 +10,7 @@
 
 #include <windows.h>
 
-#pragma comment(lib, "DirectXTK.lib")
+
 #pragma comment(lib, "dxguid.lib") 
 #pragma comment(lib, "d3d12.lib")
 #pragma comment(lib, "dxgi.lib")
@@ -28,6 +28,6 @@
 #include <shellapi.h>
 #include <wrl.h>
 
-#include "../Utils/Math.h"
-#include "../Utils/RscPtr.h"
-#include "../Utils/DXSampleHelper.h"
+#include <Math.h>
+#include <RscPtr.h>
+#include <DXSampleHelper.h>

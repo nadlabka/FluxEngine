@@ -1,7 +1,7 @@
 #include <stdafx.h>
 #include "D3D12Factory.h"
 #include "D3D12Adapter.h"
-#include "../../../Utils/DXSampleHelper.h"
+#include <DXSampleHelper.h>
 #include "D3D12Swapchain.h"
 #include "D3D12Surface.h"
 #include "D3D12CommandQueue.h"

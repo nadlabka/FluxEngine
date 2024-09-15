@@ -14,5 +14,8 @@ std::shared_ptr<RHI::ISurface> RHI::ISurface::CreateSurfaceFromWindow(const WinW
     case ERHIRenderingAPI::eAPI_Vulkan:
         throw std::runtime_error("Vulkan API support is not implemented");
         break;
+    default:
+        throw std::runtime_error("Requested API support is not implemented");
+        break;
     }
 }

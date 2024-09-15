@@ -1,6 +1,6 @@
 #include <stdafx.h>
 #include "Renderer.h"
-#include "../Utils/DXSampleHelper.h"
+#include <DXSampleHelper.h>
 #include "../Application/WinAPI/WinApplication.h"
 #include "../Application/WinAPI/WinWindow.h"
 

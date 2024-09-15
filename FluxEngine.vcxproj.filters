@@ -98,7 +98,7 @@
     <ClInclude Include="src\Input\KeyboardManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Utils\Math.h">
+    <ClInclude Include="src\Utils\SimpleMath.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Utils\DXSampleHelper.h">
@@ -159,6 +159,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Renderer\RHI\D3D12\D3D12DescriptorHeap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Utils\DataStructures\IndicesRangeSolidVector.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

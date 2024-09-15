@@ -1,7 +1,7 @@
 #pragma once
 #include "../Input/KeyboardKey.h"
 #include <SimpleMath.h>
-#include "../Utils/RscPtr.h"
+#include <RscPtr.h>
 
 class FluxEngine
 {
