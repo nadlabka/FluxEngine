@@ -30,6 +30,8 @@ namespace RHI
 		void Init(ERHIRenderingAPI api, const AdapterCreateDesc& adapterDesc, const DeviceCreateDesc& deviceDesc);
 		ERHIRenderingAPI GetCurrentAPI() { return currentRHI; }
 
+		std::shared_ptr<IDevice> GetDevice() { return m_device; }
+
 	private:
 		RHIContext() : currentRHI(ERHIRenderingAPI::eAPI_None) {}
 

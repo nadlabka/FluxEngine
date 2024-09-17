@@ -1,5 +1,6 @@
 #pragma once
 #include <vector>
+#include <DebugMacros.h>
 
 struct IndicesRangeSolidVector
 {
@@ -12,13 +13,30 @@ struct IndicesRangeSolidVector
 	{
 		if (m_freeIndices.empty())
 		{
-			return ++m_maxIndexExisted;
+			ASSERT(m_maxIndexCreated + 1 > m_maxIndexLimit, "Indeces total count exceeded limit");
+			return ++m_maxIndexCreated;
 		}
 		size_t result = m_freeIndices.back();
 		m_freeIndices.pop_back();
 		return result;
 	}
 
+	size_t GetTotalSize()
+	{
+		return m_maxIndexCreated + 1;
+	}
+
+	size_t GetCurrentlyAllocatedIndicesNumber()
+	{
+		return GetTotalSize() - m_freeIndices.size();
+	}
+
+	void SetMaxIndexLimit(size_t value)
+	{
+		m_maxIndexLimit = value;
+	}
+
 	std::vector<size_t> m_freeIndices{};
-	size_t m_maxIndexExisted = -1;
+	size_t m_maxIndexCreated = -1;
+	size_t m_maxIndexLimit = ULLONG_MAX;
 };
