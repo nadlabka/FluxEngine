@@ -1,13 +1,15 @@
 #pragma once
+#include "Texture.h"
 
 namespace RHI
 {
 	struct ISwapchain
 	{
-		ISwapchain() = default;
-		ISwapchain(uint32_t framesCount) : m_framesCount(framesCount) {}
 		virtual ~ISwapchain() {}
 
-		uint32_t m_framesCount;
+		virtual void SetNextRenderTarget() = 0;
+		virtual void Resize(uint32_t width, uint32_t height) = 0;
+
+		virtual void Present() = 0;
 	};
 }

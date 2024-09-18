@@ -161,6 +161,7 @@
     </ClCompile>
     <ClInclude Include="src\Renderer\RHI\Allocator.h" />
     <ClInclude Include="src\Renderer\RHI\CommandQueue.h" />
+    <ClInclude Include="src\Renderer\RHI\D3D12\D3D12.h" />
     <ClInclude Include="src\Renderer\RHI\D3D12\D3D12Allocator.h" />
     <ClInclude Include="src\Renderer\RHI\D3D12\D3D12CommandQueue.h" />
     <ClInclude Include="src\Renderer\RHI\D3D12\D3D12DescriptorHeap.h" />
@@ -168,6 +169,8 @@
     <ClCompile Include="src\Renderer\RHI\D3D12\D3D12Swapchain.cpp" />
     <ClCompile Include="src\Renderer\RHI\RHIContext.cpp" />
     <ClInclude Include="src\Renderer\RHI\D3D12\Managers\DescriptorHeapManager.h" />
+    <ClInclude Include="src\Renderer\RHI\Texture.h" />
+    <ClInclude Include="src\Utils\D3D12Math.h" />
     <ClInclude Include="src\Utils\DataStructures\IndicesRangeSolidVector.h" />
     <ClInclude Include="src\Utils\DataStructures\SolidVector.h" />
     <ClInclude Include="src\Utils\DebugMacros.h" />
@@ -195,7 +198,6 @@
     <ClInclude Include="src\Renderer\RHI\Device.h" />
     <ClInclude Include="src\Renderer\RHI\RHIContext.h" />
     <ClInclude Include="src\Utils\DXSampleHelper.h" />
-    <ClInclude Include="src\Utils\SimpleMath.h" />
     <ClInclude Include="src\Utils\RscPtr.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -4,6 +4,16 @@
 
 namespace RHI
 {
+    struct ResourceDescriptorsIndices
+    {
+        constexpr static size_t invalid = ULLONG_MAX;
+
+        size_t uav_index;
+        size_t srv_index;
+        size_t m_rtv_index;
+        size_t m_dsv_index;
+    };
+
     class DescriptorHeapManager
     {
     public:

@@ -20,14 +20,14 @@
 #include <d3dx12.h>
 #include <dxgi1_6.h>
 #include <D3Dcompiler.h>
-#include <DirectXMath.h>
 
 #include <D3D12MemoryAllocator/include/D3D12MemAlloc.h>
 
 #include <string>
+#include <cstdint>
 #include <shellapi.h>
 #include <wrl.h>
 
-#include <Math.h>
 #include <RscPtr.h>
+#include <D3D12Math.h>
 #include <DXSampleHelper.h>
