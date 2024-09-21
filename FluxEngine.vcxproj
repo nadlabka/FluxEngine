@@ -154,6 +154,7 @@
     <ClCompile Include="src\Renderer\RHI\D3D12\D3D12DescriptorHeap.cpp" />
     <ClCompile Include="src\Renderer\RHI\D3D12\D3D12Device.cpp" />
     <ClCompile Include="src\Renderer\RHI\D3D12\D3D12Factory.cpp" />
+    <ClCompile Include="src\Renderer\RHI\D3D12\D3D12Texture.cpp" />
     <ClCompile Include="src\Renderer\RHI\D3D12\Managers\DescriptorHeapManager.cpp" />
     <ClCompile Include="src\Renderer\RHI\Surface.cpp" />
     <ClCompile Include="vendor\D3D12MemoryAllocator\src\D3D12MemAlloc.cpp">
@@ -161,7 +162,8 @@
     </ClCompile>
     <ClInclude Include="src\Renderer\RHI\Allocator.h" />
     <ClInclude Include="src\Renderer\RHI\CommandQueue.h" />
-    <ClInclude Include="src\Renderer\RHI\D3D12\D3D12.h" />
+    <ClInclude Include="src\Renderer\RHI\D3D12\D3D12StatefulResource.h" />
+    <ClInclude Include="src\Renderer\RHI\D3D12\D3D12Texture.h" />
     <ClInclude Include="src\Renderer\RHI\D3D12\D3D12Allocator.h" />
     <ClInclude Include="src\Renderer\RHI\D3D12\D3D12CommandQueue.h" />
     <ClInclude Include="src\Renderer\RHI\D3D12\D3D12DescriptorHeap.h" />

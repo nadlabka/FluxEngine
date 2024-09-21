@@ -103,33 +103,27 @@ std::shared_ptr<RHI::ISwapchain> RHI::D3D12Factory::CreateSwapchain(std::shared_
 {
     RscPtr<IDXGISwapChain1> swapchain;
 
-    auto d3d12Surface = dynamic_pointer_cast<D3D12Surface>(surface);
-    auto d3d12CommandQueue = dynamic_pointer_cast<D3D12CommandQueue>(commandQueue);
-    if (d3d12Surface && d3d12CommandQueue)
-    {
-        DXGI_SWAP_CHAIN_DESC1 swapChainDesc = {};
-        swapChainDesc.BufferCount = framesCount;
-        swapChainDesc.Width = d3d12Surface->m_width;
-        swapChainDesc.Height = d3d12Surface->m_height;
-        swapChainDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-        swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-        swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
-        swapChainDesc.SampleDesc.Count = 1;
+    auto d3d12Surface = static_pointer_cast<D3D12Surface>(surface);
+    auto d3d12CommandQueue = static_pointer_cast<D3D12CommandQueue>(commandQueue);
 
-        RscPtr<IDXGISwapChain1> swapChain;
-        ThrowIfFailed(m_factory->CreateSwapChainForHwnd(
-            d3d12CommandQueue->m_commandQueue.ptr(),        // Swap chain needs the queue so that it can force a flush on it.
-            (HWND)d3d12Surface->m_windowHandle,
-            &swapChainDesc,
-            nullptr,
-            nullptr,
-            &swapChain
-        ));
+    DXGI_SWAP_CHAIN_DESC1 swapChainDesc = {};
+    swapChainDesc.BufferCount = framesCount;
+    swapChainDesc.Width = d3d12Surface->m_width;
+    swapChainDesc.Height = d3d12Surface->m_height;
+    swapChainDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+    swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+    swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
+    swapChainDesc.SampleDesc.Count = 1;
 
-        return std::make_shared<D3D12Swapchain>(swapchain, framesCount);
-    }
-    else
-    {
-        throw std::runtime_error("API mismatch between surface and swapchain");
-    }
+    RscPtr<IDXGISwapChain1> swapChain;
+    ThrowIfFailed(m_factory->CreateSwapChainForHwnd(
+        d3d12CommandQueue->m_commandQueue.ptr(),        // Swap chain needs the queue so that it can force a flush on it.
+        (HWND)d3d12Surface->m_windowHandle,
+        &swapChainDesc,
+        nullptr,
+        nullptr,
+        &swapChain
+    ));
+
+    return std::make_shared<D3D12Swapchain>(swapchain, framesCount);
 }

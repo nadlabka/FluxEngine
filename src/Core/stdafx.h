@@ -24,6 +24,8 @@
 #include <D3D12MemoryAllocator/include/D3D12MemAlloc.h>
 
 #include <string>
+#include <vector>
+#include <array>
 #include <cstdint>
 #include <shellapi.h>
 #include <wrl.h>

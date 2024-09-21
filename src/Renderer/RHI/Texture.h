@@ -69,13 +69,13 @@ namespace RHI
 		eTextureType_TextureCubemap
 	};
 
-	enum class PostInitOp : uint8_t
+	enum class ReInitOp : uint8_t
 	{
 		ePostInitOp_Clear,
 		ePostInitOp_Discard
 	};
 
-	struct TexturePropertiesDesc
+	struct TextureDesc
 	{
 		TextureUsage usage;
 		TextureAspect aspect;
@@ -85,13 +85,13 @@ namespace RHI
 		uint32_t width = 0, height = 0, depth = 1;
 		uint32_t mipLevels = 1;
 		uint32_t arrayLayers = 1;
-		Vector4 clearValue{ 0, 0, 0, 0 };
 	};
 
 	struct ITexture
 	{
-		TexturePropertiesDesc textureProperties;
-
 		virtual ~ITexture() {}
+
+		virtual void SetClearColor(const std::array<float, 4>& clearColor) = 0;
+		virtual void SetClearValue(float clearValueDepth, uint8_t clearValueStencil) = 0;
 	};
 }

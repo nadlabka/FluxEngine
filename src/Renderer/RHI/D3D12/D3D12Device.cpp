@@ -1,6 +1,7 @@
 #include <stdafx.h>
 #include "D3D12Device.h"
 #include "D3D12CommandQueue.h"
+#include "D3D12Texture.h"
 
 RHI::D3D12Device::D3D12Device()
 {

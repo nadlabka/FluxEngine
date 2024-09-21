@@ -43,6 +43,7 @@ namespace RHI
 		std::shared_ptr<IFactory> m_factory;
 		std::shared_ptr<IAdapter> m_adapter;
 		std::shared_ptr<IDevice> m_device;
+		std::shared_ptr<IDevice> m_swapchain;
 		std::shared_ptr<IAllocator> m_allocator;
 	};
 }

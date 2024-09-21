@@ -75,6 +75,9 @@
     <ClCompile Include="src\Renderer\RHI\D3D12\D3D12DescriptorHeap.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Renderer\RHI\D3D12\D3D12Texture.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Core\stdafx.h">
@@ -179,10 +182,13 @@
     <ClInclude Include="src\Renderer\RHI\Texture.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Renderer\RHI\D3D12\D3D12.h">
+    <ClInclude Include="src\Renderer\RHI\D3D12\D3D12Texture.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Utils\D3D12Math.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Renderer\RHI\D3D12\D3D12StatefulResource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

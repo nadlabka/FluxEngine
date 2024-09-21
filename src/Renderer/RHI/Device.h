@@ -1,5 +1,6 @@
 #pragma once
 #include "CommandQueue.h"
+#include "Texture.h"
 
 namespace RHI
 {
