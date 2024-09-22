@@ -155,7 +155,7 @@
     <ClCompile Include="src\Renderer\RHI\D3D12\D3D12Device.cpp" />
     <ClCompile Include="src\Renderer\RHI\D3D12\D3D12Factory.cpp" />
     <ClCompile Include="src\Renderer\RHI\D3D12\D3D12Texture.cpp" />
-    <ClCompile Include="src\Renderer\RHI\D3D12\Managers\DescriptorHeapManager.cpp" />
+    <ClCompile Include="src\Renderer\RHI\D3D12\Managers\DescriptorHeapsManager.cpp" />
     <ClCompile Include="src\Renderer\RHI\Surface.cpp" />
     <ClCompile Include="vendor\D3D12MemoryAllocator\src\D3D12MemAlloc.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
@@ -170,7 +170,7 @@
     <ClInclude Include="src\Renderer\RHI\D3D12\D3D12Factory.h" />
     <ClCompile Include="src\Renderer\RHI\D3D12\D3D12Swapchain.cpp" />
     <ClCompile Include="src\Renderer\RHI\RHIContext.cpp" />
-    <ClInclude Include="src\Renderer\RHI\D3D12\Managers\DescriptorHeapManager.h" />
+    <ClInclude Include="src\Renderer\RHI\D3D12\Managers\DescriptorHeapsManager.h" />
     <ClInclude Include="src\Renderer\RHI\Texture.h" />
     <ClInclude Include="src\Utils\D3D12Math.h" />
     <ClInclude Include="src\Utils\DataStructures\IndicesRangeSolidVector.h" />

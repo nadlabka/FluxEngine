@@ -125,5 +125,7 @@ std::shared_ptr<RHI::ISwapchain> RHI::D3D12Factory::CreateSwapchain(std::shared_
         &swapChain
     ));
 
-    return std::make_shared<D3D12Swapchain>(swapchain, framesCount);
+    auto resultSwapchain = std::make_shared<D3D12Swapchain>(swapchain, framesCount);
+    resultSwapchain->UpdateDescriptors();
+    return resultSwapchain;
 }

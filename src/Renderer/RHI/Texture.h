@@ -65,8 +65,13 @@ namespace RHI
 
 	enum class TextureType : uint8_t 
 	{
+		eTextureType_Texture1D,
+		eTextureType_Texture1DArray,
 		eTextureType_Texture2D,
-		eTextureType_TextureCubemap
+		eTextureType_Texture2DArray,
+		eTextureType_Texture3D,
+		eTextureType_TextureCubemap,
+		eTextureType_TextureCubemapArray
 	};
 
 	enum class ReInitOp : uint8_t
@@ -85,13 +90,13 @@ namespace RHI
 		uint32_t width = 0, height = 0, depth = 1;
 		uint32_t mipLevels = 1;
 		uint32_t arrayLayers = 1;
+		std::array<float, 4> clearColor {0.0f, 0.0f, 0.0f, 0.0f};
+		float clearDepthValue = 0.0f;
+		uint8_t clearStencilValue = 0u;
 	};
 
 	struct ITexture
 	{
 		virtual ~ITexture() {}
-
-		virtual void SetClearColor(const std::array<float, 4>& clearColor) = 0;
-		virtual void SetClearValue(float clearValueDepth, uint8_t clearValueStencil) = 0;
 	};
 }

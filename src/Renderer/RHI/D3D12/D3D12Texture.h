@@ -1,38 +1,45 @@
 #pragma once
 #include "../Texture.h"
 #include "D3D12StatefulResource.h"
-#include "Managers/DescriptorHeapManager.h"
+#include "Managers/DescriptorHeapsManager.h"
+
+class D3D12MA::Allocation;
 
 namespace RHI
 {
     DXGI_FORMAT ConvertFormatToD3D12(TextureFormat format);
     DXGI_FORMAT GetTyplessVersionOfFormat(DXGI_FORMAT format);
-	D3D12_RESOURCE_DIMENSION ConvertTextureTypeToD3D12(TextureType type);
+	D3D12_RESOURCE_DIMENSION ConvertTextureTypeToResourceDimension(TextureType type);
+	D3D12_SRV_DIMENSION  ConvertTextureTypeToSRVDimension(TextureType type);
+    D3D12_RESOURCE_STATES ConvertTextureLayoutToResourceState(TextureLayout layout);
 	
-
-	struct TextureAccessInfo
+	struct TextureDimensionsInfo
 	{
-		uint32_t m_width;
-		uint32_t m_height;
-		uint32_t m_depth;
-		uint32_t m_mipLevels;
-		uint32_t m_arrayLayers;
-
-		DXGI_FORMAT m_format;
-		D3D12_RESOURCE_DIMENSION m_dimensions;
+		uint32_t m_width = 0;
+		uint32_t m_height = 0;
+		uint32_t m_depth = 1;
+		uint32_t m_mipLevels = 1;
+		uint32_t m_arrayLayers = 1;
 	};
 
 	struct D3D12Texture : public ITexture, public D3D12StatefulResource
 	{
 		D3D12Texture() = default;
-		D3D12Texture(const TextureAccessInfo& accessInfo, const ResourceDescriptorsIndices& descriptorsIndices, RscPtr<ID3D12Resource> texture);
+		D3D12Texture(const TextureDimensionsInfo& dimensionsInfo, RscPtr<ID3D12Resource> texture, RscPtr<D3D12MA::Allocation> allocation, D3D12_RESOURCE_STATES resourceState);
+		D3D12Texture(const TextureDimensionsInfo& dimensionsInfo, RscPtr<ID3D12Resource> texture, D3D12_RESOURCE_STATES resourceState);
 
-		void SetClearColor(const std::array<float, 4>& clearColor);
-		void SetClearValue(float clearValueDepth, uint8_t clearValueStencil);
+		void AllocateDescriptorsInHeaps(const TextureDesc& desc);
 
-		TextureAccessInfo m_accessInfo;
-		D3D12_CLEAR_VALUE m_clearValue;
-		ResourceDescriptorsIndices m_descriptorsIndices;
+		TextureDimensionsInfo m_dimensionsInfo;
+
+		static constexpr size_t INDEX_INVALID = ULLONG_MAX;
+
+		std::vector<size_t> m_UAVDescriptorsIndices;
+		std::vector<size_t> m_SRVDescriptorsIndices;
+		std::vector<size_t> m_RTVDescriptorsIndices;
+		size_t m_DSVDescriptorIndex = INDEX_INVALID;
+
 		RscPtr<ID3D12Resource> m_texture;
+		RscPtr<D3D12MA::Allocation> m_allocation;
 	};
 }

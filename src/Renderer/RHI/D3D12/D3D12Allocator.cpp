@@ -21,21 +21,19 @@ RHI::D3D12Allocator::D3D12Allocator(std::shared_ptr<IDevice> device, std::shared
 
 std::shared_ptr<RHI::ITexture> RHI::D3D12Allocator::CreateTexture(const TextureDesc& desc) const
 {
-	auto format = convertFormatToD3D12(desc.format);
+	auto format = ConvertFormatToD3D12(desc.format);
 	auto mainResourceFormat = format;
 
 	const bool isDS = ((desc.aspect & eTextureAspect_HasDepth) ||
 						desc.aspect & eTextureAspect_HasStencil);
 
-	// we cannot sample depth textures directly
-	// instead, we have to create this resource as Typeless, and then cast it to compatbile
-	// formats for the SRVs
-	if (isDS && (desc.usage & eTextureUsage_Sampled)) {
+	if (isDS && (desc.usage & eTextureUsage_Sampled)) 
+	{
 		mainResourceFormat = GetTyplessVersionOfFormat(format);
 	}
 
 	D3D12_RESOURCE_DESC resourceDesc = {};
-	resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+	resourceDesc.Dimension = ConvertTextureTypeToResourceDimension(desc.type);
 	resourceDesc.Alignment = 0;
 	resourceDesc.Width = desc.width;
 	resourceDesc.Height = desc.height;
@@ -47,55 +45,45 @@ std::shared_ptr<RHI::ITexture> RHI::D3D12Allocator::CreateTexture(const TextureD
 	resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
 	resourceDesc.Flags = (desc.usage & eTextureUsage_Storage) ? D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS : D3D12_RESOURCE_FLAG_NONE;
 
-	m_mipLevels = desc.mipLevels;
-	numLayers = config.arrayLayers;
-
-
-	D3D12_CLEAR_VALUE optimizedClearValue = {
-		.Format = format,
+	D3D12_CLEAR_VALUE optimizedClearValue
+	{
+		.Format = format
 	};
 
-	nativeState = D3D12_RESOURCE_STATE_COMMON;
-	if (isDS) {
+	D3D12_RESOURCE_STATES initialState = D3D12_RESOURCE_STATE_COMMON;
+	if (isDS)
+	{
 		resourceDesc.Flags |= D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
-		optimizedClearValue.DepthStencil = { config.optimizedClearValue[0], 0 };
-		if (!config.usage.Sampled) {
-			nativeState |= D3D12_RESOURCE_STATE_DEPTH_WRITE;
-		}
+		optimizedClearValue.DepthStencil = { desc.clearDepthValue , desc.clearStencilValue };
 	}
-
-	if (config.usage.ColorAttachment) {
+	else  if (desc.usage & eTextureUsage_ColorAttachment)
+	{
 		resourceDesc.Flags |= D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
-		std::fill(optimizedClearValue.Color, optimizedClearValue.Color + std::size(optimizedClearValue.Color), 0);
-		//nativeState |= D3D12_RESOURCE_STATE_RENDER_TARGET;
+		std::copy(desc.clearColor.begin(), desc.clearColor.end(), optimizedClearValue.Color);
 	}
 
+	initialState = ConvertTextureLayoutToResourceState(desc.layout);
+
+	RscPtr<D3D12MA::Allocation> allocation;
+	RscPtr<ID3D12Resource> texture;
 
 	D3D12MA::ALLOCATION_DESC allocDesc = {};
 	allocDesc.HeapType = D3D12_HEAP_TYPE_DEFAULT;
 
-	// allocate the resource
-
-	if (nativeState == D3D12_RESOURCE_STATE_COMMON) {
-		nativeState = D3D12_RESOURCE_STATE_GENERIC_READ;
-	}
-
-	HRESULT hr = owningDevice->allocator->CreateResource(
+	HRESULT hr = m_allocator->CreateResource(
 		&allocDesc, &resourceDesc,
-		nativeState, (resourceDesc.Flags & D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL || resourceDesc.Flags & D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET) ? &optimizedClearValue : nullptr,
+		initialState, (resourceDesc.Flags & D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL || resourceDesc.Flags & D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET) ? &optimizedClearValue : nullptr,
 		&allocation, IID_PPV_ARGS(&texture));
 
-	std::wstring wide;
-	wide.resize(config.debugName.data() == nullptr ? 0 : config.debugName.length());
-	MultiByteToWideChar(CP_UTF8, 0, config.debugName.data(), -1, wide.data(), wide.size());
-	texture->SetName(wide.data());
+	TextureDimensionsInfo textureDimensions;
+	textureDimensions.m_arrayLayers = desc.arrayLayers;
+	textureDimensions.m_depth = desc.depth;
+	textureDimensions.m_height = desc.height;
+	textureDimensions.m_width = desc.width;
+	textureDimensions.m_mipLevels = desc.mipLevels;
 
-	if (config.debugName.data() != nullptr) {
-		debugName = config.debugName;
-	}
+	auto resultTexture = std::make_shared<D3D12Texture>(textureDimensions, texture, allocation, initialState);
+	resultTexture->AllocateDescriptorsInHeaps(desc);
 
-	// add the resource to the appropriate heaps
-	PlaceInHeaps(owningDevice, format, config);
-
-	return std::shared_ptr<ITexture>();
+	return resultTexture;
 }
