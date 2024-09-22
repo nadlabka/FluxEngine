@@ -16,6 +16,28 @@ RHI::D3D12Texture::D3D12Texture(const TextureDimensionsInfo& dimensionsInfo, Rsc
 
 }
 
+RHI::D3D12Texture::~D3D12Texture()
+{
+	auto& descHeapsMgr = DescriptorHeapsManager::GetInstance();
+	auto rtv_heap = descHeapsMgr.GetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+	auto dsv_heap = descHeapsMgr.GetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
+	auto cbv_srv_uav_heap = descHeapsMgr.GetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+
+	for (auto& idx : m_UAVDescriptorsIndices)
+	{
+		cbv_srv_uav_heap->EraseIndex(idx);
+	}
+	for (auto& idx : m_SRVDescriptorsIndices)
+	{
+		cbv_srv_uav_heap->EraseIndex(idx);
+	}
+	for (auto& idx : m_RTVDescriptorsIndices)
+	{
+		rtv_heap->EraseIndex(idx);
+	}
+	dsv_heap->EraseIndex(m_DSVDescriptorIndex);
+}
+
 void RHI::D3D12Texture::AllocateDescriptorsInHeaps(const TextureDesc& desc)
 {
 	auto& rhiContext = RHIContext::GetInstance();

@@ -27,6 +27,7 @@ namespace RHI
 		D3D12Texture() = default;
 		D3D12Texture(const TextureDimensionsInfo& dimensionsInfo, RscPtr<ID3D12Resource> texture, RscPtr<D3D12MA::Allocation> allocation, D3D12_RESOURCE_STATES resourceState);
 		D3D12Texture(const TextureDimensionsInfo& dimensionsInfo, RscPtr<ID3D12Resource> texture, D3D12_RESOURCE_STATES resourceState);
+		~D3D12Texture();
 
 		void AllocateDescriptorsInHeaps(const TextureDesc& desc);
 
