@@ -129,21 +129,21 @@ DXGI_FORMAT RHI::ConvertFormatToD3D12(TextureFormat format)
 {
     switch (format)
     {
-    case TextureFormat::eTextureFormat_BGRA8_UNORM:  return DXGI_FORMAT_B8G8R8A8_UNORM;
-    case TextureFormat::eTextureFormat_RGBA8_UNORM:  return DXGI_FORMAT_R8G8B8A8_UNORM;
-    case TextureFormat::eTextureFormat_RGBA8_UINT:  return DXGI_FORMAT_R8G8B8A8_UINT;
+    case TextureFormat::BGRA8_UNORM:  return DXGI_FORMAT_B8G8R8A8_UNORM;
+    case TextureFormat::RGBA8_UNORM:  return DXGI_FORMAT_R8G8B8A8_UNORM;
+    case TextureFormat::RGBA8_UINT:  return DXGI_FORMAT_R8G8B8A8_UINT;
 
-    case TextureFormat::eTextureFormat_RGBA16_UNORM:  return DXGI_FORMAT_R16G16B16A16_UNORM;
-    case TextureFormat::eTextureFormat_RGBA16_SNORM:  return DXGI_FORMAT_R16G16B16A16_SNORM;
+    case TextureFormat::RGBA16_UNORM:  return DXGI_FORMAT_R16G16B16A16_UNORM;
+    case TextureFormat::RGBA16_SNORM:  return DXGI_FORMAT_R16G16B16A16_SNORM;
 
-    case TextureFormat::eTextureFormat_RGBA16_FLOAT:  return DXGI_FORMAT_R16G16B16A16_FLOAT;
-    case TextureFormat::eTextureFormat_RGBA32_FLOAT:  return DXGI_FORMAT_R32G32B32A32_FLOAT;
+    case TextureFormat::RGBA16_FLOAT:  return DXGI_FORMAT_R16G16B16A16_FLOAT;
+    case TextureFormat::RGBA32_FLOAT:  return DXGI_FORMAT_R32G32B32A32_FLOAT;
 
-    case TextureFormat::eTextureFormat_R32_UINT:  return DXGI_FORMAT_R32_UINT;
-    case TextureFormat::eTextureFormat_R32_FLOAT: return DXGI_FORMAT_R32_FLOAT;
+    case TextureFormat::R32_UINT:  return DXGI_FORMAT_R32_UINT;
+    case TextureFormat::R32_FLOAT: return DXGI_FORMAT_R32_FLOAT;
 
-    case TextureFormat::eTextureFormat_D32_FLOAT:  return DXGI_FORMAT_D32_FLOAT;
-    case TextureFormat::eTextureFormat_D24_UNORM_S8_UINT:  return DXGI_FORMAT_D24_UNORM_S8_UINT;
+    case TextureFormat::D32_FLOAT:  return DXGI_FORMAT_D32_FLOAT;
+    case TextureFormat::D24_UNORM_S8_UINT:  return DXGI_FORMAT_D24_UNORM_S8_UINT;
 
     case TextureFormat::Undefined:  return DXGI_FORMAT_UNKNOWN;
 
@@ -190,17 +190,17 @@ D3D12_RESOURCE_DIMENSION RHI::ConvertTextureTypeToResourceDimension(TextureType 
 {
 	switch (type)
 	{
-	case TextureType::eTextureType_Texture1D:
-	case TextureType::eTextureType_Texture1DArray:
+	case TextureType::Texture1D:
+	case TextureType::Texture1DArray:
 		return D3D12_RESOURCE_DIMENSION_TEXTURE1D;
 
-	case TextureType::eTextureType_Texture2D:
-	case TextureType::eTextureType_Texture2DArray:
-	case TextureType::eTextureType_TextureCubemap:
-	case TextureType::eTextureType_TextureCubemapArray:
+	case TextureType::Texture2D:
+	case TextureType::Texture2DArray:
+	case TextureType::TextureCubemap:
+	case TextureType::TextureCubemapArray:
 		return D3D12_RESOURCE_DIMENSION_TEXTURE2D;
 
-	case TextureType::eTextureType_Texture3D:
+	case TextureType::Texture3D:
 		return D3D12_RESOURCE_DIMENSION_TEXTURE3D;
 
 	default:
@@ -212,25 +212,25 @@ D3D12_SRV_DIMENSION RHI::ConvertTextureTypeToSRVDimension(TextureType type)
 {
 	switch (type)
 	{
-	case TextureType::eTextureType_Texture1D:
+	case TextureType::Texture1D:
 		return D3D12_SRV_DIMENSION_TEXTURE1D;
 
-	case TextureType::eTextureType_Texture1DArray:
+	case TextureType::Texture1DArray:
 		return D3D12_SRV_DIMENSION_TEXTURE1DARRAY;
 
-	case TextureType::eTextureType_Texture2D:
+	case TextureType::Texture2D:
 		return D3D12_SRV_DIMENSION_TEXTURE2D;
 
-	case TextureType::eTextureType_Texture2DArray:
+	case TextureType::Texture2DArray:
 		return D3D12_SRV_DIMENSION_TEXTURE2DARRAY;
 
-	case TextureType::eTextureType_TextureCubemap:
+	case TextureType::TextureCubemap:
 		return D3D12_SRV_DIMENSION_TEXTURECUBE;
 
-	case TextureType::eTextureType_TextureCubemapArray:
+	case TextureType::TextureCubemapArray:
 		return D3D12_SRV_DIMENSION_TEXTURECUBEARRAY;
 
-	case TextureType::eTextureType_Texture3D:
+	case TextureType::Texture3D:
 		return D3D12_SRV_DIMENSION_TEXTURE3D;
 
 	default:

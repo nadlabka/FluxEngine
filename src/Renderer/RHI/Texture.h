@@ -48,36 +48,36 @@ namespace RHI
 	enum class TextureFormat : uint8_t
 	{
 		Undefined,
-		eTextureFormat_BGRA8_UNORM,
-		eTextureFormat_RGBA8_UINT,
-		eTextureFormat_RGBA8_UNORM,
-		eTextureFormat_RGBA16_UNORM,
-		eTextureFormat_RGBA16_SNORM,
-		eTextureFormat_RGBA16_FLOAT,
-		eTextureFormat_RGBA32_FLOAT,
+		BGRA8_UNORM,
+		RGBA8_UINT,
+		RGBA8_UNORM,
+		RGBA16_UNORM,
+		RGBA16_SNORM,
+		RGBA16_FLOAT,
+		RGBA32_FLOAT,
 
-		eTextureFormat_R32_UINT,
-		eTextureFormat_R32_FLOAT,
+		R32_UINT,
+		R32_FLOAT,
 
-		eTextureFormat_D32_FLOAT,
-		eTextureFormat_D24_UNORM_S8_UINT
+		D32_FLOAT,
+		D24_UNORM_S8_UINT
 	};
 
 	enum class TextureType : uint8_t 
 	{
-		eTextureType_Texture1D,
-		eTextureType_Texture1DArray,
-		eTextureType_Texture2D,
-		eTextureType_Texture2DArray,
-		eTextureType_Texture3D,
-		eTextureType_TextureCubemap,
-		eTextureType_TextureCubemapArray
+		Texture1D,
+		Texture1DArray,
+		Texture2D,
+		Texture2DArray,
+		Texture3D,
+		TextureCubemap,
+		TextureCubemapArray
 	};
 
 	enum class ReInitOp : uint8_t
 	{
-		ePostInitOp_Clear,
-		ePostInitOp_Discard
+		Clear,
+		Discard
 	};
 
 	struct TextureDesc

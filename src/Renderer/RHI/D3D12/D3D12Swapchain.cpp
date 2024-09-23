@@ -44,8 +44,8 @@ void RHI::D3D12Swapchain::UpdateDescriptors()
         TextureDesc textureDescForIndicesGen;
         textureDescForIndicesGen.usage = eTextureUsage_ColorAttachment;
         textureDescForIndicesGen.aspect = eTextureAspect_HasColor;
-        textureDescForIndicesGen.format = TextureFormat::eTextureFormat_BGRA8_UNORM;
-        textureDescForIndicesGen.type = TextureType::eTextureType_Texture2D;
+        textureDescForIndicesGen.format = TextureFormat::BGRA8_UNORM;
+        textureDescForIndicesGen.type = TextureType::Texture2D;
         textureDescForIndicesGen.layout = TextureLayout::Present;
         textureDescForIndicesGen.width = dimensions.m_width;
         textureDescForIndicesGen.height = dimensions.m_height;
