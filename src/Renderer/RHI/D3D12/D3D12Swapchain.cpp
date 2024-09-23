@@ -17,12 +17,6 @@ RHI::D3D12Swapchain::~D3D12Swapchain()
 
 void RHI::D3D12Swapchain::UpdateDescriptors()
 {
-	auto& rhiContext = RHIContext::GetInstance();
-	auto d3d12device = std::static_pointer_cast<D3D12Device>(rhiContext.GetDevice());
-
-    auto& descHeapsMgr = DescriptorHeapsManager::GetInstance();
-    auto rtv_heap = descHeapsMgr.GetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
-
 	DXGI_SWAP_CHAIN_DESC1 desc;
 	m_swapchain->GetDesc1(&desc);
 
@@ -30,8 +24,6 @@ void RHI::D3D12Swapchain::UpdateDescriptors()
 
     for (uint32_t i = 0; i < m_framesCount; ++i)
     {
-        auto rtvIndex = rtv_heap->AllocateIndex();
-
         RscPtr<ID3D12Resource> backBuffer;
         ThrowIfFailed(m_swapchain->GetBuffer(i, IID_PPV_ARGS(&backBuffer)));
 
@@ -59,12 +51,46 @@ void RHI::D3D12Swapchain::UpdateDescriptors()
 
 void RHI::D3D12Swapchain::SetNextRenderTarget()
 {
+
 }
 
 void RHI::D3D12Swapchain::Resize(uint32_t width, uint32_t height)
 {
+    m_backbufferTextures.clear();
+
+    DXGI_SWAP_CHAIN_DESC swapChainDesc = {};
+    ThrowIfFailed(m_swapchain->GetDesc(&swapChainDesc));
+    ThrowIfFailed(m_swapchain->ResizeBuffers(m_framesCount, width, height,
+        swapChainDesc.BufferDesc.Format, swapChainDesc.Flags));
+
+    for (uint32_t i = 0; i < m_framesCount; ++i)
+    {
+        RscPtr<ID3D12Resource> backBuffer;
+        ThrowIfFailed(m_swapchain->GetBuffer(i, IID_PPV_ARGS(&backBuffer)));
+
+        TextureDimensionsInfo dimensions;
+        dimensions.m_width = width;
+        dimensions.m_height = height;
+
+        auto& emplacedTexture = m_backbufferTextures.emplace_back(dimensions, backBuffer, D3D12_RESOURCE_STATE_PRESENT);
+
+        TextureDesc textureDescForIndicesGen;
+        textureDescForIndicesGen.usage = eTextureUsage_ColorAttachment;
+        textureDescForIndicesGen.aspect = eTextureAspect_HasColor;
+        textureDescForIndicesGen.format = TextureFormat::BGRA8_UNORM;
+        textureDescForIndicesGen.type = TextureType::Texture2D;
+        textureDescForIndicesGen.layout = TextureLayout::Present;
+        textureDescForIndicesGen.width = dimensions.m_width;
+        textureDescForIndicesGen.height = dimensions.m_height;
+        textureDescForIndicesGen.depth = 1;
+        textureDescForIndicesGen.mipLevels = 1;
+        textureDescForIndicesGen.arrayLayers = 1;
+
+        emplacedTexture.AllocateDescriptorsInHeaps(textureDescForIndicesGen);
+    }
 }
 
 void RHI::D3D12Swapchain::Present()
 {
+    m_swapchain->Present(1, 0);
 }

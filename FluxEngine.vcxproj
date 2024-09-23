@@ -161,6 +161,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClInclude Include="src\Renderer\RHI\Allocator.h" />
+    <ClInclude Include="src\Renderer\RHI\CommandBuffer.h" />
     <ClInclude Include="src\Renderer\RHI\CommandQueue.h" />
     <ClInclude Include="src\Renderer\RHI\D3D12\D3D12StatefulResource.h" />
     <ClInclude Include="src\Renderer\RHI\D3D12\D3D12Texture.h" />

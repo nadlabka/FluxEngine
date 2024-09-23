@@ -191,5 +191,8 @@
     <ClInclude Include="src\Renderer\RHI\D3D12\D3D12StatefulResource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\Renderer\RHI\CommandBuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
