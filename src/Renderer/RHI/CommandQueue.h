@@ -5,11 +5,13 @@ namespace RHI
 {
 	enum class QueueType 
 	{
-		eQueueType_AllCommands, eQueueType_CopyOnly, eQueueType_ComputeOnly
+		AllCommands, CopyOnly, ComputeOnly
 	};
 
 	struct ICommandQueue
 	{
 		virtual ~ICommandQueue() {};
+
+		virtual void WaitUntilCompleted() = 0;
 	};
 }

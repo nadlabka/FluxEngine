@@ -10,7 +10,7 @@ RHI::D3D12Adapter::~D3D12Adapter()
 {
 }
 
-std::shared_ptr<RHI::IDevice> RHI::D3D12Adapter::CreateDevice(RHI::DeviceCreateDesc deviceDesc) const
+std::shared_ptr<RHI::IDevice> RHI::D3D12Adapter::CreateDevice(const DeviceCreateDesc& deviceDesc) const
 {
     RscPtr<ID3D12Device> device;
     ThrowIfFailed(D3D12CreateDevice(

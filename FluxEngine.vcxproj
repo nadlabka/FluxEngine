@@ -150,6 +150,7 @@
     <ClCompile Include="src\Renderer\Renderer.cpp" />
     <ClCompile Include="src\Renderer\RHI\D3D12\D3D12Adapter.cpp" />
     <ClCompile Include="src\Renderer\RHI\D3D12\D3D12Allocator.cpp" />
+    <ClCompile Include="src\Renderer\RHI\D3D12\D3D12CommandBuffer.cpp" />
     <ClCompile Include="src\Renderer\RHI\D3D12\D3D12CommandQueue.cpp" />
     <ClCompile Include="src\Renderer\RHI\D3D12\D3D12DescriptorHeap.cpp" />
     <ClCompile Include="src\Renderer\RHI\D3D12\D3D12Device.cpp" />
@@ -163,6 +164,7 @@
     <ClInclude Include="src\Renderer\RHI\Allocator.h" />
     <ClInclude Include="src\Renderer\RHI\CommandBuffer.h" />
     <ClInclude Include="src\Renderer\RHI\CommandQueue.h" />
+    <ClInclude Include="src\Renderer\RHI\D3D12\D3D12CommandBuffer.h" />
     <ClInclude Include="src\Renderer\RHI\D3D12\D3D12StatefulResource.h" />
     <ClInclude Include="src\Renderer\RHI\D3D12\D3D12Texture.h" />
     <ClInclude Include="src\Renderer\RHI\D3D12\D3D12Allocator.h" />
@@ -172,6 +174,8 @@
     <ClCompile Include="src\Renderer\RHI\D3D12\D3D12Swapchain.cpp" />
     <ClCompile Include="src\Renderer\RHI\RHIContext.cpp" />
     <ClInclude Include="src\Renderer\RHI\D3D12\Managers\DescriptorHeapsManager.h" />
+    <ClInclude Include="src\Renderer\RHI\RenderPass.h" />
+    <ClInclude Include="src\Renderer\RHI\RenderPipeline.h" />
     <ClInclude Include="src\Renderer\RHI\Texture.h" />
     <ClInclude Include="src\Utils\D3D12Math.h" />
     <ClInclude Include="src\Utils\DataStructures\IndicesRangeSolidVector.h" />

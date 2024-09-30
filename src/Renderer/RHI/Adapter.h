@@ -13,6 +13,6 @@ namespace RHI
 	{
 		virtual ~IAdapter() {}
 
-		virtual std::shared_ptr<IDevice> CreateDevice(DeviceCreateDesc deviceDesc) const = 0;
+		virtual std::shared_ptr<IDevice> CreateDevice(const DeviceCreateDesc& deviceDesc) const = 0;
 	};
 }

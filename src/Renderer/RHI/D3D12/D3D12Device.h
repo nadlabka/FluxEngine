@@ -13,6 +13,7 @@ namespace RHI
 		~D3D12Device();
 
 		std::shared_ptr<ICommandQueue> CreateCommandQueue(QueueType queueType) const;
+		std::shared_ptr<ICommandBuffer> CreateCommandBuffer(QueueType bufferSubmitQueueType) const;
 
 		RscPtr<ID3D12Device> m_device;
 	};

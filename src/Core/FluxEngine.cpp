@@ -38,8 +38,6 @@ void FluxEngine::Destroy()
     auto& renderer = Renderer::GetInstance();
     // Ensure that the GPU is no longer referencing resources that are about to be
     // cleaned up by the destructor.
-    // Ensure that the GPU is no longer referencing resources that are about to be
-    // cleaned up by the destructor.
     renderer.WaitForGpu();
 
     CloseHandle(renderer.m_fenceEvent);

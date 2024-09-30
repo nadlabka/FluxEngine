@@ -51,7 +51,7 @@ void RHI::D3D12Swapchain::UpdateDescriptors()
 
 void RHI::D3D12Swapchain::SetNextRenderTarget()
 {
-
+     
 }
 
 void RHI::D3D12Swapchain::Resize(uint32_t width, uint32_t height)
