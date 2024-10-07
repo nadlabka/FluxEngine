@@ -162,9 +162,13 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClInclude Include="src\Renderer\RHI\Allocator.h" />
+    <ClInclude Include="src\Renderer\RHI\Buffer.h" />
     <ClInclude Include="src\Renderer\RHI\CommandBuffer.h" />
     <ClInclude Include="src\Renderer\RHI\CommandQueue.h" />
     <ClInclude Include="src\Renderer\RHI\D3D12\D3D12CommandBuffer.h" />
+    <ClInclude Include="src\Renderer\RHI\D3D12\D3D12RenderPass.h" />
+    <ClInclude Include="src\Renderer\RHI\D3D12\D3D12RenderPipeline.h" />
+    <ClInclude Include="src\Renderer\RHI\D3D12\D3D12Shader.h" />
     <ClInclude Include="src\Renderer\RHI\D3D12\D3D12StatefulResource.h" />
     <ClInclude Include="src\Renderer\RHI\D3D12\D3D12Texture.h" />
     <ClInclude Include="src\Renderer\RHI\D3D12\D3D12Allocator.h" />
@@ -174,8 +178,11 @@
     <ClCompile Include="src\Renderer\RHI\D3D12\D3D12Swapchain.cpp" />
     <ClCompile Include="src\Renderer\RHI\RHIContext.cpp" />
     <ClInclude Include="src\Renderer\RHI\D3D12\Managers\DescriptorHeapsManager.h" />
+    <ClInclude Include="src\Renderer\RHI\PipelineLayout.h" />
     <ClInclude Include="src\Renderer\RHI\RenderPass.h" />
     <ClInclude Include="src\Renderer\RHI\RenderPipeline.h" />
+    <ClInclude Include="src\Renderer\RHI\Sampler.h" />
+    <ClInclude Include="src\Renderer\RHI\Shader.h" />
     <ClInclude Include="src\Renderer\RHI\Texture.h" />
     <ClInclude Include="src\Utils\D3D12Math.h" />
     <ClInclude Include="src\Utils\DataStructures\IndicesRangeSolidVector.h" />

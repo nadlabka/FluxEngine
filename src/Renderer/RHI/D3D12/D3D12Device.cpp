@@ -41,3 +41,18 @@ std::shared_ptr<RHI::ICommandBuffer> RHI::D3D12Device::CreateCommandBuffer(Queue
 
     return std::make_shared<D3D12CommandBuffer>(commandAllocator, commandList);
 }
+
+std::shared_ptr<RHI::IRenderPass> RHI::D3D12Device::CreateRenderPass(const RenderPassDesc& renderPassDesc) const
+{
+    return std::shared_ptr<IRenderPass>();
+}
+
+std::shared_ptr<RHI::IPipelineLayout> RHI::D3D12Device::CreatePipelineLayout(const PipelineLayoutDescription& pipelineLayoutDesc) const
+{
+    return std::shared_ptr<IPipelineLayout>();
+}
+
+std::shared_ptr<RHI::IRenderPipeline> RHI::D3D12Device::CreateRenderPipeline(const RenderPipelineDescription& renderPipelineDesc) const
+{
+    return std::shared_ptr<IRenderPipeline>();
+}

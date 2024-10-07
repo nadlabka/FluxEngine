@@ -74,10 +74,19 @@ namespace RHI
 		TextureCubemapArray
 	};
 
-	enum class ReInitOp : uint8_t
+	enum class LoadAccessOperation : uint8_t 
 	{
+		Load,
 		Clear,
-		Discard
+		DontCare,
+		NotAccessed
+	};
+
+	enum class StoreAccessOperation : uint8_t 
+	{
+		Store,
+		DontCare,
+		None,
 	};
 
 	struct TextureDesc
@@ -86,7 +95,7 @@ namespace RHI
 		TextureAspect aspect;
 		TextureFormat format;
 		TextureType type;
-		TextureLayout layout;
+		TextureLayout layout = TextureLayout::Undefined;
 		uint32_t width = 0, height = 0, depth = 1;
 		uint32_t mipLevels = 1;
 		uint32_t arrayLayers = 1;

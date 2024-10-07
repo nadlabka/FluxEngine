@@ -1,26 +1,11 @@
 #pragma once
 #include "CommandQueue.h"
+#include "Texture.h"
+#include "RenderPass.h"
+#include "RenderPipeline.h"
 
 namespace RHI
 {
-	struct ViewportInfo
-	{
-		float topLeftX;
-		float topLeftY;
-		float width;
-		float height;
-		float minDepth;
-		float maxDepth;
-	};
-
-	struct ScissorsRect
-	{
-		int32_t offsetX;
-		int32_t offsetY;
-		uint32_t extentX;
-		uint32_t extentY;
-	};
-
 	struct InstancedDrawInfo
 	{
 		uint32_t verticesPerInstanceNum;
@@ -42,7 +27,8 @@ namespace RHI
 	{
 		virtual void SubmitToQueue(std::shared_ptr<ICommandQueue> commandQueue) = 0;
 
-		virtual void BeginPipelineAndRenderPass(std::shared_ptr<IRenderPipeline> renderingPipeline, std::shared_ptr<IRenderPass> renderPass);
+		virtual void BindsPipeline(std::shared_ptr<IRenderPipeline> renderingPipeline) = 0;
+		virtual void BeginRenderPass(std::shared_ptr<IRenderPass> renderPass) = 0;
 
 		virtual void BeginRecording() = 0;
 		virtual void EndRecording() = 0;
@@ -54,6 +40,8 @@ namespace RHI
 
 		virtual void DrawInstanced(const InstancedDrawInfo& instancedDrawInfo) = 0;
 		virtual void DrawIndexedInstanced(const IndexedInstancedDrawInfo& indexedInstancedDrawInfo) = 0;
+
+		virtual void TransitionTextureLayout(TextureLayout newLayout) = 0;
 
 		virtual ~ICommandBuffer() {}
 	};

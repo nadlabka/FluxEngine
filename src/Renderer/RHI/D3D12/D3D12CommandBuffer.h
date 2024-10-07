@@ -23,8 +23,8 @@ namespace RHI
 		void DrawInstanced(const InstancedDrawInfo& instancedDrawInfo);
 		void DrawIndexedInstanced(const IndexedInstancedDrawInfo& indexedInstancedDrawInfo);
 
-		std::shared_ptr<RenderPassD3D12> currentRenderPass;
-		std::shared_ptr<RenderPipelineD3D12> currentRenderPipeline;
+		std::shared_ptr<D3D12RenderPass> currentRenderPass;
+		std::shared_ptr<D3D12RenderPipeline> currentRenderPipeline;
 
 		RscPtr<ID3D12CommandAllocator> m_commandAllocator;
 		RscPtr<ID3D12GraphicsCommandList> m_commandList;
