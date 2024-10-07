@@ -57,7 +57,7 @@ void RHI::D3D12Texture::AllocateDescriptorsInHeaps(const TextureDesc& desc)
 
 	if (isDS)
 	{
-		size_t dsvIDX = dsv_heap->AllocateIndex();
+		uint32_t dsvIDX = dsv_heap->AllocateIndex();
 		D3D12_DEPTH_STENCIL_VIEW_DESC dsv_desc
 		{
 			.Format = format,
@@ -72,7 +72,7 @@ void RHI::D3D12Texture::AllocateDescriptorsInHeaps(const TextureDesc& desc)
 	{
 		for (uint32_t i = 0; i < desc.mipLevels; i++)
 		{
-			size_t rtvIDX = rtv_heap->AllocateIndex();
+			uint32_t rtvIDX = rtv_heap->AllocateIndex();
 			D3D12_RENDER_TARGET_VIEW_DESC rtv_desc
 			{
 				.Format = format,
@@ -89,7 +89,7 @@ void RHI::D3D12Texture::AllocateDescriptorsInHeaps(const TextureDesc& desc)
 	{
 		auto formatForDS_SRV = format == DXGI_FORMAT_D32_FLOAT ? DXGI_FORMAT_R32_FLOAT : format;
 
-		size_t srvIDX = cbv_srv_uav_heap->AllocateIndex();
+		uint32_t srvIDX = cbv_srv_uav_heap->AllocateIndex();
 		D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
 		srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 		srvDesc.Format = isDS ? formatForDS_SRV : format;
@@ -106,7 +106,7 @@ void RHI::D3D12Texture::AllocateDescriptorsInHeaps(const TextureDesc& desc)
 	{
 		for (uint32_t i = 0; i < desc.mipLevels; i++)
 		{
-			size_t uavIDX = cbv_srv_uav_heap->AllocateIndex();
+			uint32_t uavIDX = cbv_srv_uav_heap->AllocateIndex();
 
 			D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc
 			{

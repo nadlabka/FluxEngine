@@ -176,7 +176,9 @@ namespace RHI
 	{
 		struct BindingDescription
 		{
-			std::shared_ptr<IBuffer> buffer;
+			uint32_t stride;
+			uint32_t offset;
+			uint32_t size;
 			uint32_t bindingIndex;
 			BindingInputRate inputRate;
 		};

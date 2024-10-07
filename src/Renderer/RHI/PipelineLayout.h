@@ -11,6 +11,8 @@ namespace RHI
 		struct BufferInfo 
 		{
 			std::shared_ptr<IBuffer> buffer;
+			uint32_t offset;
+			uint32_t size;
 		};
 
 		std::vector<BufferInfo> buffers;

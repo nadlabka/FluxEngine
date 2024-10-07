@@ -5,8 +5,8 @@ template <typename T>
 class SolidVector
 {
 public:
-    using ID = size_t;
-    using Index = size_t;
+    using ID = uint32_t;
+    using Index = uint32_t;
 
     Index size() const { return Index(m_data.size()); }
 

@@ -33,12 +33,12 @@ namespace RHI
 
 		TextureDimensionsInfo m_dimensionsInfo;
 
-		static constexpr size_t INDEX_INVALID = ULLONG_MAX;
+		static constexpr uint32_t INDEX_INVALID = ULLONG_MAX;
 
-		std::vector<size_t> m_UAVDescriptorsIndices;
-		std::vector<size_t> m_SRVDescriptorsIndices;
-		std::vector<size_t> m_RTVDescriptorsIndices;
-		size_t m_DSVDescriptorIndex = INDEX_INVALID;
+		std::vector<uint32_t> m_UAVDescriptorsIndices;
+		std::vector<uint32_t> m_SRVDescriptorsIndices;
+		std::vector<uint32_t> m_RTVDescriptorsIndices;
+		uint32_t m_DSVDescriptorIndex = INDEX_INVALID;
 
 		RscPtr<ID3D12Resource> m_texture;
 		RscPtr<D3D12MA::Allocation> m_allocation;

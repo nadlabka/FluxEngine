@@ -1,13 +1,12 @@
 #pragma once
 #include "../Buffer.h"
+#include <cstdint>
 
 namespace RHI
 {
 	struct D3D12Buffer : public IBuffer
 	{
 
-		size_t offset;
-		size_t stride;
-		RscPtr<>
+		uint32_t size;
 	};
 }
