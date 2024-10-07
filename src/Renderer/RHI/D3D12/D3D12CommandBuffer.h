@@ -1,6 +1,8 @@
 #pragma once
 #include "stdafx.h"
 #include "../CommandBuffer.h"
+#include "D3D12RenderPass.h"
+#include "D3D12RenderPipeline.h"
 
 namespace RHI
 {

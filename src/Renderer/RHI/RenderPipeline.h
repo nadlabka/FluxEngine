@@ -176,8 +176,8 @@ namespace RHI
 	{
 		struct BindingDescription
 		{
+			std::shared_ptr<IBuffer> buffer;
 			uint32_t bindingIndex;
-			uint32_t stride;
 			BindingInputRate inputRate;
 		};
 
@@ -187,7 +187,6 @@ namespace RHI
 			uint32_t binding;
 			uint32_t offset;
 			VertexAttributeFormat format;
-
 			std::string semanticsName{};
 		};
 
@@ -242,7 +241,7 @@ namespace RHI
 
 		bool independentBlendEnabled;
 		std::array<float, 4> blendingConstants = { 0, 0, 0, 0 };
-		std::vector<ColorAttachmentBlendDesc> attachments;
+		std::vector<ColorAttachmentBlendDesc> attachmentsBlends;
 
 		bool logicalOperationEnabled = false;
 		LogicalOperation logicalOperation = LogicalOperation::Copy;

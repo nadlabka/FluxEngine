@@ -165,6 +165,7 @@
     <ClInclude Include="src\Renderer\RHI\Buffer.h" />
     <ClInclude Include="src\Renderer\RHI\CommandBuffer.h" />
     <ClInclude Include="src\Renderer\RHI\CommandQueue.h" />
+    <ClInclude Include="src\Renderer\RHI\D3D12\D3D12Buffer.h" />
     <ClInclude Include="src\Renderer\RHI\D3D12\D3D12CommandBuffer.h" />
     <ClInclude Include="src\Renderer\RHI\D3D12\D3D12RenderPass.h" />
     <ClInclude Include="src\Renderer\RHI\D3D12\D3D12RenderPipeline.h" />

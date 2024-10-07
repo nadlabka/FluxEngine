@@ -1,6 +1,8 @@
 #pragma once
 #include <cstdint>
 #include <memory>
+#include "Buffer.h"
+#include "Sampler.h"
 
 namespace RHI
 {
@@ -9,8 +11,6 @@ namespace RHI
 		struct BufferInfo 
 		{
 			std::shared_ptr<IBuffer> buffer;
-			size_t offset = 0;
-			size_t size = 0;
 		};
 
 		std::vector<BufferInfo> buffers;
