@@ -6,18 +6,45 @@
 
 namespace RHI
 {
+	enum class DescriptorType 
+	{
+		UniformBuffer,
+		StorageBuffer,
+		Sampler,
+		SampledImage,
+		StorageImage
+	};
+
+	enum class BindingVisibility 
+	{
+		Vertex = 1 << 0,
+		Fragment = 1 << 1,
+		Compute = 1 << 2,
+		VertexFragment = Vertex | Fragment,
+	};
+
+	struct DescriptorBinding 
+	{
+		uint32_t bindingIndex;
+		DescriptorType descriptorsType;
+		uint32_t descriptorsCount;
+		BindingVisibility stageVisbility;
+	};
+
+	struct ConstantBinding
+	{
+		size_t size;
+		uint32_t bindingIndex;
+		BindingVisibility visibility;
+	};
+
 	struct PipelineLayoutDescription
 	{
-		struct BufferInfo 
-		{
-			std::shared_ptr<IBuffer> buffer;
-			uint32_t offset;
-			uint32_t size;
-		};
+		std::unordered_map<std::shared_ptr<IBuffer>, DescriptorBinding> buffersBindings;
+		std::unordered_map<std::shared_ptr<ITexture>, DescriptorBinding> texturesBindings;
+		std::unordered_map<std::shared_ptr<ISampler>, DescriptorBinding> samplersBindings;
 
-		std::vector<BufferInfo> buffers;
-		std::vector<ITexture> textures;
-		std::vector<ISampler> samplers;
+		std::vector<ConstantBinding> constantsBindings;
 	};
 
 	struct IPipelineLayout

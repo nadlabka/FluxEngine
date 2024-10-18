@@ -4,23 +4,22 @@
 
 namespace RHI
 {
-    class DescriptorHeapsManager
+    class DescriptorsHeapsManager
     {
     public:
-        static DescriptorHeapsManager& GetInstance()
+        static DescriptorsHeapsManager& GetInstance()
         {
-            static DescriptorHeapsManager instance;
+            static DescriptorsHeapsManager instance;
             return instance;
         }
 
-        DescriptorHeapsManager(const DescriptorHeapsManager& arg) = delete;
-        DescriptorHeapsManager& operator=(const DescriptorHeapsManager& arg) = delete;
+        DescriptorsHeapsManager(const DescriptorsHeapsManager& arg) = delete;
+        DescriptorsHeapsManager& operator=(const DescriptorsHeapsManager& arg) = delete;
 
         void InitHeaps();
         std::shared_ptr<D3D12DescriptorHeap> GetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE heapType);
-
     private:
-        DescriptorHeapsManager() {}
+        DescriptorsHeapsManager() {}
 
         std::shared_ptr<D3D12DescriptorHeap> m_uav_srv_cbv_heap;
         std::shared_ptr<D3D12DescriptorHeap> m_rtv_heap;

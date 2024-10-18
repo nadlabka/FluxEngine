@@ -150,13 +150,14 @@
     <ClCompile Include="src\Renderer\Renderer.cpp" />
     <ClCompile Include="src\Renderer\RHI\D3D12\D3D12Adapter.cpp" />
     <ClCompile Include="src\Renderer\RHI\D3D12\D3D12Allocator.cpp" />
+    <ClCompile Include="src\Renderer\RHI\D3D12\D3D12Buffer.cpp" />
     <ClCompile Include="src\Renderer\RHI\D3D12\D3D12CommandBuffer.cpp" />
     <ClCompile Include="src\Renderer\RHI\D3D12\D3D12CommandQueue.cpp" />
     <ClCompile Include="src\Renderer\RHI\D3D12\D3D12DescriptorHeap.cpp" />
     <ClCompile Include="src\Renderer\RHI\D3D12\D3D12Device.cpp" />
     <ClCompile Include="src\Renderer\RHI\D3D12\D3D12Factory.cpp" />
     <ClCompile Include="src\Renderer\RHI\D3D12\D3D12Texture.cpp" />
-    <ClCompile Include="src\Renderer\RHI\D3D12\Managers\DescriptorHeapsManager.cpp" />
+    <ClCompile Include="src\Renderer\RHI\D3D12\Managers\DescriptorsHeapsManager.cpp" />
     <ClCompile Include="src\Renderer\RHI\Surface.cpp" />
     <ClCompile Include="vendor\D3D12MemoryAllocator\src\D3D12MemAlloc.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
@@ -167,6 +168,7 @@
     <ClInclude Include="src\Renderer\RHI\CommandQueue.h" />
     <ClInclude Include="src\Renderer\RHI\D3D12\D3D12Buffer.h" />
     <ClInclude Include="src\Renderer\RHI\D3D12\D3D12CommandBuffer.h" />
+    <ClInclude Include="src\Renderer\RHI\D3D12\D3D12PipelineLayout.h" />
     <ClInclude Include="src\Renderer\RHI\D3D12\D3D12RenderPass.h" />
     <ClInclude Include="src\Renderer\RHI\D3D12\D3D12RenderPipeline.h" />
     <ClInclude Include="src\Renderer\RHI\D3D12\D3D12Shader.h" />
@@ -178,7 +180,7 @@
     <ClInclude Include="src\Renderer\RHI\D3D12\D3D12Factory.h" />
     <ClCompile Include="src\Renderer\RHI\D3D12\D3D12Swapchain.cpp" />
     <ClCompile Include="src\Renderer\RHI\RHIContext.cpp" />
-    <ClInclude Include="src\Renderer\RHI\D3D12\Managers\DescriptorHeapsManager.h" />
+    <ClInclude Include="src\Renderer\RHI\D3D12\Managers\DescriptorsHeapsManager.h" />
     <ClInclude Include="src\Renderer\RHI\PipelineLayout.h" />
     <ClInclude Include="src\Renderer\RHI\RenderPass.h" />
     <ClInclude Include="src\Renderer\RHI\RenderPipeline.h" />

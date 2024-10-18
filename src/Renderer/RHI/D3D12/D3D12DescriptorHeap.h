@@ -8,5 +8,7 @@ namespace RHI
 	{
 		D3D12DescriptorHeap() = default;
 		D3D12DescriptorHeap(RscPtr<ID3D12Device> device, D3D12_DESCRIPTOR_HEAP_DESC desc);
+
+		static constexpr uint32_t INDEX_INVALID = UINT32_MAX;
 	};
 }

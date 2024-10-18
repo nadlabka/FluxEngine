@@ -1,7 +1,7 @@
 #pragma once
 #include "../Texture.h"
 #include "D3D12StatefulResource.h"
-#include "Managers/DescriptorHeapsManager.h"
+#include "Managers/DescriptorsHeapsManager.h"
 
 class D3D12MA::Allocation;
 
@@ -25,20 +25,18 @@ namespace RHI
 	struct D3D12Texture : public ITexture, public D3D12StatefulResource
 	{
 		D3D12Texture() = default;
-		D3D12Texture(const TextureDimensionsInfo& dimensionsInfo, RscPtr<ID3D12Resource> texture, RscPtr<D3D12MA::Allocation> allocation, D3D12_RESOURCE_STATES resourceState);
+		D3D12Texture(const TextureDimensionsInfo& dimensionsInfo, RscPtr<D3D12MA::Allocation> allocation, D3D12_RESOURCE_STATES resourceState);
 		D3D12Texture(const TextureDimensionsInfo& dimensionsInfo, RscPtr<ID3D12Resource> texture, D3D12_RESOURCE_STATES resourceState);
 		~D3D12Texture();
 
-		void AllocateDescriptorsInHeaps(const TextureDesc& desc);
+		void AllocateDescriptorsInHeaps(const TextureDescription& desc);
 
 		TextureDimensionsInfo m_dimensionsInfo;
-
-		static constexpr uint32_t INDEX_INVALID = ULLONG_MAX;
 
 		std::vector<uint32_t> m_UAVDescriptorsIndices;
 		std::vector<uint32_t> m_SRVDescriptorsIndices;
 		std::vector<uint32_t> m_RTVDescriptorsIndices;
-		uint32_t m_DSVDescriptorIndex = INDEX_INVALID;
+		uint32_t m_DSVDescriptorIndex = D3D12DescriptorHeap::INDEX_INVALID;
 
 		RscPtr<ID3D12Resource> m_texture;
 		RscPtr<D3D12MA::Allocation> m_allocation;

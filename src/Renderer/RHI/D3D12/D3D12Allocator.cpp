@@ -3,6 +3,7 @@
 #include "D3D12Device.h"
 #include "D3D12Adapter.h"
 #include "D3D12Texture.h"
+#include "D3D12Buffer.h"
 
 RHI::D3D12Allocator::D3D12Allocator(std::shared_ptr<IDevice> device, std::shared_ptr<IAdapter> adapter)
 {
@@ -19,7 +20,7 @@ RHI::D3D12Allocator::D3D12Allocator(std::shared_ptr<IDevice> device, std::shared
 	ThrowIfFailed(D3D12MA::CreateAllocator(&allocatorDesc, &m_allocator));
 }
 
-std::shared_ptr<RHI::ITexture> RHI::D3D12Allocator::CreateTexture(const TextureDesc& desc) const
+std::shared_ptr<RHI::ITexture> RHI::D3D12Allocator::CreateTexture(const TextureDescription& desc) const
 {
 	auto format = ConvertFormatToD3D12(desc.format);
 	auto mainResourceFormat = format;
@@ -65,15 +66,17 @@ std::shared_ptr<RHI::ITexture> RHI::D3D12Allocator::CreateTexture(const TextureD
 	initialState = ConvertTextureLayoutToResourceState(desc.layout);
 
 	RscPtr<D3D12MA::Allocation> allocation;
-	RscPtr<ID3D12Resource> texture;
 
 	D3D12MA::ALLOCATION_DESC allocDesc = {};
 	allocDesc.HeapType = D3D12_HEAP_TYPE_DEFAULT;
 
 	HRESULT hr = m_allocator->CreateResource(
-		&allocDesc, &resourceDesc,
-		initialState, (resourceDesc.Flags & D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL || resourceDesc.Flags & D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET) ? &optimizedClearValue : nullptr,
-		&allocation, IID_PPV_ARGS(&texture));
+		&allocDesc,
+		&resourceDesc,
+		initialState,
+		(resourceDesc.Flags & D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL || resourceDesc.Flags & D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET) ? &optimizedClearValue : nullptr,
+		&allocation,
+		IID_NULL, NULL);
 
 	TextureDimensionsInfo textureDimensions;
 	textureDimensions.m_arrayLayers = desc.arrayLayers;
@@ -82,8 +85,44 @@ std::shared_ptr<RHI::ITexture> RHI::D3D12Allocator::CreateTexture(const TextureD
 	textureDimensions.m_width = desc.width;
 	textureDimensions.m_mipLevels = desc.mipLevels;
 
-	auto resultTexture = std::make_shared<D3D12Texture>(textureDimensions, texture, allocation, initialState);
+	auto resultTexture = std::make_shared<D3D12Texture>(textureDimensions, allocation, initialState);
 	resultTexture->AllocateDescriptorsInHeaps(desc);
 
 	return resultTexture;
+}
+
+std::shared_ptr<RHI::IBuffer> RHI::D3D12Allocator::CreateBuffer(const BufferDescription& desc) const
+{
+	uint32_t bufferWidth = desc.elementsNum * desc.elementStride;
+
+	D3D12_RESOURCE_DESC resourceDesc = {};
+	resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
+	resourceDesc.Alignment = 0;
+	resourceDesc.Width = (desc.usage == BufferUsage::UniformBuffer) ? ((bufferWidth + 255) & ~255) : bufferWidth;
+	resourceDesc.Height = 1;
+	resourceDesc.DepthOrArraySize = 1;
+	resourceDesc.MipLevels = 1;
+	resourceDesc.Format = DXGI_FORMAT_UNKNOWN;
+	resourceDesc.SampleDesc.Count = 1;
+	resourceDesc.SampleDesc.Quality = 0;
+	resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+	resourceDesc.Flags = desc.flags.isMutable ? D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS : D3D12_RESOURCE_FLAG_NONE;
+
+	RscPtr<D3D12MA::Allocation> allocation;
+
+	D3D12MA::ALLOCATION_DESC allocationDesc = {};
+	allocationDesc.HeapType = ConvertBufferVisibilityToD3D12HeapType(desc.visibility);
+	
+	D3D12_RESOURCE_STATES initialState = GetD3D12ResourceStateFromDescription(desc);
+
+	HRESULT hr = m_allocator->CreateResource(
+		&allocationDesc,
+		&resourceDesc,
+		initialState,
+		NULL,
+		&allocation,
+		IID_NULL, NULL);
+
+	auto resultBuffer = std::make_shared<D3D12Buffer>(desc.elementsNum, desc.elementStride, allocation, initialState);
+	return resultBuffer;
 }

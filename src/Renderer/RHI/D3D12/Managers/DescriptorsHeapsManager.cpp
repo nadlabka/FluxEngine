@@ -1,9 +1,9 @@
 #include "stdafx.h"
-#include "DescriptorHeapsManager.h"
+#include "DescriptorsHeapsManager.h"
 #include "../../RHIContext.h"
 #include "../D3D12Device.h"
 
-void RHI::DescriptorHeapsManager::InitHeaps()
+void RHI::DescriptorsHeapsManager::InitHeaps()
 {
     auto& currentAPI = RHIContext::GetInstance();
     auto device = currentAPI.GetDevice();
@@ -55,7 +55,7 @@ void RHI::DescriptorHeapsManager::InitHeaps()
     }
 }
 
-std::shared_ptr<RHI::D3D12DescriptorHeap> RHI::DescriptorHeapsManager::GetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE heapType)
+std::shared_ptr<RHI::D3D12DescriptorHeap> RHI::DescriptorsHeapsManager::GetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE heapType)
 {
     switch (heapType)
     {

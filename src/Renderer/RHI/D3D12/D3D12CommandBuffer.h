@@ -17,8 +17,6 @@ namespace RHI
 		void BeginRecording();
 		void EndRecording();
 
-		void SetDescriptorStoragesForBindless();
-
 		void SetViewport(const ViewportInfo& viewportInfo);
 		void SetScissors(const ScissorsRect& rect);
 

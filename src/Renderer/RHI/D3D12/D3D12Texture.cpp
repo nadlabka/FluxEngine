@@ -4,21 +4,21 @@
 #include "D3D12Allocator.h"
 #include "D3D12Device.h"
 
-RHI::D3D12Texture::D3D12Texture(const TextureDimensionsInfo& dimensionsInfo, RscPtr<ID3D12Resource> texture, RscPtr<D3D12MA::Allocation> allocation, D3D12_RESOURCE_STATES resourceState)
-	: m_dimensionsInfo(dimensionsInfo), m_texture(texture), m_allocation(allocation), D3D12StatefulResource(resourceState)
+RHI::D3D12Texture::D3D12Texture(const TextureDimensionsInfo& dimensionsInfo, RscPtr<D3D12MA::Allocation> allocation, D3D12_RESOURCE_STATES resourceState)
+	: m_dimensionsInfo(dimensionsInfo), m_allocation(allocation), D3D12StatefulResource(resourceState)
 {
 
 }
 
 RHI::D3D12Texture::D3D12Texture(const TextureDimensionsInfo& dimensionsInfo, RscPtr<ID3D12Resource> texture, D3D12_RESOURCE_STATES resourceState) 
-	: m_texture(texture), m_dimensionsInfo(dimensionsInfo), D3D12StatefulResource(resourceState)
+	: m_dimensionsInfo(dimensionsInfo), m_texture(texture), D3D12StatefulResource(resourceState)
 {
 
 }
 
 RHI::D3D12Texture::~D3D12Texture()
 {
-	auto& descHeapsMgr = DescriptorHeapsManager::GetInstance();
+	auto& descHeapsMgr = DescriptorsHeapsManager::GetInstance();
 	auto rtv_heap = descHeapsMgr.GetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 	auto dsv_heap = descHeapsMgr.GetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
 	auto cbv_srv_uav_heap = descHeapsMgr.GetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
@@ -38,12 +38,12 @@ RHI::D3D12Texture::~D3D12Texture()
 	dsv_heap->EraseIndex(m_DSVDescriptorIndex);
 }
 
-void RHI::D3D12Texture::AllocateDescriptorsInHeaps(const TextureDesc& desc)
+void RHI::D3D12Texture::AllocateDescriptorsInHeaps(const TextureDescription& desc)
 {
 	auto& rhiContext = RHIContext::GetInstance();
 	auto d3d12device = std::static_pointer_cast<D3D12Device>(rhiContext.GetDevice());
 
-    auto& descHeapsMgr = DescriptorHeapsManager::GetInstance();
+    auto& descHeapsMgr = DescriptorsHeapsManager::GetInstance();
     auto rtv_heap = descHeapsMgr.GetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
     auto dsv_heap = descHeapsMgr.GetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
     auto cbv_srv_uav_heap = descHeapsMgr.GetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);

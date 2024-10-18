@@ -42,11 +42,6 @@ void RHI::D3D12CommandBuffer::EndRecording()
 
 }
 
-void RHI::D3D12CommandBuffer::SetDescriptorStoragesForBindless()
-{
-
-}
-
 void RHI::D3D12CommandBuffer::SetViewport(const ViewportInfo&)
 {
 

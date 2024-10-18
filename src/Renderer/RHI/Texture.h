@@ -5,14 +5,14 @@ namespace RHI
 {
 	enum TextureUsage : uint8_t
 	{
-		eTextureUsage_TransferSource = 0,
-		eTextureUsage_TransferDestination = 1 << 0,
-		eTextureUsage_Sampled = 1 << 1,
-		eTextureUsage_Storage = 1 << 2,
-		eTextureUsage_ColorAttachment = 1 << 3,
-		eTextureUsage_DepthStencilAttachment = 1 << 4,
-		eTextureUsage_TransientAttachment = 1 << 5,
-		eTextureUsage_InputAttachment = 1 << 6
+		eTextureUsage_TransferSource = 1 << 0,
+		eTextureUsage_TransferDestination = 1 << 1,
+		eTextureUsage_Sampled = 1 << 2,
+		eTextureUsage_Storage = 1 << 3,
+		eTextureUsage_ColorAttachment = 1 << 4,
+		eTextureUsage_DepthStencilAttachment = 1 << 5,
+		eTextureUsage_TransientAttachment = 1 << 6,
+		eTextureUsage_InputAttachment = 1 << 7
 	};
 
 	enum class TextureLayout : uint8_t 
@@ -39,10 +39,10 @@ namespace RHI
 
 	enum TextureAspect : uint8_t
 	{
-		eTextureAspect_HasColor = 0,
-		eTextureAspect_HasDepth = 1 << 0,
-		eTextureAspect_HasStencil = 1 << 1,
-		eTextureAspect_HasMetadata = 1 << 2,
+		eTextureAspect_HasColor = 1 << 0,
+		eTextureAspect_HasDepth = 1 << 1,
+		eTextureAspect_HasStencil = 1 << 2,
+		eTextureAspect_HasMetadata = 1 << 3,
 	};
 
 	enum class TextureFormat : uint8_t
@@ -89,7 +89,7 @@ namespace RHI
 		None,
 	};
 
-	struct TextureDesc
+	struct TextureDescription
 	{
 		TextureUsage usage;
 		TextureAspect aspect;

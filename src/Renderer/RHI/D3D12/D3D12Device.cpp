@@ -3,6 +3,7 @@
 #include "D3D12CommandQueue.h"
 #include "D3D12Texture.h"
 #include "D3D12CommandBuffer.h"
+#include "D3D12PipelineLayout.h"
 
 RHI::D3D12Device::D3D12Device()
 {
@@ -44,15 +45,57 @@ std::shared_ptr<RHI::ICommandBuffer> RHI::D3D12Device::CreateCommandBuffer(Queue
 
 std::shared_ptr<RHI::IRenderPass> RHI::D3D12Device::CreateRenderPass(const RenderPassDesc& renderPassDesc) const
 {
-    return std::shared_ptr<IRenderPass>();
+    return std::shared_ptr<D3D12RenderPass>(sdsds);
 }
 
 std::shared_ptr<RHI::IPipelineLayout> RHI::D3D12Device::CreatePipelineLayout(const PipelineLayoutDescription& pipelineLayoutDesc) const
 {
-    return std::shared_ptr<IPipelineLayout>();
+    D3D12_FEATURE_DATA_ROOT_SIGNATURE featureData = {};
+    featureData.HighestVersion = D3D_ROOT_SIGNATURE_VERSION_1_1;
+    if (FAILED(m_device->CheckFeatureSupport(D3D12_FEATURE_ROOT_SIGNATURE, &featureData, sizeof(featureData))))
+    {
+        featureData.HighestVersion = D3D_ROOT_SIGNATURE_VERSION_1_0;
+    }
+
+    D3D12_ROOT_SIGNATURE_FLAGS rootSignatureFlags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
+
+    std::vector<CD3DX12_ROOT_PARAMETER1> rootParameters;
+    std::list< D3D12_DESCRIPTOR_RANGE1> ranges;
+
+    for (auto& constant : pipelineLayoutDesc.constantsBindings) 
+    {
+        rootParameters.emplace_back().InitAsConstants(constant.size / sizeof(uint32_t), constant.bindingIndex, 0, ConvertShaderVisibilityToD3D12(constant.visibility));
+    }
+
+    for (auto& item : pipelineLayoutDesc.buffersBindings)
+    {
+        switch (item.second.descriptorsType)
+        {
+        case DescriptorType::StorageBuffer:
+            break;
+        case DescriptorType::UniformBuffer:
+            break;
+        }
+    }
+    for (auto& item : pipelineLayoutDesc.texturesBindings)
+    {
+        switch (item.second.descriptorsType)
+        {
+        case DescriptorType::SampledImage:
+                break;
+        case DescriptorType::StorageImage:
+                break;
+        }
+    }
+    for (auto& item : pipelineLayoutDesc.samplersBindings)
+    {
+        
+    }
+
+    return std::shared_ptr<D3D12PipelineLayout>(sdsd);
 }
 
 std::shared_ptr<RHI::IRenderPipeline> RHI::D3D12Device::CreateRenderPipeline(const RenderPipelineDescription& renderPipelineDesc) const
 {
-    return std::shared_ptr<IRenderPipeline>();
+    return std::shared_ptr<D3D12RenderPipeline>(sdsd);
 }

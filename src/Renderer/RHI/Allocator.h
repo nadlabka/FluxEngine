@@ -7,6 +7,7 @@ namespace RHI
 	{
 		virtual ~IAllocator() {}
 
-		virtual std::shared_ptr<ITexture> CreateTexture(const TextureDesc& desc) const = 0;
+		virtual std::shared_ptr<ITexture> CreateTexture(const TextureDescription& desc) const = 0;
+		virtual std::shared_ptr<IBuffer> CreateBuffer(const BufferDescription& desc) const = 0;
 	};
 }

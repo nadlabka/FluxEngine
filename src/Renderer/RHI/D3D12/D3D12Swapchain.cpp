@@ -33,7 +33,7 @@ void RHI::D3D12Swapchain::UpdateDescriptors()
 
         auto& emplacedTexture = m_backbufferTextures.emplace_back(dimensions, backBuffer, D3D12_RESOURCE_STATE_PRESENT);
 
-        TextureDesc textureDescForIndicesGen;
+        TextureDescription textureDescForIndicesGen;
         textureDescForIndicesGen.usage = eTextureUsage_ColorAttachment;
         textureDescForIndicesGen.aspect = eTextureAspect_HasColor;
         textureDescForIndicesGen.format = TextureFormat::BGRA8_UNORM;
@@ -74,7 +74,7 @@ void RHI::D3D12Swapchain::Resize(uint32_t width, uint32_t height)
 
         auto& emplacedTexture = m_backbufferTextures.emplace_back(dimensions, backBuffer, D3D12_RESOURCE_STATE_PRESENT);
 
-        TextureDesc textureDescForIndicesGen;
+        TextureDescription textureDescForIndicesGen;
         textureDescForIndicesGen.usage = eTextureUsage_ColorAttachment;
         textureDescForIndicesGen.aspect = eTextureAspect_HasColor;
         textureDescForIndicesGen.format = TextureFormat::BGRA8_UNORM;
