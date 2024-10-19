@@ -98,7 +98,7 @@ std::shared_ptr<RHI::IBuffer> RHI::D3D12Allocator::CreateBuffer(const BufferDesc
 	D3D12_RESOURCE_DESC resourceDesc = {};
 	resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
 	resourceDesc.Alignment = 0;
-	resourceDesc.Width = (desc.usage == BufferUsage::UniformBuffer) ? ((bufferWidth + 255) & ~255) : bufferWidth;
+	resourceDesc.Width = (desc.usage & BufferUsage::UniformBuffer) ? ((desc.unstructuredSize + 255) & ~255) : desc.unstructuredSize;
 	resourceDesc.Height = 1;
 	resourceDesc.DepthOrArraySize = 1;
 	resourceDesc.MipLevels = 1;
@@ -111,7 +111,7 @@ std::shared_ptr<RHI::IBuffer> RHI::D3D12Allocator::CreateBuffer(const BufferDesc
 	RscPtr<D3D12MA::Allocation> allocation;
 
 	D3D12MA::ALLOCATION_DESC allocationDesc = {};
-	allocationDesc.HeapType = ConvertBufferVisibilityToD3D12HeapType(desc.visibility);
+	allocationDesc.HeapType = ConvertBufferAccessToD3D12HeapType(desc.access);
 	
 	D3D12_RESOURCE_STATES initialState = GetD3D12ResourceStateFromDescription(desc);
 

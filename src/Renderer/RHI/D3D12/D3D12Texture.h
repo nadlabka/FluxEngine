@@ -38,7 +38,8 @@ namespace RHI
 		std::vector<uint32_t> m_RTVDescriptorsIndices;
 		uint32_t m_DSVDescriptorIndex = D3D12DescriptorHeap::INDEX_INVALID;
 
-		RscPtr<ID3D12Resource> m_texture;
+		//use recource OR allocation
 		RscPtr<D3D12MA::Allocation> m_allocation;
+		RscPtr<ID3D12Resource> m_texture;
 	};
 }

@@ -31,6 +31,18 @@ namespace RHI
 		BindingVisibility stageVisbility;
 	};
 
+	struct TextureBindDescription
+	{
+		std::shared_ptr<ITexture> texture;
+		bool isUAV = false;
+	};
+
+	struct BufferBindDescription
+	{
+		std::shared_ptr<IBuffer> buffer;
+		BufferBindingType bindingType;
+	};
+
 	struct ConstantBinding
 	{
 		size_t size;
@@ -40,8 +52,8 @@ namespace RHI
 
 	struct PipelineLayoutDescription
 	{
-		std::unordered_map<std::shared_ptr<IBuffer>, DescriptorBinding> buffersBindings;
-		std::unordered_map<std::shared_ptr<ITexture>, DescriptorBinding> texturesBindings;
+		std::unordered_map<BufferBindDescription, DescriptorBinding> buffersBindings;
+		std::unordered_map<TextureBindDescription, DescriptorBinding> texturesBindings;
 		std::unordered_map<std::shared_ptr<ISampler>, DescriptorBinding> samplersBindings;
 
 		std::vector<ConstantBinding> constantsBindings;

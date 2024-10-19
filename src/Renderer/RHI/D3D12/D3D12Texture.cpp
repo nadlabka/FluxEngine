@@ -35,7 +35,10 @@ RHI::D3D12Texture::~D3D12Texture()
 	{
 		rtv_heap->EraseIndex(idx);
 	}
-	dsv_heap->EraseIndex(m_DSVDescriptorIndex);
+	if (m_DSVDescriptorIndex != D3D12DescriptorHeap::INDEX_INVALID)
+	{
+		dsv_heap->EraseIndex(m_DSVDescriptorIndex);
+	}
 }
 
 void RHI::D3D12Texture::AllocateDescriptorsInHeaps(const TextureDescription& desc)
@@ -55,6 +58,8 @@ void RHI::D3D12Texture::AllocateDescriptorsInHeaps(const TextureDescription& des
 
 	auto format = ConvertFormatToD3D12(desc.format);
 
+	ID3D12Resource* resourcePtr = m_texture.ptr() ? m_texture.ptr() : m_allocation->GetResource();
+
 	if (isDS)
 	{
 		uint32_t dsvIDX = dsv_heap->AllocateIndex();
@@ -64,7 +69,7 @@ void RHI::D3D12Texture::AllocateDescriptorsInHeaps(const TextureDescription& des
 			.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D,
 		};
 		auto handle = dsv_heap->GetCpuHandle(dsvIDX);
-		d3d12device->m_device->CreateDepthStencilView(m_texture.ptr(), &dsv_desc, handle);
+		d3d12device->m_device->CreateDepthStencilView(resourcePtr, &dsv_desc, handle);
 
 		m_DSVDescriptorIndex = dsvIDX;
 	}
@@ -80,7 +85,7 @@ void RHI::D3D12Texture::AllocateDescriptorsInHeaps(const TextureDescription& des
 				.Texture2D = {.MipSlice = i }
 			};
 			auto handle = rtv_heap->GetCpuHandle(rtvIDX);
-			d3d12device->m_device->CreateRenderTargetView(m_texture.ptr(), &rtv_desc, handle);
+			d3d12device->m_device->CreateRenderTargetView(resourcePtr, &rtv_desc, handle);
 
 			m_RTVDescriptorsIndices.push_back(rtvIDX);
 		}
@@ -98,7 +103,7 @@ void RHI::D3D12Texture::AllocateDescriptorsInHeaps(const TextureDescription& des
 		srvDesc.Texture2D.MostDetailedMip = 0;
 
 		auto handle = cbv_srv_uav_heap->GetCpuHandle(srvIDX);
-		d3d12device->m_device->CreateShaderResourceView(m_texture.ptr(), &srvDesc, handle);
+		d3d12device->m_device->CreateShaderResourceView(resourcePtr, &srvDesc, handle);
 
 		m_SRVDescriptorsIndices.push_back(srvIDX);
 	}
@@ -112,13 +117,14 @@ void RHI::D3D12Texture::AllocateDescriptorsInHeaps(const TextureDescription& des
 			{
 				.Format = format,
 				.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D,
-				.Texture2D = {
+				.Texture2D = 
+				{
 					.MipSlice = i,
 					.PlaneSlice = 0
 				}
 			};
 			auto handle = cbv_srv_uav_heap->GetCpuHandle(uavIDX);
-			d3d12device->m_device->CreateUnorderedAccessView(m_texture.ptr(), nullptr, &uavDesc, handle);
+			d3d12device->m_device->CreateUnorderedAccessView(resourcePtr, nullptr, &uavDesc, handle);
 
 			m_UAVDescriptorsIndices.push_back(uavIDX);
 		}
