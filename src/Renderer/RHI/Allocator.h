@@ -1,5 +1,6 @@
 #pragma once
 #include "Texture.h"
+#include "Buffer.h"
 
 namespace RHI
 {

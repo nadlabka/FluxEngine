@@ -69,33 +69,81 @@ std::shared_ptr<RHI::IPipelineLayout> RHI::D3D12Device::CreatePipelineLayout(con
 
     for (auto& item : pipelineLayoutDesc.buffersBindings)
     {
-        switch (item.second.descriptorsType)
+        const DescriptorBinding& binding = item.second;
+        CD3DX12_DESCRIPTOR_RANGE1 range = {};
+        switch (binding.descriptorsType)
         {
         case DescriptorType::StorageBuffer:
+            range.Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, binding.descriptorsCount, binding.bindingIndex, 0, D3D12_DESCRIPTOR_RANGE_FLAG_DATA_VOLATILE);
+            ranges.push_back(range);
             break;
         case DescriptorType::UniformBuffer:
+            range.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, binding.descriptorsCount, binding.bindingIndex, 0, D3D12_DESCRIPTOR_RANGE_FLAG_NONE);
+            ranges.push_back(range);
             break;
         }
+        CD3DX12_ROOT_PARAMETER1 rootParam;
+        rootParam.InitAsDescriptorTable(1, &ranges.back(), ConvertShaderVisibilityToD3D12(binding.stageVisbility));
+        rootParameters.push_back(rootParam);
     }
+
     for (auto& item : pipelineLayoutDesc.texturesBindings)
     {
+        const DescriptorBinding& binding = item.second;
+        CD3DX12_DESCRIPTOR_RANGE1 range = {};
         switch (item.second.descriptorsType)
         {
         case DescriptorType::SampledImage:
-                break;
+            range.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, binding.descriptorsCount, binding.bindingIndex);
+            ranges.push_back(range);
+            break;
         case DescriptorType::StorageImage:
-                break;
+            range.Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, binding.descriptorsCount, binding.bindingIndex);
+            ranges.push_back(range);
+            break;
         }
-    }
-    for (auto& item : pipelineLayoutDesc.samplersBindings)
-    {
-        
+        CD3DX12_ROOT_PARAMETER1 rootParam;
+        rootParam.InitAsDescriptorTable(1, &ranges.back(), ConvertShaderVisibilityToD3D12(binding.stageVisbility));
+        rootParameters.push_back(rootParam);
     }
 
-    return std::shared_ptr<D3D12PipelineLayout>(sdsd);
+    for (auto& item : pipelineLayoutDesc.samplersBindings)
+    {
+        const DescriptorBinding& binding = item.second;
+        CD3DX12_DESCRIPTOR_RANGE1 range = {};
+        range.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER, binding.descriptorsCount, binding.bindingIndex);
+        ranges.push_back(range);
+
+        CD3DX12_ROOT_PARAMETER1 rootParam;
+        rootParam.InitAsDescriptorTable(1, &ranges.back(), ConvertShaderVisibilityToD3D12(binding.stageVisbility));
+        rootParameters.push_back(rootParam);
+    }
+
+    CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC rootSignatureDescription;
+    rootSignatureDescription.Init_1_1(rootParameters.size(), rootParameters.data(), 0, nullptr, rootSignatureFlags);
+
+    ComPtr<ID3DBlob> signature;
+    ComPtr<ID3DBlob> error;
+    ThrowIfFailed(
+        D3DX12SerializeVersionedRootSignature(
+            &rootSignatureDescription,
+            featureData.HighestVersion,
+            &signature,
+            &error)
+    );
+
+    ComPtr<ID3D12RootSignature> rootSignature;
+    ThrowIfFailed(m_device->CreateRootSignature(
+        0,
+        signature->GetBufferPointer(),
+        signature->GetBufferSize(),
+        IID_PPV_ARGS(&rootSignature)
+    ));
+
+    return std::make_shared<D3D12PipelineLayout>(rootSignature);
 }
 
 std::shared_ptr<RHI::IRenderPipeline> RHI::D3D12Device::CreateRenderPipeline(const RenderPipelineDescription& renderPipelineDesc) const
 {
-    return std::shared_ptr<D3D12RenderPipeline>(sdsd);
+    
 }

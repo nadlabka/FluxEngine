@@ -156,6 +156,9 @@
     <ClCompile Include="src\Renderer\RHI\D3D12\D3D12DescriptorHeap.cpp" />
     <ClCompile Include="src\Renderer\RHI\D3D12\D3D12Device.cpp" />
     <ClCompile Include="src\Renderer\RHI\D3D12\D3D12Factory.cpp" />
+    <ClCompile Include="src\Renderer\RHI\D3D12\D3D12PipelineLayout.cpp" />
+    <ClCompile Include="src\Renderer\RHI\D3D12\D3D12RenderPass.cpp" />
+    <ClCompile Include="src\Renderer\RHI\D3D12\D3D12RenderPipeline.cpp" />
     <ClCompile Include="src\Renderer\RHI\D3D12\D3D12Texture.cpp" />
     <ClCompile Include="src\Renderer\RHI\D3D12\Managers\DescriptorsHeapsManager.cpp" />
     <ClCompile Include="src\Renderer\RHI\Surface.cpp" />
