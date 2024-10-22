@@ -37,13 +37,6 @@ namespace RHI
 		BufferFlags flags;
 	};
 
-	enum class BufferBindingType : uint8_t
-	{	
-		SRV,
-		CBV,
-		UAV
-	};
-
 	struct IBuffer
 	{
 		virtual ~IBuffer() {}

@@ -9,6 +9,7 @@ namespace RHI
 	enum class DescriptorType 
 	{
 		UniformBuffer,
+		ConstantBuffer,
 		StorageBuffer,
 		Sampler,
 		SampledImage,
@@ -31,18 +32,6 @@ namespace RHI
 		BindingVisibility stageVisbility;
 	};
 
-	struct TextureBindDescription
-	{
-		std::shared_ptr<ITexture> texture;
-		bool isUAV = false;
-	};
-
-	struct BufferBindDescription
-	{
-		std::shared_ptr<IBuffer> buffer;
-		BufferBindingType bindingType;
-	};
-
 	struct ConstantBinding
 	{
 		size_t size;
@@ -52,8 +41,9 @@ namespace RHI
 
 	struct PipelineLayoutDescription
 	{
-		std::unordered_map<BufferBindDescription, DescriptorBinding> buffersBindings;
-		std::unordered_map<TextureBindDescription, DescriptorBinding> texturesBindings;
+		// you need resource pointers to transit resource state in DX12 and to update Descriptors Sets in Vulkan
+		std::unordered_map<std::shared_ptr<IBuffer>, DescriptorBinding> buffersBindings;
+		std::unordered_map<std::shared_ptr<ITexture>, DescriptorBinding> texturesBindings;
 		std::unordered_map<std::shared_ptr<ISampler>, DescriptorBinding> samplersBindings;
 
 		std::vector<ConstantBinding> constantsBindings;

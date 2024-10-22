@@ -193,7 +193,7 @@ namespace RHI
 		};
 
 		std::vector<BindingDescription> vertexBindings;
-		std::vector<AttributeDescription> attributeDescs;
+		std::vector<AttributeDescription> attributeDescriptions;
 	};
 
 	struct InputAssemblerDescription

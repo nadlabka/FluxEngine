@@ -45,7 +45,7 @@ std::shared_ptr<RHI::ICommandBuffer> RHI::D3D12Device::CreateCommandBuffer(Queue
 
 std::shared_ptr<RHI::IRenderPass> RHI::D3D12Device::CreateRenderPass(const RenderPassDesc& renderPassDesc) const
 {
-    return std::shared_ptr<D3D12RenderPass>(sdsds);
+    return std::make_shared<D3D12RenderPass>(renderPassDesc);
 }
 
 std::shared_ptr<RHI::IPipelineLayout> RHI::D3D12Device::CreatePipelineLayout(const PipelineLayoutDescription& pipelineLayoutDesc) const
@@ -73,6 +73,10 @@ std::shared_ptr<RHI::IPipelineLayout> RHI::D3D12Device::CreatePipelineLayout(con
         CD3DX12_DESCRIPTOR_RANGE1 range = {};
         switch (binding.descriptorsType)
         {
+        case DescriptorType::ConstantBuffer:
+            range.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, binding.descriptorsCount, binding.bindingIndex, 0, D3D12_DESCRIPTOR_RANGE_FLAG_NONE);
+            ranges.push_back(range);
+            break;
         case DescriptorType::StorageBuffer:
             range.Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, binding.descriptorsCount, binding.bindingIndex, 0, D3D12_DESCRIPTOR_RANGE_FLAG_DATA_VOLATILE);
             ranges.push_back(range);
@@ -94,11 +98,11 @@ std::shared_ptr<RHI::IPipelineLayout> RHI::D3D12Device::CreatePipelineLayout(con
         switch (item.second.descriptorsType)
         {
         case DescriptorType::SampledImage:
-            range.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, binding.descriptorsCount, binding.bindingIndex);
+            range.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, binding.descriptorsCount, binding.bindingIndex, D3D12_DESCRIPTOR_RANGE_FLAG_NONE);
             ranges.push_back(range);
             break;
         case DescriptorType::StorageImage:
-            range.Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, binding.descriptorsCount, binding.bindingIndex);
+            range.Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, binding.descriptorsCount, binding.bindingIndex, D3D12_DESCRIPTOR_RANGE_FLAG_DATA_VOLATILE);
             ranges.push_back(range);
             break;
         }
@@ -111,7 +115,7 @@ std::shared_ptr<RHI::IPipelineLayout> RHI::D3D12Device::CreatePipelineLayout(con
     {
         const DescriptorBinding& binding = item.second;
         CD3DX12_DESCRIPTOR_RANGE1 range = {};
-        range.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER, binding.descriptorsCount, binding.bindingIndex);
+        range.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER, binding.descriptorsCount, binding.bindingIndex, D3D12_DESCRIPTOR_RANGE_FLAG_NONE);
         ranges.push_back(range);
 
         CD3DX12_ROOT_PARAMETER1 rootParam;
@@ -145,5 +149,20 @@ std::shared_ptr<RHI::IPipelineLayout> RHI::D3D12Device::CreatePipelineLayout(con
 
 std::shared_ptr<RHI::IRenderPipeline> RHI::D3D12Device::CreateRenderPipeline(const RenderPipelineDescription& renderPipelineDesc) const
 {
-    
+    D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc = {};
+    ZeroMemory(&psoDesc, sizeof(D3D12_GRAPHICS_PIPELINE_STATE_DESC));
+
+    std::vector<D3D12_INPUT_ELEMENT_DESC> inputElementDescs;
+    for (const auto& attribute : renderPipelineDesc.inputAssemblerLayout.attributeDescriptions)
+    {
+        D3D12_INPUT_ELEMENT_DESC elementDesc = {};
+        elementDesc.SemanticName = attribute.semanticsName.c_str();
+        elementDesc.SemanticIndex = attribute.location;
+        elementDesc.Format = ConvertVertexAttributeFormatToDXGI(attribute.format);
+        elementDesc.InputSlot = attribute.binding;
+        elementDesc.AlignedByteOffset = attribute.offset;
+        elementDesc.InputSlotClass = attribute.binding == BindingInputRate::PerVertex ? D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA : D3D12_INPUT_CLASSIFICATION_PER_INSTANCE_DATA;
+        inputElementDescs.push_back(elementDesc);
+    }
+    psoDesc.InputLayout = { inputElementDescs.data(), (UINT)inputElementDescs.size() };
 }
