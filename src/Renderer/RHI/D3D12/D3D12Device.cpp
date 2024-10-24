@@ -4,6 +4,8 @@
 #include "D3D12Texture.h"
 #include "D3D12CommandBuffer.h"
 #include "D3D12PipelineLayout.h"
+#include "D3D12RenderPass.h"
+#include "D3D12RenderPipeline.h"
 
 RHI::D3D12Device::D3D12Device()
 {
@@ -155,14 +157,26 @@ std::shared_ptr<RHI::IRenderPipeline> RHI::D3D12Device::CreateRenderPipeline(con
     std::vector<D3D12_INPUT_ELEMENT_DESC> inputElementDescs;
     for (const auto& attribute : renderPipelineDesc.inputAssemblerLayout.attributeDescriptions)
     {
+        auto& bindingsVector = renderPipelineDesc.inputAssemblerLayout.vertexBindings;
+        auto bindingDescriptionIter = std::find_if(bindingsVector.begin(), bindingsVector.end(), 
+            [&](const InputAssemblerLayoutDescription::BindingDescription& bindingDesc)
+            {
+            return bindingDesc.binding == attribute.binding;
+            }
+        );
+        auto& bindingDescription = *bindingDescriptionIter;
+
         D3D12_INPUT_ELEMENT_DESC elementDesc = {};
         elementDesc.SemanticName = attribute.semanticsName.c_str();
-        elementDesc.SemanticIndex = attribute.location;
+        elementDesc.SemanticIndex = attribute.semanticsIndex;
         elementDesc.Format = ConvertVertexAttributeFormatToDXGI(attribute.format);
         elementDesc.InputSlot = attribute.binding;
         elementDesc.AlignedByteOffset = attribute.offset;
-        elementDesc.InputSlotClass = attribute.binding == BindingInputRate::PerVertex ? D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA : D3D12_INPUT_CLASSIFICATION_PER_INSTANCE_DATA;
+        elementDesc.InputSlotClass = bindingDescription.inputRate == BindingInputRate::PerVertex ? D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA : D3D12_INPUT_CLASSIFICATION_PER_INSTANCE_DATA;
         inputElementDescs.push_back(elementDesc);
     }
     psoDesc.InputLayout = { inputElementDescs.data(), (UINT)inputElementDescs.size() };
+
+    psoDesc.PrimitiveTopologyType = ConvertPrimitiveTopologyToD3D12(renderPipelineDesc.inputAssembler.primitiveTopology);
+
 }
