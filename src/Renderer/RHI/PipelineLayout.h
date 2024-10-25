@@ -2,6 +2,7 @@
 #include <cstdint>
 #include <memory>
 #include "Buffer.h"
+#include "Texture.h"
 #include "Sampler.h"
 
 namespace RHI

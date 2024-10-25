@@ -1,6 +1,7 @@
 #pragma once
 #include "Shader.h"
 #include "PipelineLayout.h"
+#include "RenderPass.h"
 
 namespace RHI
 {
@@ -34,7 +35,7 @@ namespace RHI
 		PatchList
 	};
 
-	enum class PolygonFillMode : uint8_t 
+	enum class PolygonFillMode : uint8_t
 	{
 		Fill,
 		Line,
@@ -54,7 +55,7 @@ namespace RHI
 		Back
 	};
 
-	enum class BlendFactor : uint8_t 
+	enum class BlendFactor : uint8_t
 	{
 		Zero,
 		One,
@@ -77,7 +78,7 @@ namespace RHI
 		OneMinusSource1Alpha
 	};
 
-	enum class BlendOperation : uint8_t 
+	enum class BlendOperation : uint8_t
 	{
 		Add,
 		Subtract,
@@ -106,7 +107,7 @@ namespace RHI
 		Set
 	};
 
-	enum class ColorWriteMask : uint8_t 
+	enum class ColorWriteMask : uint8_t
 	{
 		Red = 0b0001,
 		Green = 0b0010,
@@ -116,7 +117,7 @@ namespace RHI
 		RGBA = RGB | Alpha
 	};
 
-	enum class DepthCompareOperation : uint8_t 
+	enum class DepthStencilCompareOperation : uint8_t
 	{
 		Never,
 		Less,
@@ -125,11 +126,10 @@ namespace RHI
 		Greater,
 		NotEqual,
 		GreaterOrEqual,
-		Always,
-		None
+		Always
 	};
 
-	enum class StencilOperation : uint8_t 
+	enum class StencilOperation : uint8_t
 	{
 		Keep,
 		Zero,
@@ -198,7 +198,7 @@ namespace RHI
 
 	struct RasterizerDescription
 	{
-		bool depthClampEnable = false;
+		bool depthClipEnable = false;
 		bool rasterizerDiscardEnable = false;
 
 		PolygonFillMode polygonOverride = PolygonFillMode::Fill;
@@ -220,7 +220,7 @@ namespace RHI
 
 	struct ColorBlendDescription
 	{
-		struct ColorAttachmentBlendDesc 
+		struct ColorAttachmentBlendDesc
 		{
 			bool blendEnabled = false;
 
@@ -247,11 +247,22 @@ namespace RHI
 	{
 		bool depthTestEnabled = false;
 		bool depthWriteEnabled = false;
-		DepthCompareOperation depthOperation = DepthCompareOperation::Never;
+		DepthStencilCompareOperation depthCompareOperation = DepthStencilCompareOperation::Never;
 
 		bool stencilTestEnabled = false;
-		StencilOperation stencilFrontOperation = StencilOperation::Keep;
-		StencilOperation stencilBackOperation = StencilOperation::Keep;
+		uint32_t stencilReadMask;
+		uint32_t stencilWriteMask;
+
+		struct StencilState
+		{
+			StencilOperation stencilFailOperation = StencilOperation::Keep;
+			StencilOperation stencilDepthFailOperation = StencilOperation::Keep;
+			StencilOperation stencilPassOperation = StencilOperation::Keep;
+			DepthStencilCompareOperation stencilCompareOperation = DepthStencilCompareOperation::Never;
+		};
+
+		StencilState frontStencilState;
+		StencilState backStencilState;
 	};
 
 	struct RenderPipelineDescription
@@ -272,5 +283,16 @@ namespace RHI
 	struct IRenderPipeline
 	{
 		virtual ~IRenderPipeline() {}
+	};
+
+	struct ComputePipelineDescription
+	{
+		PipelineStageDescription pipelineStage;
+		std::shared_ptr<IPipelineLayout> pipelineLayout;
+	};
+
+	struct IComputePipeline
+	{
+		virtual ~IComputePipeline() {}
 	};
 }

@@ -3,7 +3,7 @@
 #include "CommandBuffer.h"
 #include "Texture.h"
 #include "RenderPass.h"
-#include "RenderPipeline.h"
+#include "PipelineCommon.h"
 
 namespace RHI
 {

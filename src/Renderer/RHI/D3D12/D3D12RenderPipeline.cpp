@@ -137,3 +137,39 @@ D3D12_LOGIC_OP RHI::ConvertLogicalOperationToD3D12(LogicalOperation op)
     }
 }
 
+D3D12_COMPARISON_FUNC RHI::ConvertDepthStencilCompareOperationToD3D12(DepthStencilCompareOperation operation)
+{
+    switch (operation)
+    {
+    case DepthStencilCompareOperation::Never:        return D3D12_COMPARISON_FUNC_NEVER;
+    case DepthStencilCompareOperation::Less:         return D3D12_COMPARISON_FUNC_LESS;
+    case DepthStencilCompareOperation::Equal:        return D3D12_COMPARISON_FUNC_EQUAL;
+    case DepthStencilCompareOperation::LessOrEqual:  return D3D12_COMPARISON_FUNC_LESS_EQUAL;
+    case DepthStencilCompareOperation::Greater:      return D3D12_COMPARISON_FUNC_GREATER;
+    case DepthStencilCompareOperation::NotEqual:     return D3D12_COMPARISON_FUNC_NOT_EQUAL;
+    case DepthStencilCompareOperation::GreaterOrEqual: return D3D12_COMPARISON_FUNC_GREATER_EQUAL;
+    case DepthStencilCompareOperation::Always:       return D3D12_COMPARISON_FUNC_ALWAYS;
+    default:                                  return D3D12_COMPARISON_FUNC_ALWAYS;
+    }
+}
+
+D3D12_STENCIL_OP RHI::ConvertStencilOperationToD3D12(StencilOperation operation)
+{
+    switch (operation)
+    {
+    case StencilOperation::Keep:            return D3D12_STENCIL_OP_KEEP;
+    case StencilOperation::Zero:            return D3D12_STENCIL_OP_ZERO;
+    case StencilOperation::Replace:         return D3D12_STENCIL_OP_REPLACE;
+    case StencilOperation::IncrementClamp:  return D3D12_STENCIL_OP_INCR_SAT;
+    case StencilOperation::DecrementClamp:  return D3D12_STENCIL_OP_DECR_SAT;
+    case StencilOperation::Invert:          return D3D12_STENCIL_OP_INVERT;
+    case StencilOperation::IncrementWrap:   return D3D12_STENCIL_OP_INCR;
+    case StencilOperation::DecrementWrap:   return D3D12_STENCIL_OP_DECR;
+    default:                                return D3D12_STENCIL_OP_KEEP;
+    }
+}
+
+RHI::D3D12RenderPipeline::D3D12RenderPipeline(RscPtr<ID3D12PipelineState> pipelineState, const RenderPipelineDescription& description) 
+    : m_pipelineState(pipelineState), m_description(description)
+{
+}

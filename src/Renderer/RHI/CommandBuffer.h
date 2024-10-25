@@ -2,7 +2,7 @@
 #include "CommandQueue.h"
 #include "Texture.h"
 #include "RenderPass.h"
-#include "RenderPipeline.h"
+#include "PipelineCommon.h"
 
 namespace RHI
 {
@@ -27,8 +27,7 @@ namespace RHI
 	{
 		virtual void SubmitToQueue(std::shared_ptr<ICommandQueue> commandQueue) = 0;
 
-		virtual void BindsPipeline(std::shared_ptr<IRenderPipeline> renderingPipeline) = 0;
-		virtual void BeginRenderPass(std::shared_ptr<IRenderPass> renderPass) = 0;
+		virtual void BindRenderPipeline(std::shared_ptr<IRenderPipeline> renderPipeline) = 0;
 
 		virtual void BeginRecording() = 0;
 		virtual void EndRecording() = 0;

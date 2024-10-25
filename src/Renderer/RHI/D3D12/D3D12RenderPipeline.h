@@ -1,5 +1,5 @@
 #pragma once
-#include "../RenderPipeline.h"
+#include "../PipelineCommon.h"
 
 namespace RHI
 {
@@ -11,9 +11,14 @@ namespace RHI
     D3D12_BLEND ConvertBlendFactorToD3D12(BlendFactor factor);
     D3D12_BLEND_OP ConvertBlendOperationToD3D12(BlendOperation operation);
     D3D12_LOGIC_OP ConvertLogicalOperationToD3D12(LogicalOperation op);
+    D3D12_COMPARISON_FUNC ConvertDepthStencilCompareOperationToD3D12(DepthStencilCompareOperation operation);
+    D3D12_STENCIL_OP ConvertStencilOperationToD3D12(StencilOperation operation);
 
 	struct D3D12RenderPipeline : public IRenderPipeline
 	{
-		virtual ~D3D12RenderPipeline() {}
+        D3D12RenderPipeline(RscPtr<ID3D12PipelineState> pipelineState, const RenderPipelineDescription& description);
+
+        RscPtr<ID3D12PipelineState> m_pipelineState;
+        RenderPipelineDescription m_description;
 	};
 }

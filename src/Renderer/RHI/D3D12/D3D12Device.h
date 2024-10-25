@@ -3,7 +3,7 @@
 #include "../Device.h"
 #include "../Swapchain.h"
 #include "../Surface.h"
-#include "../RenderPipeline.h"
+#include "../PipelineCommon.h"
 
 namespace RHI
 {
