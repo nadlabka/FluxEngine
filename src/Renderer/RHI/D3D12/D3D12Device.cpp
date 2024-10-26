@@ -218,9 +218,6 @@ std::shared_ptr<RHI::IRenderPipeline> RHI::D3D12Device::CreateRenderPipeline(con
         psoDesc.RasterizerState = d3d12RasterizerState;
     }
     {
-        D3D12_DEPTH_STENCIL_DESC d3d12depthStencil = {};
-    }
-    {
         D3D12_DEPTH_STENCIL_DESC d3d12DepthStencil = {};
         d3d12DepthStencil.DepthEnable = renderPipelineDesc.depthStencil.depthTestEnabled ? TRUE : FALSE;
         d3d12DepthStencil.DepthWriteMask = renderPipelineDesc.depthStencil.depthWriteEnabled ? D3D12_DEPTH_WRITE_MASK_ALL : D3D12_DEPTH_WRITE_MASK_ZERO;
@@ -267,7 +264,7 @@ std::shared_ptr<RHI::IRenderPipeline> RHI::D3D12Device::CreateRenderPipeline(con
         psoDesc.InputLayout = { inputElementDescs.data(), (UINT)inputElementDescs.size() };
     }
     {
-        psoDesc.PrimitiveTopologyType = ConvertPrimitiveTopologyToD3D12(renderPipelineDesc.inputAssembler.primitiveTopology);
+        psoDesc.PrimitiveTopologyType = ConvertPrimitiveTopologyToD3D12TopologyType(renderPipelineDesc.inputAssembler.primitiveTopology);
     }
     {
         auto d3d12RenderPass = std::static_pointer_cast<D3D12RenderPass>(renderPipelineDesc.renderPass);

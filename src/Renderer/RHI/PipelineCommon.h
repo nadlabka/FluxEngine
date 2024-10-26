@@ -20,6 +20,8 @@ namespace RHI
 		PerInstance
 	};
 
+	// even if it's dynamic in vulkan, set it implicitly in BindPipeline, 
+	// because dx12 needs to call IASetPrimitiveTopology to specify exact one anyways
 	enum class PrimitiveTopology : uint8_t
 	{
 		PointList,
@@ -27,11 +29,6 @@ namespace RHI
 		LineStrip,
 		TriangleList,
 		TriangleStrip,
-		TriangleFan,
-		LineListAdjacency,
-		LineStripAdjacency,
-		TriangleListAdjacency,
-		TriangleStripAdjacency,
 		PatchList
 	};
 
@@ -193,7 +190,6 @@ namespace RHI
 	struct InputAssemblerDescription
 	{
 		PrimitiveTopology primitiveTopology;
-		bool primitiveRestartEnabled = false;
 	};
 
 	struct RasterizerDescription
@@ -236,7 +232,6 @@ namespace RHI
 		};
 
 		bool independentBlendEnabled;
-		std::array<float, 4> blendingConstants = { 0, 0, 0, 0 };
 		std::vector<ColorAttachmentBlendDesc> attachmentsBlends;
 
 		bool logicalOperationEnabled = false;
@@ -265,12 +260,11 @@ namespace RHI
 		StencilState backStencilState;
 	};
 
+	//don't forget about setting up dynamic states in vulkan
 	struct RenderPipelineDescription
 	{
 		InputAssemblerLayoutDescription inputAssemblerLayout;
 		InputAssemblerDescription inputAssembler;
-		ViewportInfo viewport;
-		ScissorsRect scissors;
 		RasterizerDescription rasterizer;
 		ColorBlendDescription colorBlend;
 		DepthStencilDescription depthStencil;

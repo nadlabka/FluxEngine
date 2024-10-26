@@ -5,7 +5,8 @@ namespace RHI
 {
     DXGI_FORMAT ConvertVertexAttributeFormatToDXGI(VertexAttributeFormat format);
     D3D12_INPUT_CLASSIFICATION ConvertBindingInputRateToD3D12(BindingInputRate rate);
-    D3D12_PRIMITIVE_TOPOLOGY_TYPE ConvertPrimitiveTopologyToD3D12(PrimitiveTopology topology);
+    D3D12_PRIMITIVE_TOPOLOGY_TYPE ConvertPrimitiveTopologyToD3D12TopologyType(PrimitiveTopology topology);
+    D3D12_PRIMITIVE_TOPOLOGY ConvertPrimitiveTopologyToD3D12(PrimitiveTopology topology);
     D3D12_FILL_MODE ConvertPolygonFillModeToD3D12(PolygonFillMode mode);
     D3D12_CULL_MODE ConvertCullModeToD3D12(CullMode mode);
     D3D12_BLEND ConvertBlendFactorToD3D12(BlendFactor factor);

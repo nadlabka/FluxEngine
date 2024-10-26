@@ -36,6 +36,7 @@ namespace RHI
 
 		virtual void SetViewport(const ViewportInfo& viewportInfo) = 0;
 		virtual void SetScissors(const ScissorsRect& rect) = 0;
+		virtual void SetBlendConstants(const std::array<float, 4> constantsValues) = 0;
 
 		virtual void DrawInstanced(const InstancedDrawInfo& instancedDrawInfo) = 0;
 		virtual void DrawIndexedInstanced(const IndexedInstancedDrawInfo& indexedInstancedDrawInfo) = 0;

@@ -27,7 +27,7 @@ D3D12_INPUT_CLASSIFICATION RHI::ConvertBindingInputRateToD3D12(BindingInputRate 
     }
 }
 
-D3D12_PRIMITIVE_TOPOLOGY_TYPE RHI::ConvertPrimitiveTopologyToD3D12(PrimitiveTopology topology)
+D3D12_PRIMITIVE_TOPOLOGY_TYPE RHI::ConvertPrimitiveTopologyToD3D12TopologyType(PrimitiveTopology topology)
 {
     switch (topology)
     {
@@ -35,19 +35,35 @@ D3D12_PRIMITIVE_TOPOLOGY_TYPE RHI::ConvertPrimitiveTopologyToD3D12(PrimitiveTopo
         return D3D12_PRIMITIVE_TOPOLOGY_TYPE_POINT;
     case PrimitiveTopology::LineList:
     case PrimitiveTopology::LineStrip:
-    case PrimitiveTopology::LineListAdjacency:
-    case PrimitiveTopology::LineStripAdjacency:
         return D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE;
     case PrimitiveTopology::TriangleList:
     case PrimitiveTopology::TriangleStrip:
-    case PrimitiveTopology::TriangleFan:
-    case PrimitiveTopology::TriangleListAdjacency:
-    case PrimitiveTopology::TriangleStripAdjacency:
         return D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
     case PrimitiveTopology::PatchList:
         return D3D12_PRIMITIVE_TOPOLOGY_TYPE_PATCH;
     default:
         return D3D12_PRIMITIVE_TOPOLOGY_TYPE_UNDEFINED;
+    }
+}
+
+D3D12_PRIMITIVE_TOPOLOGY RHI::ConvertPrimitiveTopologyToD3D12(PrimitiveTopology topology)
+{
+    switch (topology)
+    {
+    case PrimitiveTopology::PointList:
+        return D3D_PRIMITIVE_TOPOLOGY_POINTLIST;
+    case PrimitiveTopology::LineList:
+        return D3D_PRIMITIVE_TOPOLOGY_LINELIST;
+    case PrimitiveTopology::LineStrip:
+        return D3D_PRIMITIVE_TOPOLOGY_LINESTRIP;
+    case PrimitiveTopology::TriangleList:
+        return D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+    case PrimitiveTopology::TriangleStrip:
+        return D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP;
+    case PrimitiveTopology::PatchList:
+        return D3D_PRIMITIVE_TOPOLOGY_3_CONTROL_POINT_PATCHLIST;
+    default:
+        return D3D_PRIMITIVE_TOPOLOGY_UNDEFINED;
     }
 }
 
