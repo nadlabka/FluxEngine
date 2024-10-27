@@ -45,9 +45,32 @@ void RHI::D3D12Buffer::AllocateDescriptorsInHeaps(const BufferDescription& desc)
 
     if (desc.usage & BufferUsage::StorageBuffer)
     {
+        //create UAV
+        uint32_t uavIDX = cbv_srv_uav_heap->AllocateIndex();
+
+        uint32_t uavIndex = cbv_srv_uav_heap->AllocateIndex();
+        D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = 
+        {
+            .Format = DXGI_FORMAT_UNKNOWN,
+            .ViewDimension = D3D12_UAV_DIMENSION_BUFFER,
+            .Buffer =
+            {
+                .NumElements = desc.elementsNum,
+                .StructureByteStride = desc.elementStride,
+                .CounterOffsetInBytes = 0,
+                .Flags = D3D12_BUFFER_UAV_FLAG_NONE
+            }
+        };
+
+        auto handle = cbv_srv_uav_heap->GetCpuHandle(uavIndex);
+        d3d12device->m_device->CreateUnorderedAccessView(resourcePtr, nullptr, &uavDesc, handle);
+        m_UAVDescriptorIndex = uavIndex;
+    }
+    if (desc.usage & BufferUsage::DataReadBuffer)
+    {
         //create SRV
         uint32_t srvIndex = cbv_srv_uav_heap->AllocateIndex();
-        D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = 
+        D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc =
         {
             .Format = DXGI_FORMAT_UNKNOWN,
             .ViewDimension = D3D12_SRV_DIMENSION_BUFFER,
@@ -65,30 +88,6 @@ void RHI::D3D12Buffer::AllocateDescriptorsInHeaps(const BufferDescription& desc)
         auto handle = cbv_srv_uav_heap->GetCpuHandle(srvIDX);
         d3d12device->m_device->CreateShaderResourceView(resourcePtr, &srvDesc, handle);
         m_SRVDescriptorIndex = srvIDX;
-
-        if (desc.flags.isMutable)
-        {
-
-            uint32_t uavIDX = cbv_srv_uav_heap->AllocateIndex();
-
-            uint32_t uavIndex = cbv_srv_uav_heap->AllocateIndex();
-            D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = 
-            {
-                .Format = DXGI_FORMAT_UNKNOWN,
-                .ViewDimension = D3D12_UAV_DIMENSION_BUFFER,
-                .Buffer =
-                {
-                    .NumElements = desc.elementsNum,
-                    .StructureByteStride = desc.elementStride,
-                    .CounterOffsetInBytes = 0,
-                    .Flags = D3D12_BUFFER_UAV_FLAG_NONE
-                }
-            };
-
-            auto handle = cbv_srv_uav_heap->GetCpuHandle(uavIndex);
-            d3d12device->m_device->CreateUnorderedAccessView(resourcePtr, nullptr, &uavDesc, handle);
-            m_UAVDescriptorIndex = uavIndex;
-        }
     }
     if (desc.usage & BufferUsage::UniformBuffer)
     {
@@ -139,6 +138,17 @@ D3D12_RESOURCE_STATES RHI::GetD3D12ResourceStateFromDescription(const BufferDesc
     if (desc.usage & BufferUsage::StorageBuffer)
     {
         state |= D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
+    }
+    if (desc.usage & BufferUsage::DataReadBuffer)
+    {
+        if (desc.flags.isPixelShaderUsedOnly)
+        {
+            state |= D3D12_RESOURCE_STATE_ALL_SHADER_RESOURCE;
+        }
+        else
+        {
+            state |= D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+        }
     }
     if (desc.usage & BufferUsage::IndexBuffer)
     {

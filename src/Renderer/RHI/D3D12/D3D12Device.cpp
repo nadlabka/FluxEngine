@@ -76,7 +76,7 @@ std::shared_ptr<RHI::IPipelineLayout> RHI::D3D12Device::CreatePipelineLayout(con
         CD3DX12_DESCRIPTOR_RANGE1 range = {};
         switch (binding.descriptorsType)
         {
-        case DescriptorType::ConstantBuffer:
+        case DescriptorType::DataReadBuffer:
             range.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, binding.descriptorsCount, binding.bindingIndex, 0, D3D12_DESCRIPTOR_RANGE_FLAG_NONE);
             ranges.push_back(range);
             break;

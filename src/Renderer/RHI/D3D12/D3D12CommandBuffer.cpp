@@ -11,7 +11,11 @@ RHI::D3D12CommandBuffer::D3D12CommandBuffer(RscPtr<ID3D12CommandAllocator> comma
 
 RHI::D3D12CommandBuffer::~D3D12CommandBuffer()
 {
+}
 
+void RHI::D3D12CommandBuffer::BindRenderPipeline(std::shared_ptr<IRenderPipeline> renderPipeline)
+{
+	m_currentRenderPipeline = std::static_pointer_cast<D3D12RenderPipeline>(renderPipeline);
 }
 
 void RHI::D3D12CommandBuffer::SubmitToQueue(std::shared_ptr<ICommandQueue> commandQueue)
@@ -24,17 +28,14 @@ void RHI::D3D12CommandBuffer::SubmitToQueue(std::shared_ptr<ICommandQueue> comma
 	ID3D12CommandList* ppCommandLists[] = { m_commandList.ptr() };
 	d3d12CommandQueue->m_commandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
 
-	//RESET??
-
 	m_fenceValue = d3d12CommandQueue->SignalFence();
 }
 
 void RHI::D3D12CommandBuffer::BeginRecording()
 {
-	//RESET??
-	//if it was submitted = you can start recording
+	m_commandList->Reset(m_commandAllocator.ptr(), m_currentRenderPipeline->m_pipelineState.ptr());
 
-	m_commandList->Reset(m_commandAllocator.ptr(), ......);
+
 }
 
 void RHI::D3D12CommandBuffer::EndRecording()
@@ -48,6 +49,11 @@ void RHI::D3D12CommandBuffer::SetViewport(const ViewportInfo&)
 }
 
 void RHI::D3D12CommandBuffer::SetScissors(const ScissorsRect&)
+{
+
+}
+
+void RHI::D3D12CommandBuffer::SetBlendConstants(const std::array<float, 4> constantsValues)
 {
 
 }

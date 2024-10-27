@@ -10,7 +10,7 @@ namespace RHI
 	enum class DescriptorType 
 	{
 		UniformBuffer,
-		ConstantBuffer,
+		DataReadBuffer,
 		StorageBuffer,
 		Sampler,
 		SampledImage,
