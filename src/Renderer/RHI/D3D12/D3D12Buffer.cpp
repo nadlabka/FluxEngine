@@ -4,8 +4,8 @@
 #include "Managers/DescriptorsHeapsManager.h"
 #include "D3D12Device.h"
 
-RHI::D3D12Buffer::D3D12Buffer(uint32_t elementsNum, uint32_t elementStride, RscPtr<D3D12MA::Allocation> allocation, bool requiredCopyStateToInit, D3D12_RESOURCE_STATES targetResourceState)
-	: m_elementsNum(elementsNum), m_elementStride(elementStride), m_allocation(allocation), m_isInitialised(!requiredCopyStateToInit), D3D12StatefulResource(targetResourceState)
+RHI::D3D12Buffer::D3D12Buffer(uint32_t elementsNum, uint32_t elementStride, RscPtr<D3D12MA::Allocation> allocation, D3D12_RESOURCE_STATES targetResourceState)
+	: m_elementsNum(elementsNum), m_elementStride(elementStride), m_allocation(allocation), D3D12StatefulResource(targetResourceState)
 {
 }
 
@@ -122,51 +122,4 @@ D3D12_HEAP_TYPE RHI::ConvertBufferAccessToD3D12HeapType(BufferAccess memoryVisib
     default:
         return D3D12_HEAP_TYPE_CUSTOM;
     }
-}
-
-D3D12_RESOURCE_STATES RHI::GetD3D12ResourceStateFromDescription(const BufferDescription& desc)
-{
-    D3D12_RESOURCE_STATES state = D3D12_RESOURCE_STATE_COMMON;
-
-    switch (desc.access)
-    {
-    case BufferAccess::Upload:
-        return D3D12_RESOURCE_STATE_GENERIC_READ;
-    case BufferAccess::Readback:
-        return D3D12_RESOURCE_STATE_COPY_DEST;
-    }
-
-    if (desc.usage & BufferUsage::UniformBuffer)
-    {
-        state |= D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER;
-    }
-    if (desc.usage & BufferUsage::StorageBuffer)
-    {
-        state |= D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
-    }
-    if (desc.usage & BufferUsage::DataReadBuffer)
-    {
-        if (desc.flags.isUsedInPixelShaderOnly)
-        {
-            state |= D3D12_RESOURCE_STATE_ALL_SHADER_RESOURCE;
-        }
-        else
-        {
-            state |= D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
-        }
-    }
-    if (desc.usage & BufferUsage::IndexBuffer)
-    {
-        state |= D3D12_RESOURCE_STATE_INDEX_BUFFER;
-    }
-    if (desc.usage & BufferUsage::VertexBuffer)
-    {
-        state |= D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER;
-    }
-    if (desc.usage & BufferUsage::IndirectBuffer)
-    {
-        state |= D3D12_RESOURCE_STATE_INDIRECT_ARGUMENT;
-    }
-
-    return state;
 }

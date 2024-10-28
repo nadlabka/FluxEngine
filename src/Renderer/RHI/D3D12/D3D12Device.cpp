@@ -25,7 +25,7 @@ std::shared_ptr<RHI::ICommandQueue> RHI::D3D12Device::CreateCommandQueue(QueueTy
 
     D3D12_COMMAND_QUEUE_DESC queueDesc = {};
     queueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
-    queueDesc.Type = ConverQueueTypeToCommandListType(queueType);
+    queueDesc.Type = ConvertQueueTypeToCommandListType(queueType);
 
     ThrowIfFailed(m_device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&commandQueue)));
     ThrowIfFailed(m_device->CreateFence(0u, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence)));
@@ -38,7 +38,7 @@ std::shared_ptr<RHI::ICommandBuffer> RHI::D3D12Device::CreateCommandBuffer(Queue
     RscPtr<ID3D12CommandAllocator> commandAllocator;
     RscPtr<ID3D12GraphicsCommandList> commandList;
 
-    auto commandListType = ConverQueueTypeToCommandListType(bufferSubmitQueueType);
+    auto commandListType = ConvertQueueTypeToCommandListType(bufferSubmitQueueType);
 
     ThrowIfFailed(m_device->CreateCommandAllocator(commandListType, IID_PPV_ARGS(&commandAllocator)));
     ThrowIfFailed(m_device->CreateCommandList(0, commandListType, commandAllocator.ptr(), nullptr, IID_PPV_ARGS(&commandList)));
@@ -129,8 +129,8 @@ std::shared_ptr<RHI::IPipelineLayout> RHI::D3D12Device::CreatePipelineLayout(con
     CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC rootSignatureDescription;
     rootSignatureDescription.Init_1_1(rootParameters.size(), rootParameters.data(), 0, nullptr, rootSignatureFlags);
 
-    ComPtr<ID3DBlob> signature;
-    ComPtr<ID3DBlob> error;
+    RscPtr<ID3DBlob> signature;
+    RscPtr<ID3DBlob> error;
     ThrowIfFailed(
         D3DX12SerializeVersionedRootSignature(
             &rootSignatureDescription,
@@ -139,7 +139,7 @@ std::shared_ptr<RHI::IPipelineLayout> RHI::D3D12Device::CreatePipelineLayout(con
             &error)
     );
 
-    ComPtr<ID3D12RootSignature> rootSignature;
+    RscPtr<ID3D12RootSignature> rootSignature;
     ThrowIfFailed(m_device->CreateRootSignature(
         0,
         signature->GetBufferPointer(),

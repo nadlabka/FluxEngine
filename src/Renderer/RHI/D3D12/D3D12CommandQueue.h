@@ -4,15 +4,7 @@
 
 namespace RHI
 {
-	D3D12_COMMAND_LIST_TYPE ConverQueueTypeToCommandListType(QueueType queueType)
-	{
-		switch (queueType)
-		{
-		case QueueType::AllCommands: return D3D12_COMMAND_LIST_TYPE_DIRECT;
-		case QueueType::CopyOnly: return D3D12_COMMAND_LIST_TYPE_COPY;
-		case QueueType::ComputeOnly: return D3D12_COMMAND_LIST_TYPE_COMPUTE;
-		}
-	}
+	D3D12_COMMAND_LIST_TYPE ConvertQueueTypeToCommandListType(QueueType queueType);
 
 	struct D3D12CommandQueue : public ICommandQueue
 	{

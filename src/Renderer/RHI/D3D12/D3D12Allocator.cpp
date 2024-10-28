@@ -106,23 +106,26 @@ std::shared_ptr<RHI::IBuffer> RHI::D3D12Allocator::CreateBuffer(const BufferDesc
 	resourceDesc.SampleDesc.Count = 1;
 	resourceDesc.SampleDesc.Quality = 0;
 	resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
-	resourceDesc.Flags = BufferUsage::StorageBuffer ? D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS : D3D12_RESOURCE_FLAG_NONE;
+	resourceDesc.Flags = desc.usage & BufferUsage::StorageBuffer ? D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS : D3D12_RESOURCE_FLAG_NONE;
 
 	RscPtr<D3D12MA::Allocation> allocation;
 
 	D3D12MA::ALLOCATION_DESC allocationDesc = {};
 	allocationDesc.HeapType = ConvertBufferAccessToD3D12HeapType(desc.access);
-	
-	D3D12_RESOURCE_STATES initialState = GetD3D12ResourceStateFromDescription(desc);
+
+	D3D12_RESOURCE_STATES initialState = desc.flags.requiredCopyStateToInit ? D3D12_RESOURCE_STATE_COPY_DEST :
+											(desc.access == BufferAccess::Upload ? D3D12_RESOURCE_STATE_GENERIC_READ :
+												D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 
 	HRESULT hr = m_allocator->CreateResource(
 		&allocationDesc,
 		&resourceDesc,
-		desc.flags.requiredCopyStateToInit ? D3D12_RESOURCE_STATE_COPY_DEST : initialState,
+		initialState,
 		NULL,
 		&allocation,
 		IID_NULL, NULL);
 
-	auto resultBuffer = std::make_shared<D3D12Buffer>(desc.elementsNum, desc.elementStride, allocation, desc.flags.requiredCopyStateToInit, initialState);
+	auto resultBuffer = std::make_shared<D3D12Buffer>(desc.elementsNum, desc.elementStride, allocation, initialState);
+	resultBuffer->AllocateDescriptorsInHeaps(desc);
 	return resultBuffer;
 }

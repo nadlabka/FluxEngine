@@ -38,3 +38,13 @@ void RHI::D3D12CommandQueue::WaitForFenceValue(uint64_t value, HANDLE fenceEvent
         ::WaitForSingleObject(fenceEvent, DWORD_MAX);
     }
 }
+
+D3D12_COMMAND_LIST_TYPE RHI::ConvertQueueTypeToCommandListType(QueueType queueType)
+{
+    switch (queueType)
+    {
+    case QueueType::AllCommands: return D3D12_COMMAND_LIST_TYPE_DIRECT;
+    case QueueType::CopyOnly: return D3D12_COMMAND_LIST_TYPE_COPY;
+    case QueueType::ComputeOnly: return D3D12_COMMAND_LIST_TYPE_COMPUTE;
+    }
+}
