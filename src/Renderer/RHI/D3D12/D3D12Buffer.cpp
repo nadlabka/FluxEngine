@@ -4,8 +4,8 @@
 #include "Managers/DescriptorsHeapsManager.h"
 #include "D3D12Device.h"
 
-RHI::D3D12Buffer::D3D12Buffer(uint32_t elementsNum, uint32_t elementStride, RscPtr<D3D12MA::Allocation> allocation, D3D12_RESOURCE_STATES resourceState)
-	: m_elementsNum(elementsNum), m_elementStride(elementStride), m_allocation(allocation), D3D12StatefulResource(resourceState)
+RHI::D3D12Buffer::D3D12Buffer(uint32_t elementsNum, uint32_t elementStride, RscPtr<D3D12MA::Allocation> allocation, bool requiredCopyStateToInit, D3D12_RESOURCE_STATES targetResourceState)
+	: m_elementsNum(elementsNum), m_elementStride(elementStride), m_allocation(allocation), m_isInitialised(!requiredCopyStateToInit), D3D12StatefulResource(targetResourceState)
 {
 }
 
@@ -104,6 +104,11 @@ void RHI::D3D12Buffer::AllocateDescriptorsInHeaps(const BufferDescription& desc)
     }
 }
 
+void RHI::D3D12Buffer::UploadData(void* data, uint64_t size)
+{
+
+}
+
 D3D12_HEAP_TYPE RHI::ConvertBufferAccessToD3D12HeapType(BufferAccess memoryVisibility)
 {
     switch (memoryVisibility)
@@ -141,7 +146,7 @@ D3D12_RESOURCE_STATES RHI::GetD3D12ResourceStateFromDescription(const BufferDesc
     }
     if (desc.usage & BufferUsage::DataReadBuffer)
     {
-        if (desc.flags.isPixelShaderUsedOnly)
+        if (desc.flags.isUsedInPixelShaderOnly)
         {
             state |= D3D12_RESOURCE_STATE_ALL_SHADER_RESOURCE;
         }
@@ -161,15 +166,6 @@ D3D12_RESOURCE_STATES RHI::GetD3D12ResourceStateFromDescription(const BufferDesc
     if (desc.usage & BufferUsage::IndirectBuffer)
     {
         state |= D3D12_RESOURCE_STATE_INDIRECT_ARGUMENT;
-    }
-    if (desc.flags.isCopySrc)
-    {
-        state |= D3D12_RESOURCE_STATE_COPY_SOURCE;
-    }
-    if (desc.flags.isCopyDst)
-    {
-        ASSERT(!desc.flags.isCopySrc, "Buffer can't be copy SRC and DEST at the same time");
-        state |= D3D12_RESOURCE_STATE_COPY_DEST;
     }
 
     return state;

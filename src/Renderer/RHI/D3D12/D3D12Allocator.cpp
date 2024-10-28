@@ -118,11 +118,11 @@ std::shared_ptr<RHI::IBuffer> RHI::D3D12Allocator::CreateBuffer(const BufferDesc
 	HRESULT hr = m_allocator->CreateResource(
 		&allocationDesc,
 		&resourceDesc,
-		initialState,
+		desc.flags.requiredCopyStateToInit ? D3D12_RESOURCE_STATE_COPY_DEST : initialState,
 		NULL,
 		&allocation,
 		IID_NULL, NULL);
 
-	auto resultBuffer = std::make_shared<D3D12Buffer>(desc.elementsNum, desc.elementStride, allocation, initialState);
+	auto resultBuffer = std::make_shared<D3D12Buffer>(desc.elementsNum, desc.elementStride, allocation, desc.flags.requiredCopyStateToInit, initialState);
 	return resultBuffer;
 }

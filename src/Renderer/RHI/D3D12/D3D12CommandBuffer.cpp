@@ -67,3 +67,7 @@ void RHI::D3D12CommandBuffer::DrawIndexedInstanced(const IndexedInstancedDrawInf
 {
 
 }
+
+void RHI::D3D12CommandBuffer::CopyDataBetweenBuffers(std::shared_ptr<IBuffer> fromBuffer, std::shared_ptr<IBuffer> toBuffer)
+{
+}
