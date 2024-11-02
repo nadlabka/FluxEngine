@@ -112,10 +112,10 @@ std::shared_ptr<RHI::IPipelineLayout> RHI::D3D12Device::CreatePipelineLayout(con
             ranges.push_back(range);
             break;
         case DescriptorType::StorageImage:
-            for (auto& textureUAVDescriptorOffset : texture->m_UAVDescriptorsIndices)
+            for(int i = 0; i < binding.mipsToIncludeForUAV.size(); i++)
             {
                 range.Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, binding.bindingIndex, D3D12_DESCRIPTOR_RANGE_FLAG_DATA_VOLATILE);
-                range.OffsetInDescriptorsFromTableStart = textureUAVDescriptorOffset;
+                range.OffsetInDescriptorsFromTableStart = texture->m_UAVDescriptorsIndices[i];
                 ranges.push_back(range);
             }
             break;

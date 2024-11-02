@@ -33,7 +33,7 @@ namespace RHI
     struct SubResourceRTsDescription
     {
         std::shared_ptr<ITexture> texture;
-        std::vector<uint32_t> mipsToInclude;
+        std::vector<uint32_t> mipsToInclude = { 0 };
     };
 
 	struct IRenderPass
