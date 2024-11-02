@@ -30,8 +30,16 @@ namespace RHI
         std::optional<AttachmentDesc> depthStencilAttachment;
     };
 
+    struct SubResourceRTsDescription
+    {
+        std::shared_ptr<ITexture> texture;
+        std::vector<uint32_t> mipsToInclude;
+    };
+
 	struct IRenderPass
 	{
 		virtual ~IRenderPass() {}
+
+        virtual void SetAttachments(const std::vector<SubResourceRTsDescription>& colorRTs, std::shared_ptr<ITexture> depthStencilRT) = 0;
 	};
 }

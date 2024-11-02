@@ -7,6 +7,7 @@
 #include "D3D12RenderPass.h"
 #include "D3D12RenderPipeline.h"
 #include "D3D12Shader.h"
+#include "D3D12Buffer.h"
 
 RHI::D3D12Device::D3D12Device()
 {
@@ -72,20 +73,24 @@ std::shared_ptr<RHI::IPipelineLayout> RHI::D3D12Device::CreatePipelineLayout(con
 
     for (auto& item : pipelineLayoutDesc.buffersBindings)
     {
+        auto buffer = std::static_pointer_cast<D3D12Buffer>(item.first);
         const DescriptorBinding& binding = item.second;
         CD3DX12_DESCRIPTOR_RANGE1 range = {};
-        switch (binding.descriptorsType)
+        switch (binding.descriptorType)
         {
         case DescriptorType::DataReadBuffer:
-            range.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, binding.descriptorsCount, binding.bindingIndex, 0, D3D12_DESCRIPTOR_RANGE_FLAG_NONE);
+            range.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, binding.bindingIndex, 0, D3D12_DESCRIPTOR_RANGE_FLAG_NONE);
+            range.OffsetInDescriptorsFromTableStart = buffer->m_SRVDescriptorIndex;
             ranges.push_back(range);
             break;
         case DescriptorType::StorageBuffer:
-            range.Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, binding.descriptorsCount, binding.bindingIndex, 0, D3D12_DESCRIPTOR_RANGE_FLAG_DATA_VOLATILE);
+            range.Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, binding.bindingIndex, 0, D3D12_DESCRIPTOR_RANGE_FLAG_DATA_VOLATILE);
+            range.OffsetInDescriptorsFromTableStart = buffer->m_UAVDescriptorIndex;
             ranges.push_back(range);
             break;
         case DescriptorType::UniformBuffer:
-            range.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, binding.descriptorsCount, binding.bindingIndex, 0, D3D12_DESCRIPTOR_RANGE_FLAG_NONE);
+            range.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, binding.bindingIndex, 0, D3D12_DESCRIPTOR_RANGE_FLAG_NONE);
+            range.OffsetInDescriptorsFromTableStart = buffer->m_CBVDescriptorIndex;
             ranges.push_back(range);
             break;
         }
@@ -96,17 +101,23 @@ std::shared_ptr<RHI::IPipelineLayout> RHI::D3D12Device::CreatePipelineLayout(con
 
     for (auto& item : pipelineLayoutDesc.texturesBindings)
     {
+        auto texture = std::static_pointer_cast<D3D12Texture>(item.first);
         const DescriptorBinding& binding = item.second;
         CD3DX12_DESCRIPTOR_RANGE1 range = {};
-        switch (item.second.descriptorsType)
+        switch (item.second.descriptorType)
         {
         case DescriptorType::SampledImage:
-            range.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, binding.descriptorsCount, binding.bindingIndex, D3D12_DESCRIPTOR_RANGE_FLAG_NONE);
+            range.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, binding.bindingIndex, D3D12_DESCRIPTOR_RANGE_FLAG_NONE);
+            range.OffsetInDescriptorsFromTableStart = texture->m_SRVDescriptorIndex;
             ranges.push_back(range);
             break;
         case DescriptorType::StorageImage:
-            range.Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, binding.descriptorsCount, binding.bindingIndex, D3D12_DESCRIPTOR_RANGE_FLAG_DATA_VOLATILE);
-            ranges.push_back(range);
+            for (auto& textureUAVDescriptorOffset : texture->m_UAVDescriptorsIndices)
+            {
+                range.Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, binding.bindingIndex, D3D12_DESCRIPTOR_RANGE_FLAG_DATA_VOLATILE);
+                range.OffsetInDescriptorsFromTableStart = textureUAVDescriptorOffset;
+                ranges.push_back(range);
+            }
             break;
         }
         CD3DX12_ROOT_PARAMETER1 rootParam;
@@ -118,7 +129,8 @@ std::shared_ptr<RHI::IPipelineLayout> RHI::D3D12Device::CreatePipelineLayout(con
     {
         const DescriptorBinding& binding = item.second;
         CD3DX12_DESCRIPTOR_RANGE1 range = {};
-        range.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER, binding.descriptorsCount, binding.bindingIndex, D3D12_DESCRIPTOR_RANGE_FLAG_NONE);
+        range.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER, 1, binding.bindingIndex, D3D12_DESCRIPTOR_RANGE_FLAG_NONE);
+        range.OffsetInDescriptorsFromTableStart = sampler->m_descriptorIndex;
         ranges.push_back(range);
 
         CD3DX12_ROOT_PARAMETER1 rootParam;

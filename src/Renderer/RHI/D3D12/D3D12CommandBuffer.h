@@ -16,7 +16,7 @@ namespace RHI
 
 		void SubmitToQueue(std::shared_ptr<ICommandQueue> commandQueue);
 
-		//includes implicict commands such as dynamic states binds and resource states transitions
+		//includes implicict commands such as pipeline dynamic states binds and resource states transitions
 		void BeginRecording();
 		void EndRecording();
 

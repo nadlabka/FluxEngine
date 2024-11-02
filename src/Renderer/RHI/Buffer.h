@@ -23,7 +23,6 @@ namespace RHI
 
 	struct BufferFlags
 	{
-		bool isUsedInPixelShaderOnly = false;
 		bool requiredCopyStateToInit = true;
 	};
 

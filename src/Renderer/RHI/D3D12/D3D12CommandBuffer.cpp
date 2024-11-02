@@ -2,6 +2,8 @@
 #include "D3D12CommandBuffer.h"
 #include "D3D12CommandQueue.h"
 #include <DebugMacros.h>
+#include "D3D12PipelineLayout.h"
+#include "D3D12Texture.h"
 
 RHI::D3D12CommandBuffer::D3D12CommandBuffer(RscPtr<ID3D12CommandAllocator> commandAllocator, RscPtr<ID3D12GraphicsCommandList> commandList) 
 	: m_commandAllocator(commandAllocator), m_commandList(commandList), m_fenceValue(0u)
@@ -35,7 +37,37 @@ void RHI::D3D12CommandBuffer::BeginRecording()
 {
 	m_commandList->Reset(m_commandAllocator.ptr(), m_currentRenderPipeline->m_pipelineState.ptr());
 
+	m_commandList->SetGraphicsRootSignature(std::static_pointer_cast<D3D12PipelineLayout>(m_currentRenderPipeline->m_description.pipelineLayout)->m_rootSignature.ptr());
 
+	auto& descHeapsMgr = DescriptorsHeapsManager::GetInstance();
+	auto rtv_heap = descHeapsMgr.GetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+	auto dsv_heap = descHeapsMgr.GetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
+	auto cbv_srv_uav_heap = descHeapsMgr.GetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+
+	auto d3d12RenderPass = std::static_pointer_cast<D3D12RenderPass>(m_currentRenderPipeline->m_description.renderPass);
+	uint32_t currentColorRTSetIndex = 0;
+	for (int i = 0; i < d3d12RenderPass->m_colorRTs.size(); i++)
+	{
+		auto& attachmentDesc = d3d12RenderPass->m_description.colorAttachments[i];
+		auto d3d12ColorRT = std::static_pointer_cast<D3D12Texture>(d3d12RenderPass->m_colorRTs[i].texture);
+		auto texturePtr = d3d12ColorRT->m_texture.ptr() ? d3d12ColorRT->m_texture.ptr() : d3d12ColorRT->m_allocation->GetResource();
+
+		auto targetState = ConvertTextureLayoutToResourceState(attachmentDesc.initialLayout);
+		if (d3d12ColorRT->m_resourceState != targetState)
+		{
+			auto transitedRT = CD3DX12_RESOURCE_BARRIER::Transition(texturePtr, d3d12ColorRT->m_resourceState, targetState);
+			m_commandList->ResourceBarrier(1, &transitedRT);
+			d3d12ColorRT->m_resourceState = targetState;
+		}
+
+		for (auto& mipRT : d3d12RenderPass->m_colorRTs[i].mipsToInclude)
+		{
+
+		}
+		
+
+		m_commandList->OMSetRenderTargets(1, &rtv_heap->GetCpuHandle(d3d12ColorRT->m_RTVDescriptorsIndices[i]), FALSE, nullptr);
+	}
 }
 
 void RHI::D3D12CommandBuffer::EndRecording()

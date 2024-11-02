@@ -34,8 +34,8 @@ namespace RHI
 		TextureDimensionsInfo m_dimensionsInfo;
 
 		std::vector<uint32_t> m_UAVDescriptorsIndices;
-		std::vector<uint32_t> m_SRVDescriptorsIndices;
 		std::vector<uint32_t> m_RTVDescriptorsIndices;
+		uint32_t m_SRVDescriptorIndex = D3D12DescriptorHeap::INDEX_INVALID;
 		uint32_t m_DSVDescriptorIndex = D3D12DescriptorHeap::INDEX_INVALID;
 
 		//use recource OR allocation

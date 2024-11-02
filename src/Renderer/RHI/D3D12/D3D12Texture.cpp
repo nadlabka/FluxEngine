@@ -27,13 +27,13 @@ RHI::D3D12Texture::~D3D12Texture()
 	{
 		cbv_srv_uav_heap->EraseIndex(idx);
 	}
-	for (auto& idx : m_SRVDescriptorsIndices)
-	{
-		cbv_srv_uav_heap->EraseIndex(idx);
-	}
 	for (auto& idx : m_RTVDescriptorsIndices)
 	{
 		rtv_heap->EraseIndex(idx);
+	}
+	if (m_SRVDescriptorIndex != D3D12DescriptorHeap::INDEX_INVALID)
+	{
+		cbv_srv_uav_heap->EraseIndex(m_SRVDescriptorIndex);
 	}
 	if (m_DSVDescriptorIndex != D3D12DescriptorHeap::INDEX_INVALID)
 	{
@@ -52,7 +52,6 @@ void RHI::D3D12Texture::AllocateDescriptorsInHeaps(const TextureDescription& des
     auto cbv_srv_uav_heap = descHeapsMgr.GetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 
 	const bool isDS = (desc.aspect & eTextureAspect_HasDepth || desc.aspect & eTextureAspect_HasStencil);
-	m_SRVDescriptorsIndices.reserve(desc.mipLevels);
 	m_UAVDescriptorsIndices.reserve(desc.mipLevels);
 	m_RTVDescriptorsIndices.reserve(desc.mipLevels);
 
@@ -105,7 +104,7 @@ void RHI::D3D12Texture::AllocateDescriptorsInHeaps(const TextureDescription& des
 		auto handle = cbv_srv_uav_heap->GetCpuHandle(srvIDX);
 		d3d12device->m_device->CreateShaderResourceView(resourcePtr, &srvDesc, handle);
 
-		m_SRVDescriptorsIndices.push_back(srvIDX);
+		m_SRVDescriptorIndex = srvIDX;
 	}
 	if (desc.usage & eTextureUsage_Storage) 
 	{

@@ -17,7 +17,7 @@ namespace RHI
 		StorageImage
 	};
 
-	enum class BindingVisibility 
+	enum BindingVisibility 
 	{
 		Vertex = 1 << 0,
 		Fragment = 1 << 1,
@@ -28,8 +28,7 @@ namespace RHI
 	struct DescriptorBinding 
 	{
 		uint32_t bindingIndex;
-		DescriptorType descriptorsType;
-		uint32_t descriptorsCount;
+		DescriptorType descriptorType;
 		BindingVisibility stageVisbility;
 	};
 
