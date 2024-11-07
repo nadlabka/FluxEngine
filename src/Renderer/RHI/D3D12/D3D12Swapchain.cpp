@@ -49,9 +49,12 @@ void RHI::D3D12Swapchain::UpdateDescriptors()
     }
 }
 
-void RHI::D3D12Swapchain::SetNextRenderTarget()
+std::shared_ptr<RHI::ITexture> RHI::D3D12Swapchain::GetNextRenderTarget()
 {
-     
+    auto& currentTexture = m_backbufferTextures[currentFrameIndex];
+    currentFrameIndex = (currentFrameIndex + 1) % m_framesCount;
+
+    return std::make_shared<D3D12Texture>(currentTexture);
 }
 
 void RHI::D3D12Swapchain::Resize(uint32_t width, uint32_t height)

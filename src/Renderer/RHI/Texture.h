@@ -78,15 +78,13 @@ namespace RHI
 	{
 		Load,
 		Clear,
-		DontCare,
-		NotAccessed
+		DontCare
 	};
 
 	enum class StoreAccessOperation : uint8_t 
 	{
 		Store,
-		DontCare,
-		None,
+		DontCare
 	};
 
 	struct TextureDescription

@@ -13,10 +13,11 @@ namespace RHI
 
 		void UpdateDescriptors();
 
-		void SetNextRenderTarget();
+		std::shared_ptr<ITexture> GetNextRenderTarget();
 		void Resize(uint32_t width, uint32_t height);
 		void Present();
 
+		uint32_t currentFrameIndex = 0;
 		uint32_t m_framesCount;
 		std::vector<D3D12Texture> m_backbufferTextures;
 		RscPtr<IDXGISwapChain1> m_swapchain;

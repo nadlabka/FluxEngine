@@ -32,8 +32,14 @@ namespace RHI
 
     struct SubResourceRTsDescription
     {
+        struct TextureArraySliceToInclude
+        {
+            uint32_t sliceIndex = 0;
+            std::vector<uint32_t> mipsToInclude = { 0 };
+        };
+
         std::shared_ptr<ITexture> texture;
-        std::vector<uint32_t> mipsToInclude = { 0 };
+        std::vector<TextureArraySliceToInclude> slicesToInclude;
     };
 
 	struct IRenderPass

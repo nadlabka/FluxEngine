@@ -23,6 +23,10 @@ namespace RHI
 		void SetViewport(const ViewportInfo& viewportInfo);
 		void SetScissors(const ScissorsRect& rect);
 		void SetBlendConstants(const std::array<float, 4> constantsValues);
+		void SetPrimitiveTopology(PrimitiveTopology primitiveTopology);
+
+		void SetVertexBuffer(std::shared_ptr<IBuffer> buffer, uint32_t slot);
+		void SetIndexBuffer(std::shared_ptr<IBuffer> buffer);
 
 		void DrawInstanced(const InstancedDrawInfo& instancedDrawInfo);
 		void DrawIndexedInstanced(const IndexedInstancedDrawInfo& indexedInstancedDrawInfo);

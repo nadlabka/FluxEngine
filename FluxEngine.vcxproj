@@ -176,6 +176,7 @@
     <ClInclude Include="src\Renderer\RHI\D3D12\D3D12PipelineLayout.h" />
     <ClInclude Include="src\Renderer\RHI\D3D12\D3D12RenderPass.h" />
     <ClInclude Include="src\Renderer\RHI\D3D12\D3D12RenderPipeline.h" />
+    <ClInclude Include="src\Renderer\RHI\D3D12\D3D12Sampler.h" />
     <ClInclude Include="src\Renderer\RHI\D3D12\D3D12Shader.h" />
     <ClInclude Include="src\Renderer\RHI\D3D12\D3D12StatefulResource.h" />
     <ClInclude Include="src\Renderer\RHI\D3D12\D3D12Texture.h" />

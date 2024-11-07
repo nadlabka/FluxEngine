@@ -251,5 +251,8 @@
     <ClInclude Include="src\Renderer\RHI\D3D12\D3D12ComputePipeline.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\Renderer\RHI\D3D12\D3D12Sampler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -8,6 +8,7 @@
 #include "D3D12RenderPipeline.h"
 #include "D3D12Shader.h"
 #include "D3D12Buffer.h"
+#include "D3D12Sampler.h"
 
 RHI::D3D12Device::D3D12Device()
 {
@@ -127,6 +128,7 @@ std::shared_ptr<RHI::IPipelineLayout> RHI::D3D12Device::CreatePipelineLayout(con
 
     for (auto& item : pipelineLayoutDesc.samplersBindings)
     {
+        auto sampler = std::static_pointer_cast<D3D12Sampler>(item.first);
         const DescriptorBinding& binding = item.second;
         CD3DX12_DESCRIPTOR_RANGE1 range = {};
         range.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER, 1, binding.bindingIndex, D3D12_DESCRIPTOR_RANGE_FLAG_NONE);
