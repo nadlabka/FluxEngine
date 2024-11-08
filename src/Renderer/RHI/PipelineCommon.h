@@ -166,9 +166,7 @@ namespace RHI
 		//data from this struct(offset, stride) is going to be used in BindVertexBuffer of CommandBuffer
 		struct BindingDescription
 		{
-			uint32_t stride;
-			uint32_t offset;
-			uint32_t size;
+			uint32_t stride; // in bytes
 			uint32_t binding;
 			BindingInputRate inputRate;
 		};
@@ -177,7 +175,7 @@ namespace RHI
 		{
 			uint32_t location;
 			uint32_t binding;
-			uint32_t offset;
+			uint32_t offset; // in bytes
 			VertexAttributeFormat format;
 			std::string semanticsName;
 			uint32_t semanticsIndex;

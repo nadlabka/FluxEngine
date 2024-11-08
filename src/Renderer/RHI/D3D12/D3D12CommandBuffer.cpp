@@ -172,19 +172,33 @@ void RHI::D3D12CommandBuffer::EndRecording()
 	}
 }
 
-void RHI::D3D12CommandBuffer::SetViewport(const ViewportInfo&)
+void RHI::D3D12CommandBuffer::SetViewport(const ViewportInfo& viewportInfo)
 {
+	D3D12_VIEWPORT viewport = {};
+	viewport.TopLeftX = viewportInfo.topLeftX;
+	viewport.TopLeftY = viewportInfo.topLeftY;
+	viewport.Width = viewportInfo.width;
+	viewport.Height = viewportInfo.height;
+	viewport.MinDepth = viewportInfo.minDepth;
+	viewport.MaxDepth = viewportInfo.maxDepth;
 
+	m_commandList->RSSetViewports(1, &viewport);
 }
 
-void RHI::D3D12CommandBuffer::SetScissors(const ScissorsRect&)
+void RHI::D3D12CommandBuffer::SetScissors(const ScissorsRect& scissorsRect)
 {
+	D3D12_RECT scissorRectD3D = {};
+	scissorRectD3D.left = scissorsRect.offsetX;
+	scissorRectD3D.top = scissorsRect.offsetY;
+	scissorRectD3D.right = scissorsRect.offsetX + scissorsRect.extentX;
+	scissorRectD3D.bottom = scissorsRect.offsetY + scissorsRect.extentY;
 
+	m_commandList->RSSetScissorRects(1, &scissorRectD3D);
 }
 
 void RHI::D3D12CommandBuffer::SetBlendConstants(const std::array<float, 4> constantsValues)
 {
-
+	m_commandList->OMSetBlendFactor(constantsValues.data());
 }
 
 void RHI::D3D12CommandBuffer::SetPrimitiveTopology(PrimitiveTopology primitiveTopology)
@@ -192,24 +206,49 @@ void RHI::D3D12CommandBuffer::SetPrimitiveTopology(PrimitiveTopology primitiveTo
 	m_commandList->IASetPrimitiveTopology(ConvertPrimitiveTopologyToD3D12(primitiveTopology));
 }
 
-void RHI::D3D12CommandBuffer::SetVertexBuffer(std::shared_ptr<IBuffer> buffer, uint32_t slot)
+void RHI::D3D12CommandBuffer::SetVertexBuffer(std::shared_ptr<IBuffer> buffer, uint32_t slot, const BufferBindDescription& bufferBindDesc)
 {
+	auto& inputAssemblerLayout = m_currentRenderPipeline->m_description.inputAssemblerLayout;
+	auto d3d12Buffer = std::static_pointer_cast<D3D12Buffer>(buffer);
 
+	D3D12_VERTEX_BUFFER_VIEW vertexBufferView = {}; 
+	vertexBufferView.BufferLocation = d3d12Buffer->m_buffer->GetGPUVirtualAddress() + bufferBindDesc.offset;
+	vertexBufferView.StrideInBytes = inputAssemblerLayout.vertexBindings[slot].stride;
+	vertexBufferView.SizeInBytes = bufferBindDesc.size;
+
+	m_commandList->IASetVertexBuffers(slot, 1, &vertexBufferView);
 }
 
-void RHI::D3D12CommandBuffer::SetIndexBuffer(std::shared_ptr<IBuffer> buffer)
+void RHI::D3D12CommandBuffer::SetIndexBuffer(std::shared_ptr<IBuffer> buffer, const BufferBindDescription& bufferBindDesc)
 {
+	auto& inputAssemblerLayout = m_currentRenderPipeline->m_description.inputAssemblerLayout;
+	auto d3d12Buffer = std::static_pointer_cast<D3D12Buffer>(buffer);
 
+	D3D12_INDEX_BUFFER_VIEW indexBufferView = {};
+	indexBufferView.BufferLocation = d3d12Buffer->m_buffer->GetGPUVirtualAddress() + bufferBindDesc.offset;
+	indexBufferView.SizeInBytes = bufferBindDesc.size;
+	indexBufferView.Format = d3d12Buffer->m_elementStride == 4 ? DXGI_FORMAT_R16_UINT : DXGI_FORMAT_R32_UINT;
+
+	m_commandList->IASetIndexBuffer(&indexBufferView);
 }
 
-void RHI::D3D12CommandBuffer::DrawInstanced(const InstancedDrawInfo&)
+void RHI::D3D12CommandBuffer::DrawInstanced(const InstancedDrawInfo& instancedDrawInfo)
 {
-
+	m_commandList->DrawInstanced(
+		instancedDrawInfo.verticesPerInstanceNum,
+		instancedDrawInfo.instancesNum,
+		instancedDrawInfo.startVertex,
+		instancedDrawInfo.firstInstance);
 }
 
-void RHI::D3D12CommandBuffer::DrawIndexedInstanced(const IndexedInstancedDrawInfo&)
+void RHI::D3D12CommandBuffer::DrawIndexedInstanced(const IndexedInstancedDrawInfo& indexedInstancedDrawInfo)
 {
-
+	m_commandList->DrawIndexedInstanced(
+		indexedInstancedDrawInfo.indicesPerInstanceNum,
+		indexedInstancedDrawInfo.instancesNum,
+		indexedInstancedDrawInfo.firstIndex,
+		indexedInstancedDrawInfo.startVertex,
+		indexedInstancedDrawInfo.firstInstance);
 }
 
 void RHI::D3D12CommandBuffer::CopyDataBetweenBuffers(std::shared_ptr<IBuffer> fromBuffer, std::shared_ptr<IBuffer> toBuffer)

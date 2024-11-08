@@ -21,12 +21,12 @@ namespace RHI
 		void EndRecording();
 
 		void SetViewport(const ViewportInfo& viewportInfo);
-		void SetScissors(const ScissorsRect& rect);
+		void SetScissors(const ScissorsRect& scissorsRect);
 		void SetBlendConstants(const std::array<float, 4> constantsValues);
 		void SetPrimitiveTopology(PrimitiveTopology primitiveTopology);
 
-		void SetVertexBuffer(std::shared_ptr<IBuffer> buffer, uint32_t slot);
-		void SetIndexBuffer(std::shared_ptr<IBuffer> buffer);
+		void SetVertexBuffer(std::shared_ptr<IBuffer> buffer, uint32_t slot, const BufferBindDescription& bufferBindDesc);
+		void SetIndexBuffer(std::shared_ptr<IBuffer> buffer, const BufferBindDescription& bufferBindDesc);
 
 		void DrawInstanced(const InstancedDrawInfo& instancedDrawInfo);
 		void DrawIndexedInstanced(const IndexedInstancedDrawInfo& indexedInstancedDrawInfo);

@@ -23,6 +23,12 @@ namespace RHI
 		uint32_t startVertex = 0;
 	};
 
+	struct BufferBindDescription
+	{
+		uint32_t offset;
+		uint32_t size;
+	};
+
 	struct ICommandBuffer
 	{
 		virtual void SubmitToQueue(std::shared_ptr<ICommandQueue> commandQueue) = 0;
@@ -33,13 +39,13 @@ namespace RHI
 		virtual void EndRecording() = 0;
 
 		virtual void SetViewport(const ViewportInfo& viewportInfo) = 0;
-		virtual void SetScissors(const ScissorsRect& rect) = 0;
+		virtual void SetScissors(const ScissorsRect& scissorsRect) = 0;
 		virtual void SetBlendConstants(const std::array<float, 4> constantsValues) = 0;
 		virtual void SetPrimitiveTopology(PrimitiveTopology primitiveTopology) = 0;
 
 		//slot has to match binding index in InputAssemblerLayoutDescription
-		virtual void SetVertexBuffer(std::shared_ptr<IBuffer> buffer, uint32_t slot) = 0;
-		virtual void SetIndexBuffer(std::shared_ptr<IBuffer> buffer) = 0;
+		virtual void SetVertexBuffer(std::shared_ptr<IBuffer> buffer, uint32_t slot, const BufferBindDescription& bufferBindDesc) = 0;
+		virtual void SetIndexBuffer(std::shared_ptr<IBuffer> buffer, const BufferBindDescription& bufferBindDesc) = 0;
 
 		virtual void DrawInstanced(const InstancedDrawInfo& instancedDrawInfo) = 0;
 		virtual void DrawIndexedInstanced(const IndexedInstancedDrawInfo& indexedInstancedDrawInfo) = 0;
