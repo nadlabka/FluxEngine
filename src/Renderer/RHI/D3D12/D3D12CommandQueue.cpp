@@ -11,6 +11,7 @@ RHI::D3D12CommandQueue::D3D12CommandQueue(RscPtr<ID3D12CommandQueue> commandQueu
 
 RHI::D3D12CommandQueue::~D3D12CommandQueue()
 {
+    CloseHandle(m_fenceEvent);
 }
 
 void RHI::D3D12CommandQueue::WaitUntilCompleted()

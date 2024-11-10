@@ -19,6 +19,7 @@ class Renderer1
 
 	void LoadPipeline();
 	void PopulateCommandList();
+	void WaitForGpu();
 
 	std::wstring GetAssetFullPath(LPCWSTR assetName)
 	{

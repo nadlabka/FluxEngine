@@ -14,6 +14,7 @@ RHI::D3D12CommandBuffer::D3D12CommandBuffer(RscPtr<ID3D12CommandAllocator> comma
 
 RHI::D3D12CommandBuffer::~D3D12CommandBuffer()
 {
+	CloseHandle(m_fenceEvent);
 }
 
 void RHI::D3D12CommandBuffer::BindRenderPipeline(std::shared_ptr<IRenderPipeline> renderPipeline)

@@ -199,3 +199,8 @@ void Renderer1::PopulateCommandList()
 
     m_commandBuffer->EndRecording();
 }
+
+void Renderer1::WaitForGpu()
+{
+    m_commandQueue->WaitUntilCompleted();
+}
