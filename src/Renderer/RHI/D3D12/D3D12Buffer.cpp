@@ -104,9 +104,21 @@ void RHI::D3D12Buffer::AllocateDescriptorsInHeaps(const BufferDescription& desc)
     }
 }
 
-void RHI::D3D12Buffer::UploadData(void* data, uint64_t size)
+void RHI::D3D12Buffer::UploadData(void* srcData, const BufferRegionCopyDescription& regionCopyDesc)
 {
+    ID3D12Resource* resourcePtr = m_buffer.ptr() ? m_buffer.ptr() : m_allocation->GetResource();
 
+    void* destData = nullptr;
+
+    D3D12_RANGE readRange = { 0, 0 }; // No read access
+    resourcePtr->Map(0, &readRange, &destData);
+
+    memcpy(static_cast<uint8_t*>(destData) + regionCopyDesc.destOffset,
+        static_cast<const uint8_t*>(srcData) + regionCopyDesc.srcOffset,
+        regionCopyDesc.width);
+
+    D3D12_RANGE writeRange = { regionCopyDesc.destOffset, regionCopyDesc.destOffset + regionCopyDesc.width };
+    resourcePtr->Unmap(0, &writeRange);
 }
 
 D3D12_HEAP_TYPE RHI::ConvertBufferAccessToD3D12HeapType(BufferAccess memoryVisibility)

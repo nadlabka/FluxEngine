@@ -31,7 +31,7 @@ namespace RHI
 		void DrawInstanced(const InstancedDrawInfo& instancedDrawInfo);
 		void DrawIndexedInstanced(const IndexedInstancedDrawInfo& indexedInstancedDrawInfo);
 
-		void CopyDataBetweenBuffers(std::shared_ptr<IBuffer> fromBuffer, std::shared_ptr<IBuffer> toBuffer);
+		void CopyDataBetweenBuffers(std::shared_ptr<IBuffer> fromBuffer, std::shared_ptr<IBuffer> toBuffer, const BufferRegionCopyDescription& regionCopyDesc);
 
 		std::shared_ptr<D3D12RenderPipeline> m_currentRenderPipeline;
 

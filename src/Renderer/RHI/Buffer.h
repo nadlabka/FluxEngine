@@ -36,8 +36,17 @@ namespace RHI
 		BufferFlags flags;
 	};
 
+	struct BufferRegionCopyDescription
+	{
+		uint32_t srcOffset;
+		uint32_t destOffset;
+		uint32_t width;
+	};
+
 	struct IBuffer
 	{
+		virtual void UploadData(void* srcData, const BufferRegionCopyDescription& regionCopyDesc) = 0;
+
 		virtual ~IBuffer() {}
 ;	};
 }

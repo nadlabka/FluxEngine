@@ -161,7 +161,7 @@ std::shared_ptr<RHI::IPipelineLayout> RHI::D3D12Device::CreatePipelineLayout(con
         IID_PPV_ARGS(&rootSignature)
     ));
 
-    return std::make_shared<D3D12PipelineLayout>(rootSignature);
+    return std::make_shared<D3D12PipelineLayout>(rootSignature, pipelineLayoutDesc);
 }
 
 std::shared_ptr<RHI::IRenderPipeline> RHI::D3D12Device::CreateRenderPipeline(const RenderPipelineDescription& renderPipelineDesc) const

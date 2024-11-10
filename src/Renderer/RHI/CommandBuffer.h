@@ -50,7 +50,7 @@ namespace RHI
 		virtual void DrawInstanced(const InstancedDrawInfo& instancedDrawInfo) = 0;
 		virtual void DrawIndexedInstanced(const IndexedInstancedDrawInfo& indexedInstancedDrawInfo) = 0;
 
-		virtual void CopyDataBetweenBuffers(std::shared_ptr<IBuffer> fromBuffer, std::shared_ptr<IBuffer> toBuffer) = 0;
+		virtual void CopyDataBetweenBuffers(std::shared_ptr<IBuffer> fromBuffer, std::shared_ptr<IBuffer> toBuffer, const BufferRegionCopyDescription& regionCopyDesc) = 0;
 
 		virtual ~ICommandBuffer() {}
 	};

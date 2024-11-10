@@ -251,7 +251,32 @@ void RHI::D3D12CommandBuffer::DrawIndexedInstanced(const IndexedInstancedDrawInf
 		indexedInstancedDrawInfo.firstInstance);
 }
 
-void RHI::D3D12CommandBuffer::CopyDataBetweenBuffers(std::shared_ptr<IBuffer> fromBuffer, std::shared_ptr<IBuffer> toBuffer)
+void RHI::D3D12CommandBuffer::CopyDataBetweenBuffers(std::shared_ptr<IBuffer> fromBuffer, std::shared_ptr<IBuffer> toBuffer, const BufferRegionCopyDescription& regionCopyDesc)
 {
+	auto fromD3D12Buffer = std::static_pointer_cast<D3D12Buffer>(fromBuffer);
+	auto toD3D12Buffer = std::static_pointer_cast<D3D12Buffer>(toBuffer);
 
+	auto fromBufferPtr = fromD3D12Buffer->m_buffer.ptr() ? fromD3D12Buffer->m_buffer.ptr() : fromD3D12Buffer->m_allocation->GetResource();
+	if (fromD3D12Buffer->m_resourceState != D3D12_RESOURCE_STATE_COPY_SOURCE)
+	{
+		auto transitedRT = CD3DX12_RESOURCE_BARRIER::Transition(fromBufferPtr, fromD3D12Buffer->m_resourceState, D3D12_RESOURCE_STATE_COPY_SOURCE);
+		m_commandList->ResourceBarrier(1, &transitedRT);
+		fromD3D12Buffer->m_resourceState = D3D12_RESOURCE_STATE_COPY_SOURCE;
+	}
+
+	auto toBufferPtr = toD3D12Buffer->m_buffer.ptr() ? toD3D12Buffer->m_buffer.ptr() : toD3D12Buffer->m_allocation->GetResource();
+	if (toD3D12Buffer->m_resourceState != D3D12_RESOURCE_STATE_COPY_DEST)
+	{
+		auto transitedRT = CD3DX12_RESOURCE_BARRIER::Transition(toBufferPtr, toD3D12Buffer->m_resourceState, D3D12_RESOURCE_STATE_COPY_DEST);
+		m_commandList->ResourceBarrier(1, &transitedRT);
+		toD3D12Buffer->m_resourceState = D3D12_RESOURCE_STATE_COPY_DEST;
+	}
+
+	m_commandList->CopyBufferRegion(
+		toD3D12Buffer->m_buffer.ptr(),
+		regionCopyDesc.destOffset,
+		fromD3D12Buffer->m_buffer.ptr(),
+		regionCopyDesc.srcOffset,
+		regionCopyDesc.width
+	);
 }
