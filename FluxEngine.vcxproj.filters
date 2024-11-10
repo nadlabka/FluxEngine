@@ -96,6 +96,9 @@
     <ClCompile Include="src\Renderer\RHI\D3D12\D3D12Shader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Renderer\Renderer1.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Core\stdafx.h">
@@ -252,6 +255,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Renderer\RHI\D3D12\D3D12Sampler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Renderer\Renderer1.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

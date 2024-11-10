@@ -17,8 +17,8 @@ public:
 
 	void Resize(int width, int height);
 
-	int GetHeight() const { return m_height; }
-	int GetWidth() const { return m_width; }
+	uint32_t GetHeight() const { return m_height; }
+	uint32_t GetWidth() const { return m_width; }
 
 	float GetAspectRatio() const { return m_aspectRatio; }
 
@@ -27,8 +27,8 @@ public:
 private:
 	HWND m_hwnd;
 
-	int m_width;
-	int m_height;
+	uint32_t m_width;
+	uint32_t m_height;
 
 	float m_aspectRatio;
 

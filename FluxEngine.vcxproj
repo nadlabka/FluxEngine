@@ -148,6 +148,7 @@
     <ClCompile Include="src\Input\MouseManager.cpp" />
     <ClCompile Include="src\Main.cpp" />
     <ClCompile Include="src\Renderer\Renderer.cpp" />
+    <ClCompile Include="src\Renderer\Renderer1.cpp" />
     <ClCompile Include="src\Renderer\RHI\D3D12\D3D12Adapter.cpp" />
     <ClCompile Include="src\Renderer\RHI\D3D12\D3D12Allocator.cpp" />
     <ClCompile Include="src\Renderer\RHI\D3D12\D3D12Buffer.cpp" />
@@ -166,6 +167,7 @@
     <ClCompile Include="vendor\D3D12MemoryAllocator\src\D3D12MemAlloc.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
+    <ClInclude Include="src\Renderer\Renderer1.h" />
     <ClInclude Include="src\Renderer\RHI\Allocator.h" />
     <ClInclude Include="src\Renderer\RHI\Buffer.h" />
     <ClInclude Include="src\Renderer\RHI\CommandBuffer.h" />

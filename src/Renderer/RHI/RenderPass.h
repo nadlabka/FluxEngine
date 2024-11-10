@@ -6,21 +6,21 @@ namespace RHI
 {
     struct AttachmentDesc
     {
-        TextureFormat format;
+        TextureFormat format = TextureFormat::BGRA8_UNORM;
 
         uint32_t sampleCount = 1;
 
-        LoadAccessOperation loadOp = LoadAccessOperation::DontCare;
-        StoreAccessOperation storeOp = StoreAccessOperation::DontCare;
+        LoadAccessOperation loadOp = LoadAccessOperation::Clear;
+        StoreAccessOperation storeOp = StoreAccessOperation::Store;
 
-        LoadAccessOperation stencilLoadOp = LoadAccessOperation::DontCare;
-        StoreAccessOperation stencilStoreOp = StoreAccessOperation::DontCare;
+        LoadAccessOperation stencilLoadOp = LoadAccessOperation::Clear;
+        StoreAccessOperation stencilStoreOp = StoreAccessOperation::Store;
 
-        std::array<float, 4> clearColor { 0, 0, 0, 1 };
+        std::array<float, 4> clearColor{ 0, 0, 0, 1 };
         float clearDepth = 0.0f;
         uint32_t clearStencil = 0u;
 
-        TextureLayout initialLayout = TextureLayout::Undefined;
+        TextureLayout initialLayout = TextureLayout::ColorAttachmentOptimal;
         TextureLayout finalLayout = TextureLayout::Present;
     };
 

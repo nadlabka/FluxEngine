@@ -9,11 +9,10 @@ namespace RHI
 {
 	enum class ERHIRenderingAPI
 	{
-		eAPI_None = 0,
-		eAPI_Vulkan,
-		eAPI_D3D12
+		None = 0,
+		Vulkan,
+		D3D12
 	};
-
 
 	class RHIContext
 	{
@@ -30,10 +29,13 @@ namespace RHI
 		void Init(ERHIRenderingAPI api, const AdapterCreateDesc& adapterDesc, const DeviceCreateDesc& deviceDesc);
 		ERHIRenderingAPI GetCurrentAPI() { return currentRHI; }
 
+		std::shared_ptr<IFactory> GetFactory() { return m_factory; }
+		std::shared_ptr<IAdapter> GetAdapter() { return m_adapter; }
 		std::shared_ptr<IDevice> GetDevice() { return m_device; }
+		std::shared_ptr<IAllocator> GetAllocator() { return m_allocator; }
 
 	private:
-		RHIContext() : currentRHI(ERHIRenderingAPI::eAPI_None) {}
+		RHIContext() : currentRHI(ERHIRenderingAPI::None) {}
 
 		void InitD3D12(const AdapterCreateDesc& adapterDesc, const DeviceCreateDesc& deviceDesc);
 		void InitVulkan(const AdapterCreateDesc& adapterDesc, const DeviceCreateDesc& deviceDesc);
@@ -43,7 +45,6 @@ namespace RHI
 		std::shared_ptr<IFactory> m_factory;
 		std::shared_ptr<IAdapter> m_adapter;
 		std::shared_ptr<IDevice> m_device;
-		std::shared_ptr<IDevice> m_swapchain;
 		std::shared_ptr<IAllocator> m_allocator;
 	};
 }

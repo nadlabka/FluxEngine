@@ -30,7 +30,7 @@ namespace RHI
 	{
 		uint32_t elementsNum;
 		uint32_t elementStride;
-		uint32_t unstructuredSize;
+		uint32_t unstructuredSize; //this will change for Unifor Buffers, %255
 		BufferAccess access;
 		BufferUsage usage;
 		BufferFlags flags;
@@ -46,6 +46,8 @@ namespace RHI
 	struct IBuffer
 	{
 		virtual void UploadData(void* srcData, const BufferRegionCopyDescription& regionCopyDesc) = 0;
+
+		virtual uint32_t GetSize() = 0;
 
 		virtual ~IBuffer() {}
 ;	};

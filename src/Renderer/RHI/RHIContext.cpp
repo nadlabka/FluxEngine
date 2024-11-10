@@ -7,16 +7,16 @@
 
 void RHI::RHIContext::Init(ERHIRenderingAPI api, const AdapterCreateDesc& adapterDesc, const DeviceCreateDesc& deviceDesc)
 {
-	if(api == ERHIRenderingAPI::eAPI_D3D12)
+	if(api == ERHIRenderingAPI::D3D12)
 	{
 		InitD3D12(adapterDesc, deviceDesc);
-		currentRHI = ERHIRenderingAPI::eAPI_D3D12;
+		currentRHI = ERHIRenderingAPI::D3D12;
 	}
-	else if(api == ERHIRenderingAPI::eAPI_Vulkan)
+	else if(api == ERHIRenderingAPI::Vulkan)
 	{
 		throw std::runtime_error("Vulkan API support is not implemented");
 		InitVulkan(adapterDesc, deviceDesc);
-		currentRHI = ERHIRenderingAPI::eAPI_Vulkan;
+		currentRHI = ERHIRenderingAPI::Vulkan;
 	}
 }
 

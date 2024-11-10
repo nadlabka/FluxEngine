@@ -95,5 +95,5 @@ void RHI::D3D12Swapchain::Resize(uint32_t width, uint32_t height)
 
 void RHI::D3D12Swapchain::Present()
 {
-    m_swapchain->Present(1, 0);
+    ThrowIfFailed(m_swapchain->Present(1, 0));
 }
