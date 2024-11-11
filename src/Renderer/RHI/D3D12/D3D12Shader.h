@@ -1,5 +1,6 @@
 #pragma once
 #include "../Shader.h"
+#include <dxcapi.h>
 
 namespace RHI
 {	
@@ -9,7 +10,7 @@ namespace RHI
 	{
 		D3D12Shader(const ShaderCreateDesription& desc);
 
-		RscPtr<ID3DBlob> m_compiledShader;
+		RscPtr<IDxcBlob> m_compiledShader;
 		PipelineStage m_pipelineStage;
 	};
 }

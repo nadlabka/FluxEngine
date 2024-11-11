@@ -13,11 +13,22 @@ struct Vertex1
 
 class Renderer1
 {
+public:
+	static Renderer1& GetInstance()
+	{
+		static Renderer1 instance;
+		return instance;
+	}
+
+	Renderer1(const Renderer1& arg) = delete;
+	Renderer1& operator=(const Renderer1& arg) = delete;
+
 	void Init();
 
 	void Render();
 
 	void LoadPipeline();
+	void UpdatePipelineDynamicStates();
 	void PopulateCommandList();
 	void WaitForGpu();
 
@@ -35,4 +46,7 @@ class Renderer1
 	ScissorsRect m_scissorsRect;
 
 	std::wstring m_assetsPath;
+
+private:
+	Renderer1() {}
 };

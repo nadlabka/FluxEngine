@@ -27,7 +27,8 @@ namespace RHI
 		RHIContext& operator=(const RHIContext&) = delete;
 
 		void Init(ERHIRenderingAPI api, const AdapterCreateDesc& adapterDesc, const DeviceCreateDesc& deviceDesc);
-		ERHIRenderingAPI GetCurrentAPI() { return currentRHI; }
+		void Destroy();
+		ERHIRenderingAPI GetCurrentAPI() { return currentAPI; }
 
 		std::shared_ptr<IFactory> GetFactory() { return m_factory; }
 		std::shared_ptr<IAdapter> GetAdapter() { return m_adapter; }
@@ -35,12 +36,12 @@ namespace RHI
 		std::shared_ptr<IAllocator> GetAllocator() { return m_allocator; }
 
 	private:
-		RHIContext() : currentRHI(ERHIRenderingAPI::None) {}
+		RHIContext() : currentAPI(ERHIRenderingAPI::None) {}
 
 		void InitD3D12(const AdapterCreateDesc& adapterDesc, const DeviceCreateDesc& deviceDesc);
 		void InitVulkan(const AdapterCreateDesc& adapterDesc, const DeviceCreateDesc& deviceDesc);
 
-		ERHIRenderingAPI currentRHI;
+		ERHIRenderingAPI currentAPI;
 
 		std::shared_ptr<IFactory> m_factory;
 		std::shared_ptr<IAdapter> m_adapter;

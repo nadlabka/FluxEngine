@@ -19,6 +19,8 @@ namespace RHI
 	{
         D3D12RenderPipeline(RscPtr<ID3D12PipelineState> pipelineState, const RenderPipelineDescription& description);
 
+        RenderPipelineDescription& GetPipelineDescription();
+
         RscPtr<ID3D12PipelineState> m_pipelineState;
         RenderPipelineDescription m_description; // change to d3d12 specific struct to avoid further conversions during usage
 	};

@@ -26,17 +26,19 @@ void RHI::D3D12CommandBuffer::SubmitToQueue(std::shared_ptr<ICommandQueue> comma
 {
 	auto d3d12CommandQueue = std::static_pointer_cast<D3D12CommandQueue>(commandQueue);
 
-	d3d12CommandQueue->WaitForFenceValue(m_fenceValue, m_fenceEvent);
-	m_commandAllocator->Reset();
-
 	ID3D12CommandList* ppCommandLists[] = { m_commandList.ptr() };
 	d3d12CommandQueue->m_commandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
 
 	m_fenceValue = d3d12CommandQueue->SignalFence();
 }
 
-void RHI::D3D12CommandBuffer::BeginRecording()
+void RHI::D3D12CommandBuffer::BeginRecording(std::shared_ptr<ICommandQueue> commandQueue)
 {
+	auto d3d12CommandQueue = std::static_pointer_cast<D3D12CommandQueue>(commandQueue);
+
+	d3d12CommandQueue->WaitForFenceValue(m_fenceValue, m_fenceEvent);
+
+	m_commandAllocator->Reset();
 	m_commandList->Reset(m_commandAllocator.ptr(), m_currentRenderPipeline->m_pipelineState.ptr());
 
 	auto d3d12PipelineLayout = std::static_pointer_cast<D3D12PipelineLayout>(m_currentRenderPipeline->m_description.pipelineLayout);
@@ -110,7 +112,7 @@ void RHI::D3D12CommandBuffer::BeginRecording()
 		{
 			for (auto& mipRT : sliceRT.mipsToInclude)
 			{
-				auto rtvHandle = rtv_heap->GetCpuHandle(d3d12ColorRT->m_RTVDescriptorsIndices[i]);
+				auto rtvHandle = rtv_heap->GetCpuHandle(d3d12ColorRT->m_RTVDescriptorsIndices[mipRT]);
 				colorRTsHandles.push_back(rtvHandle);
 				switch (attachmentDesc.loadOp)
 				{
@@ -171,6 +173,8 @@ void RHI::D3D12CommandBuffer::EndRecording()
 			d3d12ColorRT->m_resourceState = targetState;
 		}
 	}
+
+	m_commandList->Close();
 }
 
 void RHI::D3D12CommandBuffer::SetViewport(const ViewportInfo& viewportInfo)
@@ -211,9 +215,10 @@ void RHI::D3D12CommandBuffer::SetVertexBuffer(std::shared_ptr<IBuffer> buffer, u
 {
 	auto& inputAssemblerLayout = m_currentRenderPipeline->m_description.inputAssemblerLayout;
 	auto d3d12Buffer = std::static_pointer_cast<D3D12Buffer>(buffer);
+	auto bufferPtr = d3d12Buffer->m_buffer.ptr() ? d3d12Buffer->m_buffer.ptr() : d3d12Buffer->m_allocation->GetResource();
 
 	D3D12_VERTEX_BUFFER_VIEW vertexBufferView = {}; 
-	vertexBufferView.BufferLocation = d3d12Buffer->m_buffer->GetGPUVirtualAddress() + bufferBindDesc.offset;
+	vertexBufferView.BufferLocation = bufferPtr->GetGPUVirtualAddress() + bufferBindDesc.offset;
 	vertexBufferView.StrideInBytes = inputAssemblerLayout.vertexBindings[slot].stride;
 	vertexBufferView.SizeInBytes = bufferBindDesc.size;
 
@@ -224,9 +229,10 @@ void RHI::D3D12CommandBuffer::SetIndexBuffer(std::shared_ptr<IBuffer> buffer, co
 {
 	auto& inputAssemblerLayout = m_currentRenderPipeline->m_description.inputAssemblerLayout;
 	auto d3d12Buffer = std::static_pointer_cast<D3D12Buffer>(buffer);
+	auto bufferPtr = d3d12Buffer->m_buffer.ptr() ? d3d12Buffer->m_buffer.ptr() : d3d12Buffer->m_allocation->GetResource();
 
 	D3D12_INDEX_BUFFER_VIEW indexBufferView = {};
-	indexBufferView.BufferLocation = d3d12Buffer->m_buffer->GetGPUVirtualAddress() + bufferBindDesc.offset;
+	indexBufferView.BufferLocation = bufferPtr->GetGPUVirtualAddress() + bufferBindDesc.offset;
 	indexBufferView.SizeInBytes = bufferBindDesc.size;
 	indexBufferView.Format = d3d12Buffer->m_elementStride == 4 ? DXGI_FORMAT_R16_UINT : DXGI_FORMAT_R32_UINT;
 

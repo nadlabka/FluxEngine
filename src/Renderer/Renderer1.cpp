@@ -10,14 +10,6 @@
 void Renderer1::Init()
 {
     auto& rhiContext = RHIContext::GetInstance();
-
-    AdapterCreateDesc adapterCreateDesc;
-    adapterCreateDesc.useHighPerformanceAdapter = true;
-    adapterCreateDesc.useWarpDevice = false;
-    DeviceCreateDesc deviceCreateDesc;
-
-    rhiContext.Init(ERHIRenderingAPI::D3D12, adapterCreateDesc, deviceCreateDesc);
-
     auto factory = rhiContext.GetFactory();
     auto device = rhiContext.GetDevice();
      
@@ -51,6 +43,7 @@ void Renderer1::Init()
 
 void Renderer1::Render()
 {
+    UpdatePipelineDynamicStates();
     PopulateCommandList();
 
     m_commandBuffer->SubmitToQueue(m_commandQueue);
@@ -154,12 +147,12 @@ void Renderer1::LoadPipeline()
 
     BufferDescription bufferDesc = 
     {
-        3,
-        28,
-        84,
-        BufferAccess::Upload,
-        BufferUsage::VertexBuffer,
-        { false }
+        .elementsNum = 3,
+        .elementStride = 28,
+        .unstructuredSize = 84,
+        .access = BufferAccess::Upload,
+        .usage = BufferUsage::VertexBuffer,
+        .flags = { .requiredCopyStateToInit = false }
     };
 
     m_buffer = allocator->CreateBuffer(bufferDesc);
@@ -182,7 +175,7 @@ void Renderer1::PopulateCommandList()
 {
     m_commandBuffer->BindRenderPipeline(m_renderPipeline);
 
-    m_commandBuffer->BeginRecording();
+    m_commandBuffer->BeginRecording(m_commandQueue);
 
     m_commandBuffer->SetViewport(m_viewportInfo);
     m_commandBuffer->SetScissors(m_scissorsRect);
@@ -203,4 +196,13 @@ void Renderer1::PopulateCommandList()
 void Renderer1::WaitForGpu()
 {
     m_commandQueue->WaitUntilCompleted();
+}
+
+void Renderer1::UpdatePipelineDynamicStates()
+{
+    std::vector<SubResourceRTsDescription> subresourceRTs = {};
+    std::vector<SubResourceRTsDescription::TextureArraySliceToInclude> slicesToInclude = {};
+    slicesToInclude.push_back({});
+    subresourceRTs.push_back({ m_swapchain->GetNextRenderTarget(), slicesToInclude });
+    m_renderPipeline->GetPipelineDescription().renderPass->SetAttachments(subresourceRTs, nullptr);
 }

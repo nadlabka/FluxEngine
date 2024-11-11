@@ -189,3 +189,8 @@ RHI::D3D12RenderPipeline::D3D12RenderPipeline(RscPtr<ID3D12PipelineState> pipeli
     : m_pipelineState(pipelineState), m_description(description)
 {
 }
+
+RHI::RenderPipelineDescription& RHI::D3D12RenderPipeline::GetPipelineDescription()
+{
+    return m_description;
+}

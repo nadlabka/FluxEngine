@@ -25,8 +25,7 @@ RHI::D3D12Factory::D3D12Factory()
     }
 #endif
 
-	RscPtr<IDXGIFactory4> factory;
-	ThrowIfFailed(CreateDXGIFactory2(dxgiFactoryFlags, IID_PPV_ARGS(&factory)));
+	ThrowIfFailed(CreateDXGIFactory2(dxgiFactoryFlags, IID_PPV_ARGS(&m_factory)));
 }
 
 RHI::D3D12Factory::~D3D12Factory()
@@ -101,7 +100,8 @@ std::shared_ptr<RHI::IAdapter> RHI::D3D12Factory::CreateAdapter(RHI::AdapterCrea
 
 std::shared_ptr<RHI::ISwapchain> RHI::D3D12Factory::CreateSwapchain(std::shared_ptr<ISurface> surface, std::shared_ptr<ICommandQueue> commandQueue, uint32_t framesCount) const
 {
-    RscPtr<IDXGISwapChain1> swapchain;
+    RscPtr<IDXGISwapChain1> swapchain1;
+    RscPtr<IDXGISwapChain3> swapchain3;
 
     auto d3d12Surface = static_pointer_cast<D3D12Surface>(surface);
     auto d3d12CommandQueue = static_pointer_cast<D3D12CommandQueue>(commandQueue);
@@ -115,17 +115,18 @@ std::shared_ptr<RHI::ISwapchain> RHI::D3D12Factory::CreateSwapchain(std::shared_
     swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
     swapChainDesc.SampleDesc.Count = 1;
 
-    RscPtr<IDXGISwapChain1> swapChain;
     ThrowIfFailed(m_factory->CreateSwapChainForHwnd(
         d3d12CommandQueue->m_commandQueue.ptr(),        // Swap chain needs the queue so that it can force a flush on it.
         (HWND)d3d12Surface->m_windowHandle,
         &swapChainDesc,
         nullptr,
         nullptr,
-        &swapChain
+        &swapchain1
     ));
 
-    auto resultSwapchain = std::make_shared<D3D12Swapchain>(swapchain, framesCount);
+    ThrowIfFailed(swapchain1->QueryInterface(IID_PPV_ARGS(&swapchain3)));
+
+    auto resultSwapchain = std::make_shared<D3D12Swapchain>(swapchain3, framesCount);
     resultSwapchain->UpdateDescriptors();
     return resultSwapchain;
 }

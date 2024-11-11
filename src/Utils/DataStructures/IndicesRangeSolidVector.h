@@ -13,7 +13,7 @@ struct IndicesRangeSolidVector
 	{
 		if (m_freeIndices.empty())
 		{
-			ASSERT(m_maxIndexCreated + 1 > m_maxIndexLimit, "Indeces total count exceeded limit");
+			ASSERT(m_maxIndexCreated + 1 < m_maxIndexLimit, "Indeces total count exceeded limit");
 			return ++m_maxIndexCreated;
 		}
 		uint32_t result = m_freeIndices.back();
@@ -29,7 +29,7 @@ struct IndicesRangeSolidVector
 		{
 			if (m_freeIndices.empty())
 			{
-				ASSERT(m_maxIndexCreated + 1 > m_maxIndexLimit, "Indeces total count exceeded limit");
+				ASSERT(m_maxIndexCreated + 1 < m_maxIndexLimit, "Indeces total count exceeded limit");
 				result.push_back(++m_maxIndexCreated);
 			}
 			else
@@ -65,7 +65,7 @@ struct IndicesRangeSolidVector
 		m_maxIndexLimit = value;
 	}
 
-	std::vector<uint32_t> m_freeIndices{};
-	uint32_t m_maxIndexCreated = -1;
+	std::vector<uint32_t> m_freeIndices {};
+	int64_t m_maxIndexCreated = -1;
 	uint32_t m_maxIndexLimit = UINT32_MAX;
 };

@@ -4,19 +4,35 @@
 #include "D3D12/D3D12Factory.h"
 #include "D3D12/D3D12Allocator.h"
 #include "D3D12/Managers/DescriptorsHeapsManager.h"
+#include "D3D12/D3D12Device.h"
 
 void RHI::RHIContext::Init(ERHIRenderingAPI api, const AdapterCreateDesc& adapterDesc, const DeviceCreateDesc& deviceDesc)
 {
 	if(api == ERHIRenderingAPI::D3D12)
 	{
 		InitD3D12(adapterDesc, deviceDesc);
-		currentRHI = ERHIRenderingAPI::D3D12;
+		currentAPI = ERHIRenderingAPI::D3D12;
 	}
 	else if(api == ERHIRenderingAPI::Vulkan)
 	{
 		throw std::runtime_error("Vulkan API support is not implemented");
 		InitVulkan(adapterDesc, deviceDesc);
-		currentRHI = ERHIRenderingAPI::Vulkan;
+		currentAPI = ERHIRenderingAPI::Vulkan;
+	}
+}
+
+void RHI::RHIContext::Destroy()
+{
+	if (currentAPI == ERHIRenderingAPI::D3D12)
+	{
+		auto d3d12Device = std::static_pointer_cast<D3D12Device>(m_device);
+		RscPtr<ID3D12DebugDevice> debugDevice;
+		ThrowIfFailed(d3d12Device->m_device->QueryInterface(IID_PPV_ARGS(&debugDevice)));
+		debugDevice->ReportLiveDeviceObjects(D3D12_RLDO_DETAIL | D3D12_RLDO_IGNORE_INTERNAL);
+	}
+	else if (currentAPI == ERHIRenderingAPI::Vulkan)
+	{
+
 	}
 }
 

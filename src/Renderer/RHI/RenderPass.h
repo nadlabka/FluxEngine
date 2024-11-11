@@ -6,7 +6,7 @@ namespace RHI
 {
     struct AttachmentDesc
     {
-        TextureFormat format = TextureFormat::BGRA8_UNORM;
+        TextureFormat format = TextureFormat::RGBA8_UNORM;
 
         uint32_t sampleCount = 1;
 

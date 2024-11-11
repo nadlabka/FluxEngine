@@ -199,7 +199,7 @@ namespace RHI
 
 		CullMode cullMode = CullMode::Back;
 
-		WindingOrder windingOrder = WindingOrder::Counterclockwise;
+		WindingOrder windingOrder = WindingOrder::Clockwise;
 
 		struct DepthBias
 		{
@@ -274,6 +274,8 @@ namespace RHI
 
 	struct IRenderPipeline
 	{
+		virtual RenderPipelineDescription& GetPipelineDescription() = 0;
+
 		virtual ~IRenderPipeline() {}
 	};
 

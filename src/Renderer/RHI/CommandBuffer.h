@@ -35,7 +35,7 @@ namespace RHI
 
 		virtual void BindRenderPipeline(std::shared_ptr<IRenderPipeline> renderPipeline) = 0;
 
-		virtual void BeginRecording() = 0;
+		virtual void BeginRecording(std::shared_ptr<ICommandQueue> commandQueue) = 0;
 		virtual void EndRecording() = 0;
 
 		virtual void SetViewport(const ViewportInfo& viewportInfo) = 0;
