@@ -22,6 +22,21 @@ RHI::D3D12Factory::D3D12Factory()
             // Enable additional debug layers.
             dxgiFactoryFlags |= DXGI_CREATE_FACTORY_DEBUG;
         }
+
+        RscPtr<ID3D12InfoQueue> infoQueue;
+        if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&infoQueue)))) {
+            // Configure the warning severity levels
+            infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_CORRUPTION, TRUE);
+            infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_ERROR, TRUE);
+            infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, TRUE);
+
+            D3D12_INFO_QUEUE_FILTER filter = {};
+            filter.DenyList.pIDList = nullptr;
+            filter.DenyList.NumIDs = 0;
+            infoQueue->AddStorageFilterEntries(&filter);
+
+            std::cout << "D3D12 Debug Info Queue Configured." << std::endl;
+        }
     }
 #endif
 

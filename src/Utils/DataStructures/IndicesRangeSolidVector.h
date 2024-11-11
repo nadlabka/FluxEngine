@@ -66,6 +66,6 @@ struct IndicesRangeSolidVector
 	}
 
 	std::vector<uint32_t> m_freeIndices {};
-	int64_t m_maxIndexCreated = -1;
+	uint32_t m_maxIndexCreated = 0xffffffff;
 	uint32_t m_maxIndexLimit = UINT32_MAX;
 };
