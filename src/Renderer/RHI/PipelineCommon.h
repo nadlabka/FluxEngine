@@ -192,7 +192,7 @@ namespace RHI
 
 	struct RasterizerDescription
 	{
-		bool depthClipEnable = false;
+		bool depthClipEnable = true;
 		bool rasterizerDiscardEnable = false;
 
 		PolygonFillMode polygonOverride = PolygonFillMode::Fill;

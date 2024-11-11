@@ -89,9 +89,11 @@ void Renderer1::LoadPipeline()
 
 
     RasterizerDescription rasterizerDesc = {};
-
+    
 
     ColorBlendDescription colorBlendDesc = {};
+    ColorBlendDescription::ColorAttachmentBlendDesc colorAttachmentBlendDesc = {};
+    colorBlendDesc.attachmentsBlends.push_back(colorAttachmentBlendDesc);
 
 
     DepthStencilDescription depthStencilDesc = {};

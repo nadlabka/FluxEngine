@@ -49,7 +49,8 @@ void FluxEngine::Destroy()
     // cleaned up by the destructor.
     renderer.WaitForGpu();
 
-
+    auto& rhiContext = RHIContext::GetInstance();
+    rhiContext.Destroy();
 }
 
 void FluxEngine::ParseCommandLineArgs(WCHAR* argv[], int argc)
