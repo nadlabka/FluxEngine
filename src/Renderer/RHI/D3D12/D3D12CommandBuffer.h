@@ -25,8 +25,8 @@ namespace RHI
 		void SetBlendConstants(const std::array<float, 4> constantsValues);
 		void SetPrimitiveTopology(PrimitiveTopology primitiveTopology);
 
-		void SetVertexBuffer(std::shared_ptr<IBuffer> buffer, uint32_t slot, const BufferBindDescription& bufferBindDesc);
-		void SetIndexBuffer(std::shared_ptr<IBuffer> buffer, const BufferBindDescription& bufferBindDesc);
+		void SetVertexBuffer(std::shared_ptr<IBuffer> buffer, uint32_t slot, const BufferRegionDescription& bufferBindDesc);
+		void SetIndexBuffer(std::shared_ptr<IBuffer> buffer, const BufferRegionDescription& bufferBindDesc);
 
 		void DrawInstanced(const InstancedDrawInfo& instancedDrawInfo);
 		void DrawIndexedInstanced(const IndexedInstancedDrawInfo& indexedInstancedDrawInfo);

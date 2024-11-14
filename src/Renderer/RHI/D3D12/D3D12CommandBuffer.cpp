@@ -211,7 +211,7 @@ void RHI::D3D12CommandBuffer::SetPrimitiveTopology(PrimitiveTopology primitiveTo
 	m_commandList->IASetPrimitiveTopology(ConvertPrimitiveTopologyToD3D12(primitiveTopology));
 }
 
-void RHI::D3D12CommandBuffer::SetVertexBuffer(std::shared_ptr<IBuffer> buffer, uint32_t slot, const BufferBindDescription& bufferBindDesc)
+void RHI::D3D12CommandBuffer::SetVertexBuffer(std::shared_ptr<IBuffer> buffer, uint32_t slot, const BufferRegionDescription& bufferBindDesc)
 {
 	auto& inputAssemblerLayout = m_currentRenderPipeline->m_description.inputAssemblerLayout;
 	auto d3d12Buffer = std::static_pointer_cast<D3D12Buffer>(buffer);
@@ -225,7 +225,7 @@ void RHI::D3D12CommandBuffer::SetVertexBuffer(std::shared_ptr<IBuffer> buffer, u
 	m_commandList->IASetVertexBuffers(slot, 1, &vertexBufferView);
 }
 
-void RHI::D3D12CommandBuffer::SetIndexBuffer(std::shared_ptr<IBuffer> buffer, const BufferBindDescription& bufferBindDesc)
+void RHI::D3D12CommandBuffer::SetIndexBuffer(std::shared_ptr<IBuffer> buffer, const BufferRegionDescription& bufferBindDesc)
 {
 	auto& inputAssemblerLayout = m_currentRenderPipeline->m_description.inputAssemblerLayout;
 	auto d3d12Buffer = std::static_pointer_cast<D3D12Buffer>(buffer);

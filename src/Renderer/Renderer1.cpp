@@ -183,7 +183,7 @@ void Renderer1::PopulateCommandList()
     m_commandBuffer->SetScissors(m_scissorsRect);
     m_commandBuffer->SetPrimitiveTopology(PrimitiveTopology::TriangleList);
 
-    BufferBindDescription bufferbindDesc;
+    BufferRegionDescription bufferbindDesc;
     bufferbindDesc.offset = 0;
     bufferbindDesc.size = m_buffer->GetSize();
     m_commandBuffer->SetVertexBuffer(m_buffer, 0, bufferbindDesc);

@@ -23,7 +23,7 @@ namespace RHI
 		uint32_t startVertex = 0;
 	};
 
-	struct BufferBindDescription
+	struct BufferRegionDescription
 	{
 		uint32_t offset;
 		uint32_t size;
@@ -44,8 +44,8 @@ namespace RHI
 		virtual void SetPrimitiveTopology(PrimitiveTopology primitiveTopology) = 0;
 
 		//slot has to match binding index in InputAssemblerLayoutDescription
-		virtual void SetVertexBuffer(std::shared_ptr<IBuffer> buffer, uint32_t slot, const BufferBindDescription& bufferBindDesc) = 0;
-		virtual void SetIndexBuffer(std::shared_ptr<IBuffer> buffer, const BufferBindDescription& bufferBindDesc) = 0;
+		virtual void SetVertexBuffer(std::shared_ptr<IBuffer> buffer, uint32_t slot, const BufferRegionDescription& bufferBindDesc) = 0;
+		virtual void SetIndexBuffer(std::shared_ptr<IBuffer> buffer, const BufferRegionDescription& bufferBindDesc) = 0;
 
 		virtual void DrawInstanced(const InstancedDrawInfo& instancedDrawInfo) = 0;
 		virtual void DrawIndexedInstanced(const IndexedInstancedDrawInfo& indexedInstancedDrawInfo) = 0;
