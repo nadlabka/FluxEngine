@@ -17,6 +17,8 @@ namespace RHI
         DescriptorsHeapsManager& operator=(const DescriptorsHeapsManager& arg) = delete;
 
         void InitHeaps();
+        void Destroy();
+
         std::shared_ptr<D3D12DescriptorHeap> GetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE heapType);
     private:
         DescriptorsHeapsManager() {}

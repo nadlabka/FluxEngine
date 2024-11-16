@@ -21,6 +21,7 @@ public:
     Renderer& operator=(const Renderer& arg) = delete;
 
     void Init();
+    void Destroy();
 
     void Render();
 

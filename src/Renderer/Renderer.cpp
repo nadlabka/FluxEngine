@@ -17,6 +17,11 @@ void Renderer::Init()
     m_assetsPath = assetsPath;
 }
 
+void Renderer::Destroy()
+{
+
+}
+
 void Renderer::Render()
 {
     // Record all the commands we need to render the scene into the command list.

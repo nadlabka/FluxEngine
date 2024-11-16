@@ -55,6 +55,14 @@ void RHI::DescriptorsHeapsManager::InitHeaps()
     }
 }
 
+void RHI::DescriptorsHeapsManager::Destroy()
+{
+    m_uav_srv_cbv_heap.reset();
+    m_rtv_heap.reset();
+    m_dsv_heap.reset();
+    m_sampler_heap.reset();
+}
+
 std::shared_ptr<RHI::D3D12DescriptorHeap> RHI::DescriptorsHeapsManager::GetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE heapType)
 {
     switch (heapType)

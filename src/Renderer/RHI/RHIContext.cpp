@@ -24,23 +24,27 @@ void RHI::RHIContext::Init(ERHIRenderingAPI api, const AdapterCreateDesc& adapte
 
 void RHI::RHIContext::Destroy()
 {
+	DescriptorsHeapsManager::GetInstance().Destroy();
+
+	m_allocator.reset();
+
 	if (currentAPI == ERHIRenderingAPI::D3D12)
 	{
-		std::static_pointer_cast<D3D12Allocator>(m_allocator)->m_allocator->Release();
-		std::static_pointer_cast<D3D12Device>(m_device)->m_device->Release();
-		std::static_pointer_cast<D3D12Adapter>(m_adapter)->m_adapter->Release();
-		std::static_pointer_cast<D3D12Factory>(m_factory)->m_factory->Release();
 #ifdef _DEBUG
 		auto d3d12Device = std::static_pointer_cast<D3D12Device>(m_device);
 		RscPtr<ID3D12DebugDevice> debugDevice;
-		ThrowIfFailed(d3d12Device->m_device->QueryInterface(IID_PPV_ARGS(&debugDevice)));
-		debugDevice->ReportLiveDeviceObjects(D3D12_RLDO_DETAIL | D3D12_RLDO_IGNORE_INTERNAL);
+		ThrowIfFailed(d3d12Device->m_device->QueryInterface(IID_PPV_ARGS(&debugDevice))); // adds 1 to device ref counter
+		debugDevice->ReportLiveDeviceObjects(D3D12_RLDO_DETAIL | D3D12_RLDO_IGNORE_INTERNAL); // should be 2 device ref and nothing else here
 #endif
 	}
 	else if (currentAPI == ERHIRenderingAPI::Vulkan)
 	{
 
 	}
+
+	m_device.reset();
+	m_adapter.reset();
+	m_factory.reset();
 }
 
 void RHI::RHIContext::InitD3D12(const AdapterCreateDesc& adapterDesc, const DeviceCreateDesc& deviceDesc)

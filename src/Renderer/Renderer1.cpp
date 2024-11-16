@@ -6,6 +6,10 @@
 #include "../Application/WinAPI/WinWindow.h"
 #include "RHI/D3D12/D3D12Shader.h"
 #include <filesystem>
+#include "RHI/D3D12/D3D12Swapchain.h"
+#include "RHI/D3D12/D3D12CommandQueue.h"
+#include "RHI/D3D12/D3D12CommandBuffer.h"
+#include "RHI/D3D12/D3D12Buffer.h"
 
 void Renderer1::Init()
 {
@@ -198,6 +202,15 @@ void Renderer1::PopulateCommandList()
 void Renderer1::WaitForGpu()
 {
     m_commandQueue->WaitUntilCompleted();
+}
+
+void Renderer1::Destroy()
+{
+    m_swapchain.reset();
+    m_commandQueue.reset();
+    m_commandBuffer.reset();
+    m_renderPipeline.reset();
+    m_buffer.reset();
 }
 
 void Renderer1::UpdatePipelineDynamicStates()
