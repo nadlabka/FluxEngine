@@ -210,6 +210,7 @@
     <ClInclude Include="src\Renderer\RHI\Sampler.h" />
     <ClInclude Include="src\Renderer\RHI\Shader.h" />
     <ClInclude Include="src\Renderer\RHI\Texture.h" />
+    <ClInclude Include="src\Scene\Scene.h" />
     <ClInclude Include="src\Utils\D3D12Math.h" />
     <ClInclude Include="src\Utils\DataStructures\IndicesRangeSolidVector.h" />
     <ClInclude Include="src\Utils\DataStructures\SolidVector.h" />

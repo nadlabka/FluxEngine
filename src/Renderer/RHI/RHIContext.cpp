@@ -5,6 +5,7 @@
 #include "D3D12/D3D12Allocator.h"
 #include "D3D12/Managers/DescriptorsHeapsManager.h"
 #include "D3D12/D3D12Device.h"
+#include "D3D12/D3D12Adapter.h"
 
 void RHI::RHIContext::Init(ERHIRenderingAPI api, const AdapterCreateDesc& adapterDesc, const DeviceCreateDesc& deviceDesc)
 {
@@ -25,6 +26,10 @@ void RHI::RHIContext::Destroy()
 {
 	if (currentAPI == ERHIRenderingAPI::D3D12)
 	{
+		std::static_pointer_cast<D3D12Allocator>(m_allocator)->m_allocator->Release();
+		std::static_pointer_cast<D3D12Device>(m_device)->m_device->Release();
+		std::static_pointer_cast<D3D12Adapter>(m_adapter)->m_adapter->Release();
+		std::static_pointer_cast<D3D12Factory>(m_factory)->m_factory->Release();
 #ifdef _DEBUG
 		auto d3d12Device = std::static_pointer_cast<D3D12Device>(m_device);
 		RscPtr<ID3D12DebugDevice> debugDevice;
