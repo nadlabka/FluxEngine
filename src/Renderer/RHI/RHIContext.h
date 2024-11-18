@@ -4,6 +4,7 @@
 #include "Factory.h"
 #include "Device.h"
 #include "Allocator.h"
+#include "ShaderCompiler.h"
 
 namespace RHI
 {
@@ -34,6 +35,7 @@ namespace RHI
 		std::shared_ptr<IAdapter> GetAdapter() { return m_adapter; }
 		std::shared_ptr<IDevice> GetDevice() { return m_device; }
 		std::shared_ptr<IAllocator> GetAllocator() { return m_allocator; }
+		std::shared_ptr<IShaderCompiler> GetShaderCompiler() { return m_shaderCompiler; }
 
 	private:
 		RHIContext() : currentAPI(ERHIRenderingAPI::None) {}
@@ -47,5 +49,6 @@ namespace RHI
 		std::shared_ptr<IAdapter> m_adapter;
 		std::shared_ptr<IDevice> m_device;
 		std::shared_ptr<IAllocator> m_allocator;
+		std::shared_ptr<IShaderCompiler> m_shaderCompiler;
 	};
 }

@@ -116,8 +116,9 @@ void Renderer1::LoadPipeline()
         L"PSMain",
         PipelineStage::Fragment
     };
-    std::shared_ptr<IShader> vertexShader = std::make_shared<D3D12Shader>(vertexShaderDesc);
-    std::shared_ptr<IShader> fragmentShader = std::make_shared<D3D12Shader>(fragmentShaderDesc);
+    auto shaderCompiler = rhiContext.GetShaderCompiler();
+    std::shared_ptr<IShader> vertexShader = shaderCompiler->CompileShader(vertexShaderDesc);
+    std::shared_ptr<IShader> fragmentShader = shaderCompiler->CompileShader(fragmentShaderDesc);
     pipelineStagesDesc.push_back({ vertexShader });
     pipelineStagesDesc.push_back({ fragmentShader });
 

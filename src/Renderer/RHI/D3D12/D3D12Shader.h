@@ -8,9 +8,12 @@ namespace RHI
 
 	struct D3D12Shader : public IShader
 	{
-		D3D12Shader(const ShaderCreateDesription& desc);
+		D3D12Shader(RscPtr<IDxcBlob> compiledShader, RscPtr<IDxcBlob> pdb, RscPtr<IDxcBlob> reflection, PipelineStage pipelineStage);
 
 		RscPtr<IDxcBlob> m_compiledShader;
+		RscPtr<IDxcBlob> m_pdb;
+		RscPtr<IDxcBlob> m_reflection;
+
 		PipelineStage m_pipelineStage;
 	};
 }
