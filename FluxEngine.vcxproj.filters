@@ -281,5 +281,8 @@
     <ClInclude Include="src\Core\ECS\Entity.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\Portfolio\DX11Engine\Engine\DXRenderer\Utils\SolidVector\SolidVector.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
