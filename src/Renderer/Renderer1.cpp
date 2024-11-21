@@ -17,7 +17,7 @@ void Renderer1::Init()
     auto factory = rhiContext.GetFactory();
     auto device = rhiContext.GetDevice();
      
-    auto& window = WinApplication::GetWindow();
+    auto& window = Application::WinApplication::GetWindow();
     auto surface = ISurface::CreateSurfaceFromWindow(window);
 
     m_scissorsRect = {
@@ -164,7 +164,7 @@ void Renderer1::LoadPipeline()
 
     m_buffer = allocator->CreateBuffer(bufferDesc);
 
-    float aspectRatio = WinApplication::GetWindow().GetAspectRatio();
+    float aspectRatio = Application::WinApplication::GetWindow().GetAspectRatio();
     Vertex1 triangleVertices[] =
     {
         { { 0.0f, 0.25f * aspectRatio, 0.0f}, {1.0f, 0.0f, 0.0f, 1.0f}},

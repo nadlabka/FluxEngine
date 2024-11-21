@@ -8,6 +8,6 @@ namespace RHI
 	{
 		virtual ~ISurface() {}
 
-		static std::shared_ptr<ISurface>CreateSurfaceFromWindow(const WinWindow& window);
+		static std::shared_ptr<ISurface>CreateSurfaceFromWindow(const Application::WinWindow& window);
 	};
 }

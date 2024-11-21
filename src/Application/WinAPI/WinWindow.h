@@ -2,39 +2,46 @@
 #include <cstdint>
 #include <Windows.h>
 
-class FluxEngine;
-
-class WinWindow
+namespace Core
 {
-public:
-	WinWindow();
-	WinWindow(WNDPROC winProc, HINSTANCE hInstance, bool nCmdShow, int width, int height, const std::wstring& title, FluxEngine* engine);
-	~WinWindow();
+	class FluxEngine;
+}
 
-	HWND GetHwnd() const { return m_hwnd; }
 
-	void SetTitle(const std::wstring& title);
+namespace Application
+{
+	class WinWindow
+	{
+	public:
+		WinWindow();
+		WinWindow(WNDPROC winProc, HINSTANCE hInstance, bool nCmdShow, int width, int height, const std::wstring& title, Core::FluxEngine* engine);
+		~WinWindow();
 
-	void Resize(int width, int height);
+		HWND GetHwnd() const { return m_hwnd; }
 
-	uint32_t GetHeight() const { return m_height; }
-	uint32_t GetWidth() const { return m_width; }
+		void SetTitle(const std::wstring& title);
 
-	float GetAspectRatio() const { return m_aspectRatio; }
+		void Resize(int width, int height);
 
-	static uint32_t GetTotalWindowsNum() { return m_totalWindowsNum; }
+		uint32_t GetHeight() const { return m_height; }
+		uint32_t GetWidth() const { return m_width; }
 
-private:
-	HWND m_hwnd;
+		float GetAspectRatio() const { return m_aspectRatio; }
 
-	uint32_t m_width;
-	uint32_t m_height;
+		static uint32_t GetTotalWindowsNum() { return m_totalWindowsNum; }
 
-	float m_aspectRatio;
+	private:
+		HWND m_hwnd;
 
-	HINSTANCE m_hInstance;
-	uint32_t m_windowNum;
-	std::wstring m_windowClassName;
+		uint32_t m_width;
+		uint32_t m_height;
 
-	static uint32_t m_totalWindowsNum;
-};
+		float m_aspectRatio;
+
+		HINSTANCE m_hInstance;
+		uint32_t m_windowNum;
+		std::wstring m_windowClassName;
+
+		static uint32_t m_totalWindowsNum;
+	};
+}

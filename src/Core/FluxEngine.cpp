@@ -6,17 +6,17 @@
 #include "../Renderer/Renderer1.h"
 #include "../Renderer/RHI/RHIContext.h"
 
-FluxEngine::FluxEngine()
+Core::FluxEngine::FluxEngine()
 {
 
 }
 
-FluxEngine::~FluxEngine()
+Core::FluxEngine::~FluxEngine()
 {
 
 }
 
-void FluxEngine::Init()
+void Core::FluxEngine::Init()
 {
     auto& rhiContext = RHIContext::GetInstance();
 
@@ -32,17 +32,17 @@ void FluxEngine::Init()
     renderer.LoadPipeline();
 }
 
-void FluxEngine::Update()
+void Core::FluxEngine::Update()
 {
 }
 
-void FluxEngine::Render()
+void Core::FluxEngine::Render()
 {
     auto& renderer = Renderer1::GetInstance();
     renderer.Render();
 }
 
-void FluxEngine::Destroy()
+void Core::FluxEngine::Destroy()
 {
     auto& renderer = Renderer1::GetInstance();
     // Ensure that the GPU is no longer referencing resources that are about to be
@@ -55,14 +55,14 @@ void FluxEngine::Destroy()
     rhiContext.Destroy();
 }
 
-void FluxEngine::ParseCommandLineArgs(WCHAR* argv[], int argc)
+void Core::FluxEngine::ParseCommandLineArgs(WCHAR* argv[], int argc)
 {
     for (int i = 1; i < argc; ++i)
     {
         if (_wcsnicmp(argv[i], L"-warp", wcslen(argv[i])) == 0 ||
             _wcsnicmp(argv[i], L"/warp", wcslen(argv[i])) == 0)
         {
-            WinApplication::SetTitle(WinApplication::GetTitle() + L" (WARP)");
+            Application::WinApplication::SetTitle(Application::WinApplication::GetTitle() + L" (WARP)");
         }
     }
 }

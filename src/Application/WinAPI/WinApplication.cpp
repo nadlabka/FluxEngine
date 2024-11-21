@@ -3,17 +3,17 @@
 #include <FluxEngine.h>
 #include "WinWindow.h"
 
-WinWindow WinApplication::m_window;
-std::wstring WinApplication::m_title;
+Application::WinWindow Application::WinApplication::m_window;
+std::wstring Application::WinApplication::m_title;
 
-int WinApplication::Run(FluxEngine* engine, HINSTANCE hInstance, int nCmdShow, int windowWidth, int windowHeight, const std::wstring& title)
+int Application::WinApplication::Run(Core::FluxEngine* engine, HINSTANCE hInstance, int nCmdShow, int windowWidth, int windowHeight, const std::wstring& title)
 {
     int argc;
     LPWSTR* argv = CommandLineToArgvW(GetCommandLineW(), &argc);
     engine->ParseCommandLineArgs(argv, argc);
     LocalFree(argv);
 
-    m_window = WinWindow(WindowProc, hInstance, nCmdShow, windowWidth, windowHeight, title, engine);
+    m_window = Application::WinWindow(WindowProc, hInstance, nCmdShow, windowWidth, windowHeight, title, engine);
 
     engine->Init();
 
@@ -35,20 +35,20 @@ int WinApplication::Run(FluxEngine* engine, HINSTANCE hInstance, int nCmdShow, i
     return static_cast<char>(msg.wParam);
 }
 
-std::wstring WinApplication::GetTitle()
+std::wstring Application::WinApplication::GetTitle()
 {
     return m_title;
 }
 
-void WinApplication::SetTitle(const std::wstring& title)
+void Application::WinApplication::SetTitle(const std::wstring& title)
 {
     m_title = title;
     m_window.SetTitle(title);
 }
 
-LRESULT WinApplication::WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+LRESULT Application::WinApplication::WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-    FluxEngine* engine = reinterpret_cast<FluxEngine*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+    Core::FluxEngine* engine = reinterpret_cast<Core::FluxEngine*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
 
     switch (message)
     {

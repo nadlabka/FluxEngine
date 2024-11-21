@@ -3,22 +3,25 @@
 #include <SimpleMath.h>
 #include <RscPtr.h>
 
-class FluxEngine
+namespace Core
 {
-public:
-    FluxEngine();
-    ~FluxEngine();
+    class FluxEngine
+    {
+    public:
+        FluxEngine();
+        ~FluxEngine();
 
-    void Init();
-    void Update();
-    void Render();
-    void Destroy();
+        void Init();
+        void Update();
+        void Render();
+        void Destroy();
 
-    void OnKeyDown(EKeyboardKey key) {}
-    void OnKeyUp(EKeyboardKey key) {}
+        void OnKeyDown(EKeyboardKey key) {}
+        void OnKeyUp(EKeyboardKey key) {}
 
-    void ParseCommandLineArgs(WCHAR* argv[], int argc);
+        void ParseCommandLineArgs(WCHAR* argv[], int argc);
 
-private:
-    
-};
+    private:
+
+    };
+}

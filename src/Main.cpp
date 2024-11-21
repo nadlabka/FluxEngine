@@ -12,8 +12,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLine,
 	freopen_s(&fp, "CONOUT$", "w", stdout);
 	freopen_s(&fp, "CONOUT$", "w", stderr);
 
-	FluxEngine engineInstance = FluxEngine();
-	WinApplication::Run(&engineInstance, hInstance, nCmdShow, 1280, 720, L"name");
+	Core::FluxEngine engineInstance = Core::FluxEngine();
+	Application::WinApplication::Run(&engineInstance, hInstance, nCmdShow, 1280, 720, L"name");
 
     return 0;
 }

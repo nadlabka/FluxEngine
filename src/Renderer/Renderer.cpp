@@ -9,7 +9,7 @@ void Renderer::Init()
     m_useWarpDevice = false;
     m_frameIndex = 0;
     m_rtvDescriptorSize = 0;
-    auto& window = WinApplication::GetWindow();
+    auto& window = Application::WinApplication::GetWindow();
     m_viewport = CD3DX12_VIEWPORT(0.0f, 0.0f, static_cast<float>(window.GetWidth()), static_cast<float>(window.GetHeight()));
     m_scissorRect = CD3DX12_RECT(0, 0, static_cast<LONG>(window.GetWidth()), static_cast<LONG>(window.GetHeight()));
     WCHAR assetsPath[512];
@@ -89,7 +89,7 @@ void Renderer::LoadPipeline()
 
     ThrowIfFailed(m_device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&m_commandQueue)));
 
-    auto& window = WinApplication::GetWindow();
+    auto& window = Application::WinApplication::GetWindow();
     // Describe and create the swap chain.
     DXGI_SWAP_CHAIN_DESC1 swapChainDesc = {};
     swapChainDesc.BufferCount = FrameCount;
@@ -103,7 +103,7 @@ void Renderer::LoadPipeline()
     RscPtr<IDXGISwapChain1> swapChain;
     ThrowIfFailed(factory->CreateSwapChainForHwnd(
         m_commandQueue.ptr(),        // Swap chain needs the queue so that it can force a flush on it.
-        WinApplication::GetWindow().GetHwnd(),
+        Application::WinApplication::GetWindow().GetHwnd(),
         &swapChainDesc,
         nullptr,
         nullptr,
@@ -111,7 +111,7 @@ void Renderer::LoadPipeline()
     ));
 
     // This sample does not support fullscreen transitions.
-    ThrowIfFailed(factory->MakeWindowAssociation(WinApplication::GetWindow().GetHwnd(), DXGI_MWA_NO_ALT_ENTER));
+    ThrowIfFailed(factory->MakeWindowAssociation(Application::WinApplication::GetWindow().GetHwnd(), DXGI_MWA_NO_ALT_ENTER));
 
     ThrowIfFailed(swapChain->QueryInterface(IID_PPV_ARGS(&m_swapChain)));
     m_frameIndex = m_swapChain->GetCurrentBackBufferIndex();
@@ -207,7 +207,7 @@ void Renderer::LoadAssets()
 
     // Create the vertex buffer.
     {
-        float aspectRatio = WinApplication::GetWindow().GetAspectRatio();
+        float aspectRatio = Application::WinApplication::GetWindow().GetAspectRatio();
         // Define the geometry for a triangle.
         Vertex triangleVertices[] =
         {

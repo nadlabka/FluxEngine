@@ -116,7 +116,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <AdditionalBMIDirectories>%(AdditionalBMIDirectories)</AdditionalBMIDirectories>
-      <AdditionalIncludeDirectories>$(ProjectDir)vendor\D3D12MemoryAllocator\include;$(ProjectDir)vendor;$(ProjectDir)vendor\DirectXTK\Inc;$(ProjectDir)src\Core;$(ProjectDir)src\Utils</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)vendor\D3D12MemoryAllocator\include;$(ProjectDir)vendor;$(ProjectDir)vendor\DirectXTK\Inc;$(ProjectDir)src\Core;$(ProjectDir)src\Utils;$(ProjectDir)vendor\entt\single_include</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
@@ -136,7 +136,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(ProjectDir)vendor\D3D12MemoryAllocator\include;$(ProjectDir)vendor;$(ProjectDir)vendor\DirectXTK\Inc;$(ProjectDir)src\Core;$(ProjectDir)src\Utils</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)vendor\D3D12MemoryAllocator\include;$(ProjectDir)vendor;$(ProjectDir)vendor\DirectXTK\Inc;$(ProjectDir)src\Core;$(ProjectDir)src\Utils;$(ProjectDir)vendor\entt\single_include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -150,7 +150,8 @@
   <ItemGroup>
     <ClCompile Include="src\Application\WinAPI\WinApplication.cpp" />
     <ClCompile Include="src\Application\WinAPI\WinWindow.cpp" />
-    <ClCompile Include="src\Assets\AssetsManager.cpp" />
+    <ClCompile Include="src\AssetsManagers\AssetsManager.cpp" />
+    <ClCompile Include="src\Core\ECS\Managers\EntitiesPool.cpp" />
     <ClCompile Include="src\Core\FluxEngine.cpp" />
     <ClCompile Include="src\Core\stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -183,6 +184,8 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
+    <ClInclude Include="src\Core\ECS\Entity.h" />
+    <ClInclude Include="src\Core\ECS\Managers\EntitiesPool.h" />
     <ClInclude Include="src\Renderer\Renderer1.h" />
     <ClInclude Include="src\Renderer\RHI\Allocator.h" />
     <ClInclude Include="src\Renderer\RHI\Buffer.h" />
@@ -223,7 +226,7 @@
   <ItemGroup>
     <ClInclude Include="src\Application\WinAPI\WinApplication.h" />
     <ClInclude Include="src\Application\WinAPI\WinWindow.h" />
-    <ClInclude Include="src\Assets\AssetsManager.h" />
+    <ClInclude Include="src\AssetsManagers\AssetsManager.h" />
     <ClInclude Include="src\Core\FluxEngine.h" />
     <ClInclude Include="src\Input\KeyboardKey.h" />
     <ClInclude Include="src\Core\stdafx.h" />

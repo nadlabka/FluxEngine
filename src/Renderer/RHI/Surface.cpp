@@ -3,7 +3,7 @@
 #include "RHIContext.h"
 #include "D3D12/D3D12Surface.h"
 
-std::shared_ptr<RHI::ISurface> RHI::ISurface::CreateSurfaceFromWindow(const WinWindow& window)
+std::shared_ptr<RHI::ISurface> RHI::ISurface::CreateSurfaceFromWindow(const Application::WinWindow& window)
 {
     auto currentAPI = RHIContext::GetInstance().GetCurrentAPI();
     switch (currentAPI)

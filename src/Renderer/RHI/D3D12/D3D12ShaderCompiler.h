@@ -14,7 +14,7 @@ namespace RHI
 
 	private:
 		RscPtr<IDxcLibrary> m_library;
-		RscPtr<IDxcCompiler3> m_compiler;
+		RscPtr<IDxcCompiler3> m_compiler; 
 		RscPtr<IDxcUtils> m_utils;
 		RscPtr<IDxcIncludeHandler> m_includeHandler;
 	};

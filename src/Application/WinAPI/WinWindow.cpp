@@ -2,13 +2,13 @@
 #include "WinWindow.h"
 #include <FluxEngine.h>
 
-uint32_t WinWindow::m_totalWindowsNum = 0;
+uint32_t Application::WinWindow::m_totalWindowsNum = 0;
 
-WinWindow::WinWindow()
+Application::WinWindow::WinWindow()
 {
 }
 
-WinWindow::WinWindow(WNDPROC winProc, HINSTANCE hInstance, bool nCmdShow, int width, int height, const std::wstring& title, FluxEngine* engine) :
+Application::WinWindow::WinWindow(WNDPROC winProc, HINSTANCE hInstance, bool nCmdShow, int width, int height, const std::wstring& title, Core::FluxEngine* engine) :
     m_height(height),
     m_width(width),
     m_aspectRatio(float(width)/height),
@@ -44,17 +44,17 @@ WinWindow::WinWindow(WNDPROC winProc, HINSTANCE hInstance, bool nCmdShow, int wi
     ShowWindow(m_hwnd, nCmdShow);
 }
 
-WinWindow::~WinWindow()
+Application::WinWindow::~WinWindow()
 {
     UnregisterClass(m_windowClassName.c_str(), m_hInstance);
 }
 
-void WinWindow::SetTitle(const std::wstring& title)
+void Application::WinWindow::SetTitle(const std::wstring& title)
 {
     SetWindowText(m_hwnd, title.c_str());
 }
 
-void WinWindow::Resize(int width, int height)
+void Application::WinWindow::Resize(int width, int height)
 {
     m_width = width;
     m_height = height;
