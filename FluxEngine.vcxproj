@@ -150,7 +150,6 @@
   <ItemGroup>
     <ClCompile Include="src\Application\WinAPI\WinApplication.cpp" />
     <ClCompile Include="src\Application\WinAPI\WinWindow.cpp" />
-    <ClCompile Include="src\AssetsManagers\AssetsManager.cpp" />
     <ClCompile Include="src\Core\ECS\Managers\EntitiesPool.cpp" />
     <ClCompile Include="src\Core\FluxEngine.cpp" />
     <ClCompile Include="src\Core\stdafx.cpp">
@@ -185,6 +184,10 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClInclude Include="..\Portfolio\DX11Engine\Engine\DXRenderer\Utils\SolidVector\SolidVector.h" />
+    <ClInclude Include="src\Assets\Material.h" />
+    <ClInclude Include="src\Assets\Mesh.h" />
+    <ClInclude Include="src\Assets\Submesh.h" />
+    <ClInclude Include="src\Assets\Vertex.h" />
     <ClInclude Include="src\Core\ECS\Entity.h" />
     <ClInclude Include="src\Core\ECS\Managers\EntitiesPool.h" />
     <ClInclude Include="src\Renderer\Renderer1.h" />
@@ -227,7 +230,7 @@
   <ItemGroup>
     <ClInclude Include="src\Application\WinAPI\WinApplication.h" />
     <ClInclude Include="src\Application\WinAPI\WinWindow.h" />
-    <ClInclude Include="src\AssetsManagers\AssetsManager.h" />
+    <ClInclude Include="src\Assets\AssetsManager.h" />
     <ClInclude Include="src\Core\FluxEngine.h" />
     <ClInclude Include="src\Input\KeyboardKey.h" />
     <ClInclude Include="src\Core\stdafx.h" />

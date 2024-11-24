@@ -30,7 +30,7 @@ namespace RHI
 	{
 		uint32_t elementsNum;
 		uint32_t elementStride;
-		uint32_t unstructuredSize; //this will change for Unifor Buffers, %255
+		uint32_t unstructuredSize; //this is used for Uniform Buffers, %255
 		BufferAccess access;
 		BufferUsage usage;
 		BufferFlags flags;
@@ -41,6 +41,12 @@ namespace RHI
 		uint32_t srcOffset;
 		uint32_t destOffset;
 		uint32_t width;
+	};
+
+	struct BufferRegionDescription
+	{
+		uint32_t offset;
+		uint32_t size;
 	};
 
 	struct IBuffer

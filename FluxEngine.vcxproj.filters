@@ -36,9 +36,6 @@
     <ClCompile Include="src\Input\MouseManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\AssetsManagers\AssetsManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\Renderer\Renderer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -137,7 +134,7 @@
     <ClInclude Include="src\Utils\DXSampleHelper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\AssetsManagers\AssetsManager.h">
+    <ClInclude Include="src\Assets\AssetsManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Renderer\Renderer.h">
@@ -282,6 +279,18 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\Portfolio\DX11Engine\Engine\DXRenderer\Utils\SolidVector\SolidVector.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Assets\Mesh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Assets\Submesh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Assets\Material.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Assets\Vertex.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

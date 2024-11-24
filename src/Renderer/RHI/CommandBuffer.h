@@ -23,12 +23,6 @@ namespace RHI
 		uint32_t startVertex = 0;
 	};
 
-	struct BufferRegionDescription
-	{
-		uint32_t offset;
-		uint32_t size;
-	};
-
 	struct ICommandBuffer
 	{
 		virtual void SubmitToQueue(std::shared_ptr<ICommandQueue> commandQueue) = 0;
