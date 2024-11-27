@@ -42,7 +42,7 @@ namespace RHI
 
 	struct PipelineLayoutDescription
 	{
-		// you need resource pointers to transit resource state in DX12 and to update Descriptors Sets in Vulkan 
+		// you need resource pointers here to transit resource state in DX12 and to update Descriptors Sets in Vulkan
 		std::unordered_map<std::shared_ptr<IBuffer>, DescriptorBinding> buffersBindings;
 		std::unordered_map<std::shared_ptr<ITexture>, DescriptorBinding> texturesBindings;
 		std::unordered_map<std::shared_ptr<ISampler>, DescriptorBinding> samplersBindings;

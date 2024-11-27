@@ -25,9 +25,11 @@ namespace RHI
 
 	struct ICommandBuffer
 	{
-		virtual void SubmitToQueue(std::shared_ptr<ICommandQueue> commandQueue) = 0;
+		virtual void BindDescriptorsHeaps() = 0;
 
 		virtual void BindRenderPipeline(std::shared_ptr<IRenderPipeline> renderPipeline) = 0;
+
+		virtual void SubmitToQueue(std::shared_ptr<ICommandQueue> commandQueue) = 0;
 
 		virtual void BeginRecording(std::shared_ptr<ICommandQueue> commandQueue) = 0;
 		virtual void EndRecording() = 0;

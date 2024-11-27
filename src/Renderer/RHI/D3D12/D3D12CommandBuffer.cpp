@@ -17,6 +17,17 @@ RHI::D3D12CommandBuffer::~D3D12CommandBuffer()
 	CloseHandle(m_fenceEvent);
 }
 
+void RHI::D3D12CommandBuffer::BindDescriptorsHeaps()
+{
+	auto& descHeapsMgr = DescriptorsHeapsManager::GetInstance();
+
+	auto sampler_heap = descHeapsMgr.GetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER)->Heap();
+	auto cbv_uav_srv_heap = descHeapsMgr.GetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV)->Heap();
+
+	m_commandList->SetDescriptorHeaps(1, &sampler_heap);
+	m_commandList->SetDescriptorHeaps(1, &cbv_uav_srv_heap);
+}
+
 void RHI::D3D12CommandBuffer::BindRenderPipeline(std::shared_ptr<IRenderPipeline> renderPipeline)
 {
 	m_currentRenderPipeline = std::static_pointer_cast<D3D12RenderPipeline>(renderPipeline);

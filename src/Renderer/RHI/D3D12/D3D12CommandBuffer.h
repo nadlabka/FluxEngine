@@ -12,6 +12,8 @@ namespace RHI
 		D3D12CommandBuffer(RscPtr<ID3D12CommandAllocator> commandAllocator, RscPtr<ID3D12GraphicsCommandList> commandList);
 		~D3D12CommandBuffer();
 
+		void BindDescriptorsHeaps();
+
 		void BindRenderPipeline(std::shared_ptr<IRenderPipeline> renderPipeline);
 
 		void SubmitToQueue(std::shared_ptr<ICommandQueue> commandQueue);

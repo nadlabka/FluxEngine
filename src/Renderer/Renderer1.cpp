@@ -176,6 +176,8 @@ void Renderer1::LoadPipeline()
     m_buffer->UploadData(triangleVertices, regionCopyDesc);
 
     m_commandQueue->WaitUntilCompleted();
+
+    m_commandBuffer->BindDescriptorsHeaps();
 }
 
 void Renderer1::PopulateCommandList()
