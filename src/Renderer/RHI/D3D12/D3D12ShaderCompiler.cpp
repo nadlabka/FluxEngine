@@ -3,6 +3,8 @@
 #include <iostream>
 #include <DebugMacros.h>
 #include "D3D12Shader.h"
+#include "../RHIContext.h"
+#include "D3D12Device.h"
 
 RHI::D3D12ShaderCompiler::D3D12ShaderCompiler()
 {
@@ -42,11 +44,25 @@ std::shared_ptr<RHI::IShader> RHI::D3D12ShaderCompiler::CompileShader(const Shad
     compileFlags.push_back(L"-Qstrip_reflect");
 #endif
 
+    auto& rhiContext = RHIContext::GetInstance();
+    ASSERT(rhiContext.GetCurrentAPI() == ERHIRenderingAPI::D3D12, "Shaders target platform doesn't match current API");
+    auto d3d12Device = std::static_pointer_cast<D3D12Device>(rhiContext.GetDevice())->m_device;
+
+    D3D12_FEATURE_DATA_SHADER_MODEL shaderModel = {};
+    shaderModel.HighestShaderModel = D3D_SHADER_MODEL_6_6;
+
+    ThrowIfFailed(d3d12Device->CheckFeatureSupport(D3D12_FEATURE_SHADER_MODEL, &shaderModel, sizeof(shaderModel)));
+    ASSERT(shaderModel.HighestShaderModel == D3D_SHADER_MODEL_6_6, "Shader model 6.6 is not supported by this hardware");
+
+    std::wstring shaderProfile = ConvertPipelineStageToD3D12ShaderProfile(desc.pipelineStage);
+    shaderProfile += std::to_wstring(shaderModel.HighestShaderModel & 0xF) + L"_";
+    shaderProfile += std::to_wstring((shaderModel.HighestShaderModel >> 4) & 0xF);
+
     RscPtr<IDxcCompilerArgs> compilerArgs;
     m_utils->BuildArguments(
         desc.shaderSourcePath.filename().c_str(),
         desc.entryPoint.c_str(),
-        ConvertPipelineStageToD3D12ShaderProfile(desc.pipelineStage).c_str(),
+        shaderProfile.c_str(),
         compileFlags.data(), static_cast<UINT32>(compileFlags.size()),
         nullptr, 0, // No defines
         &compilerArgs);

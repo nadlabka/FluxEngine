@@ -7,9 +7,10 @@ std::wstring RHI::ConvertPipelineStageToD3D12ShaderProfile(PipelineStage pipelin
 {
     switch (pipelineStage)
     {
-    case PipelineStage::Vertex:   return L"vs_6_0";
-    case PipelineStage::Fragment: return L"ps_6_0";
-    case PipelineStage::Compute:  return L"cs_6_0";
+    case PipelineStage::Vertex:   return L"vs_";
+    case PipelineStage::Fragment: return L"ps_";
+    case PipelineStage::Compute:  return L"cs_";
+    default: throw std::runtime_error("Unsupported pipeline stage");
     }
 }
 
