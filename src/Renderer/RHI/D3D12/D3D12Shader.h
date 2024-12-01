@@ -4,16 +4,15 @@
 
 namespace RHI
 {	
-	std::wstring ConvertPipelineStageToD3D12ShaderProfile(PipelineStage pipelineStage);
+	std::wstring ConvertPipelineStageTypeToD3D12ShaderProfile(PipelineStageType pipelineStageType);
 
 	struct D3D12Shader : public IShader
 	{
-		D3D12Shader(RscPtr<IDxcBlob> compiledShader, RscPtr<IDxcBlob> pdb, RscPtr<IDxcBlob> reflection, PipelineStage pipelineStage);
+		D3D12Shader(RscPtr<IDxcBlob> compiledShader, RscPtr<ID3D12ShaderReflection> reflection, PipelineStageType pipelineStage);
 
 		RscPtr<IDxcBlob> m_compiledShader;
-		RscPtr<IDxcBlob> m_pdb;
-		RscPtr<IDxcBlob> m_reflection;
+		RscPtr<ID3D12ShaderReflection> m_reflection;
 
-		PipelineStage m_pipelineStage;
+		PipelineStageType m_pipelineStageType;
 	};
 }

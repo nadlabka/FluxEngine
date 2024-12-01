@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "D3D12ShaderCompiler.h"
 #include <iostream>
+#include <fstream>
 #include <DebugMacros.h>
 #include "D3D12Shader.h"
 #include "../RHIContext.h"
@@ -37,12 +38,21 @@ std::shared_ptr<RHI::IShader> RHI::D3D12ShaderCompiler::CompileShader(const Shad
 
     compileFlags.push_back(L"-Qstrip_debug");
     compileFlags.push_back(L"-Fd"); // better than /Fo, bcs in case of directory path will create file
-    compileFlags.push_back(std::filesystem::path(desc.shaderSourcePath).replace_extension("pdb").c_str());
+
+    std::filesystem::path pdbFilepath;
+    if (desc.shaderPDBPath.empty())
+    {
+        pdbFilepath = std::filesystem::path(desc.shaderSourcePath).replace_extension("pdb");
+    }
+    else
+    {
+        pdbFilepath = std::filesystem::path(desc.shaderPDBPath).replace_filename(desc.shaderSourcePath.filename().replace_extension("pdb"));
+    }
+    
+    compileFlags.push_back(pdbFilepath.c_str());
 #endif
 
-#ifdef INCLUDE_SHADER_REFLECTION_INFO
     compileFlags.push_back(L"-Qstrip_reflect");
-#endif
 
     auto& rhiContext = RHIContext::GetInstance();
     ASSERT(rhiContext.GetCurrentAPI() == ERHIRenderingAPI::D3D12, "Shaders target platform doesn't match current API");
@@ -54,7 +64,7 @@ std::shared_ptr<RHI::IShader> RHI::D3D12ShaderCompiler::CompileShader(const Shad
     ThrowIfFailed(d3d12Device->CheckFeatureSupport(D3D12_FEATURE_SHADER_MODEL, &shaderModel, sizeof(shaderModel)));
     ASSERT(shaderModel.HighestShaderModel == D3D_SHADER_MODEL_6_6, "Shader model 6.6 is not supported by this hardware");
 
-    std::wstring shaderProfile = ConvertPipelineStageToD3D12ShaderProfile(desc.pipelineStage);
+    std::wstring shaderProfile = ConvertPipelineStageTypeToD3D12ShaderProfile(desc.pipelineStage);
     shaderProfile += std::to_wstring(shaderModel.HighestShaderModel & 0xF) + L"_";
     shaderProfile += std::to_wstring((shaderModel.HighestShaderModel >> 4) & 0xF);
 
@@ -105,19 +115,31 @@ std::shared_ptr<RHI::IShader> RHI::D3D12ShaderCompiler::CompileShader(const Shad
 
     RscPtr<IDxcBlob> pdbBlob;
 #ifdef INCLUDE_SHADER_DEBUG_INFO
-    result->GetOutput(
-        DXC_OUT_REFLECTION,
+    hr = result->GetOutput(
+        DXC_OUT_PDB,
         IID_PPV_ARGS(&pdbBlob),
         nullptr);
+    ASSERT(SUCCEEDED(hr), "Failed to retrieve shader pdb.");
+
+    std::ofstream pdbFile = std::ofstream(pdbFilepath.c_str(), std::ios::binary);
+    pdbFile.write(reinterpret_cast<const char*>(pdbBlob->GetBufferPointer()), pdbBlob->GetBufferSize());
 #endif
 
     RscPtr<IDxcBlob> reflectionBlob;
-#ifdef INCLUDE_SHADER_REFLECTION_INFO
-    result->GetOutput(
+    hr = result->GetOutput(
         DXC_OUT_REFLECTION,
         IID_PPV_ARGS(&reflectionBlob),
         nullptr);
-#endif
+    ASSERT(SUCCEEDED(hr), "Failed to retrieve shader reflection.");
 
-    return std::make_shared<D3D12Shader>(shaderBlob, pdbBlob, reflectionBlob, desc.pipelineStage);
+    RscPtr<ID3D12ShaderReflection> shaderReflection;
+    const DxcBuffer reflectionBuffer
+    {
+        .Ptr = reflectionBlob->GetBufferPointer(),
+        .Size = reflectionBlob->GetBufferSize(),
+        .Encoding = 0,
+    };
+    m_utils->CreateReflection(&reflectionBuffer, IID_PPV_ARGS(&shaderReflection));
+
+    return std::make_shared<D3D12Shader>(shaderBlob, shaderReflection, desc.pipelineStage);
 }

@@ -3,7 +3,7 @@
 
 namespace RHI
 {
-	enum class PipelineStage : uint8_t
+	enum class PipelineStageType : uint8_t
 	{
 		Vertex,
 		Fragment,
@@ -14,7 +14,8 @@ namespace RHI
 	{
 		std::filesystem::path shaderSourcePath;
 		std::wstring entryPoint;
-		PipelineStage pipelineStage;
+		PipelineStageType pipelineStage;
+		std::filesystem::path shaderPDBPath = {};
 	};
 
 	struct IShader
