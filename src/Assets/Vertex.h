@@ -7,7 +7,7 @@ namespace Assets
 
 	struct VertexPrimaryAttributes
 	{
-		Vector4 position;
+		Vector3 position;
 		Vector3 normals;
 		Vector2 texCoords;
 	};

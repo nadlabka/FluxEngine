@@ -5,6 +5,7 @@
 namespace RHI
 {	
 	std::wstring ConvertPipelineStageTypeToD3D12ShaderProfile(PipelineStageType pipelineStageType);
+	D3D12_SHADER_VISIBILITY ConvertPipelineStageTypeToShaderVisibility(PipelineStageType pipelineStageType);
 
 	struct D3D12Shader : public IShader
 	{

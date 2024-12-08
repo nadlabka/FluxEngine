@@ -35,8 +35,8 @@ namespace RHI
 
 		std::vector<uint32_t> m_UAVDescriptorsIndices;
 		std::vector<uint32_t> m_RTVDescriptorsIndices;
+		std::vector<uint32_t> m_DSVDescriptorIndices;
 		uint32_t m_SRVDescriptorIndex = D3D12DescriptorHeap::INDEX_INVALID;
-		uint32_t m_DSVDescriptorIndex = D3D12DescriptorHeap::INDEX_INVALID;
 
 		//use recource OR allocation
 		RscPtr<D3D12MA::Allocation> m_allocation;

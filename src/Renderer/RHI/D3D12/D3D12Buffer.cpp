@@ -66,7 +66,7 @@ void RHI::D3D12Buffer::AllocateDescriptorsInHeaps(const BufferDescription& desc)
         d3d12device->m_device->CreateUnorderedAccessView(resourcePtr, nullptr, &uavDesc, handle);
         m_UAVDescriptorIndex = uavIndex;
     }
-    if (desc.usage & BufferUsage::DataReadBuffer)
+    if (desc.usage & BufferUsage::DataReadOnlyBuffer)
     {
         //create SRV
         uint32_t srvIndex = cbv_srv_uav_heap->AllocateIndex();

@@ -8,10 +8,16 @@ namespace Assets
 {
 	struct SubmeshRawData
 	{
-		std::vector<VertexPrimaryAttributes> m_primaryVertexAttributes;
-		std::vector<VertexSecondaryAttributes> m_secondaryVertexAttributes;
+		struct DataAdressRange
+		{
+			uint32_t offset;
+			uint32_t size;
+		};
 
-		std::vector<std::byte> m_indices;
+		std::pair<std::shared_ptr<std::vector<VertexPrimaryAttributes>>, DataAdressRange> m_primaryVertexAttributes;  //u don't want indidvial buffers, u want 1 big shared data buffer with accessors details for each submesh
+		std::pair<std::shared_ptr<std::vector<VertexSecondaryAttributes>>, DataAdressRange> m_secondaryVertexAttributes; asasasasasasa;
+
+		std::pair<std::shared_ptr<std::vector<std::byte>>, DataAdressRange> m_indices;
 		uint32_t m_indexSizeInBytes;
 	};
 

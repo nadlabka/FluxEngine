@@ -46,6 +46,6 @@ namespace RHI
 	{
 		virtual ~IRenderPass() {}
 
-        virtual void SetAttachments(const std::vector<SubResourceRTsDescription>& colorRTs, std::shared_ptr<ITexture> depthStencilRT) = 0;
+        virtual void SetAttachments(const std::vector<SubResourceRTsDescription>& colorRTs, const SubResourceRTsDescription& depthStencilRT) = 0;
 	};
 }

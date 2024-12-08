@@ -156,11 +156,6 @@ namespace RHI
 		uint32_t extentY;
 	};
 
-	struct PipelineStageDescription
-	{
-		std::shared_ptr<IShader> shader;
-	};
-
 	struct InputAssemblerLayoutDescription
 	{
 		//data from this struct(offset, stride) is going to be used in BindVertexBuffer of CommandBuffer
@@ -274,7 +269,8 @@ namespace RHI
 
 	struct IRenderPipeline
 	{
-		virtual RenderPipelineDescription& GetPipelineDescription() = 0;
+		// change this, pipeline must store only descriptions that are checked and updated when binding this pipeline
+		virtual RenderPipelineDescription& GetPipelineDescription() = 0; 
 
 		virtual ~IRenderPipeline() {}
 	};

@@ -16,7 +16,7 @@ namespace RHI
 		std::shared_ptr<ICommandQueue> CreateCommandQueue(QueueType queueType) const;
 		std::shared_ptr<ICommandBuffer> CreateCommandBuffer(QueueType bufferSubmitQueueType) const;
 		std::shared_ptr<IRenderPass> CreateRenderPass(const RenderPassDesc& renderPassDesc) const;
-		std::shared_ptr<IPipelineLayout> CreatePipelineLayout(const PipelineLayoutDescription& pipelineLayoutDesc) const;
+		std::shared_ptr<IPipelineLayout> CreatePipelineLayout(const std::vector<PipelineStageDescription>& pipelineStages) const;
 		std::shared_ptr<IRenderPipeline> CreateRenderPipeline(const RenderPipelineDescription& renderPipelineDesc) const;
 
 		RscPtr<ID3D12Device> m_device;

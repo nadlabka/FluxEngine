@@ -108,13 +108,13 @@ void Renderer1::LoadPipeline()
     {
         GetAssetFullPath(L"shaders.hlsl"),
         L"VSMain",
-        PipelineStage::Vertex
+        PipelineStageType::Vertex
     };
     ShaderCreateDesription fragmentShaderDesc =
     {
         GetAssetFullPath(L"shaders.hlsl"),
         L"PSMain",
-        PipelineStage::Fragment
+        PipelineStageType::Fragment
     };
     auto shaderCompiler = rhiContext.GetShaderCompiler();
     std::shared_ptr<IShader> vertexShader = shaderCompiler->CompileShader(vertexShaderDesc);
@@ -123,8 +123,8 @@ void Renderer1::LoadPipeline()
     pipelineStagesDesc.push_back({ fragmentShader });
 
 
-    PipelineLayoutDescription pipelineLayoutDesc = {};
-    std::shared_ptr<IPipelineLayout> pipelineLayout = device->CreatePipelineLayout(pipelineLayoutDesc);
+    PipelineLayoutBindings pipelineLayoutDesc = {};
+    std::shared_ptr<IPipelineLayout> pipelineLayout = device->CreatePipelineLayout(pipelineStagesDesc);
 
 
     std::shared_ptr<IRenderPass> renderPass = {};
@@ -222,5 +222,6 @@ void Renderer1::UpdatePipelineDynamicStates()
     std::vector<SubResourceRTsDescription::TextureArraySliceToInclude> slicesToInclude = {};
     slicesToInclude.push_back({});
     subresourceRTs.push_back({ m_swapchain->GetNextRenderTarget(), slicesToInclude });
-    m_renderPipeline->GetPipelineDescription().renderPass->SetAttachments(subresourceRTs, nullptr);
+    SubResourceRTsDescription subresourceDSTs = {};
+    m_renderPipeline->GetPipelineDescription().renderPass->SetAttachments(subresourceRTs, subresourceDSTs);
 }

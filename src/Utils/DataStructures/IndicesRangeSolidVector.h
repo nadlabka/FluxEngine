@@ -57,7 +57,7 @@ struct IndicesRangeSolidVector
 
 	uint32_t GetCurrentlyAllocatedIndicesNumber()
 	{
-		return GetTotalSize() - m_freeIndices.size();
+		return GetTotalSize() - (uint32_t)m_freeIndices.size();
 	}
 
 	void SetMaxIndexLimit(uint32_t value)

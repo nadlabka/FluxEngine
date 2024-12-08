@@ -112,7 +112,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;INCLUDE_SHADER_DEBUG_INFO;INCLUDE_SHADER_REFLECTION_INFO;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;INCLUDE_SHADER_DEBUG_INFO;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <AdditionalBMIDirectories>%(AdditionalBMIDirectories)</AdditionalBMIDirectories>
@@ -132,7 +132,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_CONSOLE;INCLUDE_SHADER_REFLECTION_INFO;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <LanguageStandard>stdcpp20</LanguageStandard>
@@ -213,6 +213,7 @@
     <ClCompile Include="src\Renderer\RHI\RHIContext.cpp" />
     <ClInclude Include="src\Renderer\RHI\D3D12\Managers\DescriptorsHeapsManager.h" />
     <ClInclude Include="src\Renderer\RHI\D3D12\D3D12ShaderCompiler.h" />
+    <ClInclude Include="src\Renderer\RHI\PipelineBindings.h" />
     <ClInclude Include="src\Renderer\RHI\PipelineCommon.h" />
     <ClInclude Include="src\Renderer\RHI\PipelineLayout.h" />
     <ClInclude Include="src\Renderer\RHI\RenderPass.h" />
@@ -225,6 +226,7 @@
     <ClInclude Include="src\Utils\DataStructures\IndicesRangeSolidVector.h" />
     <ClInclude Include="src\Utils\DataStructures\SolidVector.h" />
     <ClInclude Include="src\Utils\DebugMacros.h" />
+    <ClInclude Include="src\Utils\StringToWstring.h" />
     <ClInclude Include="vendor\D3D12MemoryAllocator\include\D3D12MemAlloc.h" />
   </ItemGroup>
   <ItemGroup>

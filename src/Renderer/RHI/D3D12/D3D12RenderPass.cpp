@@ -6,7 +6,7 @@ RHI::D3D12RenderPass::D3D12RenderPass(const RenderPassDesc& desc) : m_descriptio
 
 }
 
-void RHI::D3D12RenderPass::SetAttachments(const std::vector<SubResourceRTsDescription>& colorRTs, std::shared_ptr<ITexture> depthStencilRT)
+void RHI::D3D12RenderPass::SetAttachments(const std::vector<SubResourceRTsDescription>& colorRTs, const SubResourceRTsDescription& depthStencilRT)
 {
 	m_colorRTs = colorRTs;
 	m_depthStencilRT = depthStencilRT;

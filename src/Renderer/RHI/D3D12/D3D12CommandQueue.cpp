@@ -47,5 +47,6 @@ D3D12_COMMAND_LIST_TYPE RHI::ConvertQueueTypeToCommandListType(QueueType queueTy
     case QueueType::AllCommands: return D3D12_COMMAND_LIST_TYPE_DIRECT;
     case QueueType::CopyOnly: return D3D12_COMMAND_LIST_TYPE_COPY;
     case QueueType::ComputeOnly: return D3D12_COMMAND_LIST_TYPE_COMPUTE;
+    default: throw std::runtime_error("No such command queue is available for conversion ToCommandListType");
     }
 }

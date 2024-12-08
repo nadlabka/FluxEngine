@@ -15,7 +15,7 @@ namespace RHI
 		None = 0,
 		UniformBuffer = 1 << 0,
 		StorageBuffer = 1 << 1, //UAV
-		DataReadBuffer = 1 << 2, //SRV
+		DataReadOnlyBuffer = 1 << 2, //SRV
 		IndexBuffer = 1 << 3,
 		VertexBuffer = 1 << 4,
 		IndirectBuffer = 1 << 5,

@@ -36,6 +36,7 @@ namespace RHI
 		void CopyDataBetweenBuffers(std::shared_ptr<IBuffer> fromBuffer, std::shared_ptr<IBuffer> toBuffer, const BufferRegionCopyDescription& regionCopyDesc);
 
 		std::shared_ptr<D3D12RenderPipeline> m_currentRenderPipeline;
+		bool m_pipelineChanged = false;
 
 		RscPtr<ID3D12CommandAllocator> m_commandAllocator;
 		RscPtr<ID3D12GraphicsCommandList> m_commandList;

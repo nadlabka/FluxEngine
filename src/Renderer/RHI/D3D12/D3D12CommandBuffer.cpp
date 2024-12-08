@@ -5,6 +5,7 @@
 #include "D3D12PipelineLayout.h"
 #include "D3D12Texture.h"
 #include "D3D12Buffer.h"
+#include "D3D12Sampler.h"
 
 RHI::D3D12CommandBuffer::D3D12CommandBuffer(RscPtr<ID3D12CommandAllocator> commandAllocator, RscPtr<ID3D12GraphicsCommandList> commandList) 
 	: m_commandAllocator(commandAllocator), m_commandList(commandList), m_fenceValue(0u)
@@ -31,10 +32,13 @@ void RHI::D3D12CommandBuffer::BindDescriptorsHeaps()
 void RHI::D3D12CommandBuffer::BindRenderPipeline(std::shared_ptr<IRenderPipeline> renderPipeline)
 {
 	m_currentRenderPipeline = std::static_pointer_cast<D3D12RenderPipeline>(renderPipeline);
+	m_pipelineChanged = true;
 }
 
 void RHI::D3D12CommandBuffer::SubmitToQueue(std::shared_ptr<ICommandQueue> commandQueue)
 {
+	m_pipelineChanged = false;
+
 	auto d3d12CommandQueue = std::static_pointer_cast<D3D12CommandQueue>(commandQueue);
 
 	ID3D12CommandList* ppCommandLists[] = { m_commandList.ptr() };
@@ -53,9 +57,17 @@ void RHI::D3D12CommandBuffer::BeginRecording(std::shared_ptr<ICommandQueue> comm
 	m_commandList->Reset(m_commandAllocator.ptr(), m_currentRenderPipeline->m_pipelineState.ptr());
 
 	auto d3d12PipelineLayout = std::static_pointer_cast<D3D12PipelineLayout>(m_currentRenderPipeline->m_description.pipelineLayout);
-
-	for (auto& bufferBinding : d3d12PipelineLayout->m_description.buffersBindings)
+	if (m_pipelineChanged)
 	{
+		m_commandList->SetGraphicsRootSignature(d3d12PipelineLayout->m_rootSignature.ptr());
+	}
+
+	auto boundResourcesBufferIndex = d3d12PipelineLayout->m_pipelineLayoutBindings.m_BoundConstantBuffers.GetConstantBufferBinding(BoundConstantBuffers::boundResourcesBufferName).parameterIndex;
+
+	for (const auto& bufferBindingName : d3d12PipelineLayout->m_pipelineLayoutBindings.m_dynamicallyBoundResources.GetBuffersBindingsNames())
+	{
+		auto& bufferBinding = d3d12PipelineLayout->m_pipelineLayoutBindings.m_dynamicallyBoundResources.GetBufferBindingMapping(bufferBindingName);
+		auto bindingIndex = d3d12PipelineLayout->m_pipelineLayoutBindings.m_dynamicallyBoundResources.GetParameterIndex(bufferBindingName);
 		auto d3d12Buffer = std::static_pointer_cast<D3D12Buffer>(bufferBinding.first);
 		auto bufferPtr = d3d12Buffer->m_buffer.ptr() ? d3d12Buffer->m_buffer.ptr() : d3d12Buffer->m_allocation->GetResource();
 		auto targetState = ConvertDescriptorBindingToResourceState(bufferBinding.second);
@@ -65,22 +77,63 @@ void RHI::D3D12CommandBuffer::BeginRecording(std::shared_ptr<ICommandQueue> comm
 			m_commandList->ResourceBarrier(1, &transitedRT);
 			d3d12Buffer->m_resourceState = targetState;
 		}
-
+		switch (bufferBinding.second.type)
+		{
+		case DescriptorResourceType::StorageBuffer:
+		{
+			m_commandList->SetGraphicsRoot32BitConstant(boundResourcesBufferIndex, d3d12Buffer->m_UAVDescriptorIndex, bindingIndex);
+			break;
+		}
+		case DescriptorResourceType::UniformBuffer:
+		{
+			m_commandList->SetGraphicsRoot32BitConstant(boundResourcesBufferIndex, d3d12Buffer->m_CBVDescriptorIndex, bindingIndex);
+			break;
+		}
+		case DescriptorResourceType::DataReadOnlyBuffer:
+		{
+			m_commandList->SetGraphicsRoot32BitConstant(boundResourcesBufferIndex, d3d12Buffer->m_SRVDescriptorIndex, bindingIndex);
+			break;
+		}
+		}
 	}
-	for (auto& textureBinding : d3d12PipelineLayout->m_description.texturesBindings)
+
+	for (const auto& textureBindingName : d3d12PipelineLayout->m_pipelineLayoutBindings.m_dynamicallyBoundResources.GetTexturesBindingsNames())
 	{
+		const auto& textureBinding = d3d12PipelineLayout->m_pipelineLayoutBindings.m_dynamicallyBoundResources.GetTextureBindingMapping(textureBindingName);
+		auto bindingIndex = d3d12PipelineLayout->m_pipelineLayoutBindings.m_dynamicallyBoundResources.GetParameterIndex(textureBindingName);
 		auto d3d12Texture = std::static_pointer_cast<D3D12Texture>(textureBinding.first);
 		auto texturePtr = d3d12Texture->m_texture.ptr() ? d3d12Texture->m_texture.ptr() : d3d12Texture->m_allocation->GetResource();
-		auto targetState = ConvertDescriptorBindingToResourceState(textureBinding.second);
+		auto targetState = ConvertDescriptorBindingToResourceState(textureBinding.second.resourceBindingInfo);
 		if (d3d12Texture->m_resourceState != targetState)
 		{
 			auto transitedRT = CD3DX12_RESOURCE_BARRIER::Transition(texturePtr, d3d12Texture->m_resourceState, targetState);
 			m_commandList->ResourceBarrier(1, &transitedRT);
 			d3d12Texture->m_resourceState = targetState;
 		}
+		switch (textureBinding.second.resourceBindingInfo.type)
+		{
+		case DescriptorResourceType::SampledImage:
+		{
+			m_commandList->SetGraphicsRoot32BitConstant(boundResourcesBufferIndex, d3d12Texture->m_SRVDescriptorIndex, bindingIndex);
+			break;
+		}
+		case DescriptorResourceType::StorageImage:
+		{
+			uint32_t descriptorIndexInArray = d3d12Texture->m_dimensionsInfo.m_mipLevels * textureBinding.second.subresourceInfo.slice + 
+				textureBinding.second.subresourceInfo.mip;
+			m_commandList->SetGraphicsRoot32BitConstant(boundResourcesBufferIndex, d3d12Texture->m_UAVDescriptorsIndices[descriptorIndexInArray], bindingIndex);
+			break;
+		}
+		}
 	}
 
-	m_commandList->SetGraphicsRootSignature(d3d12PipelineLayout->m_rootSignature.ptr());
+	for (const auto& samplerBindingName : d3d12PipelineLayout->m_pipelineLayoutBindings.m_dynamicallyBoundResources.GetSamplersBindingsNames())
+	{
+		const auto& sampler = d3d12PipelineLayout->m_pipelineLayoutBindings.m_dynamicallyBoundResources.GetSamplerOfBinding(samplerBindingName);
+		auto bindingIndex = d3d12PipelineLayout->m_pipelineLayoutBindings.m_dynamicallyBoundResources.GetParameterIndex(samplerBindingName);
+		auto d3d12Sampler = std::static_pointer_cast<D3D12Sampler>(sampler);
+		m_commandList->SetGraphicsRoot32BitConstant(boundResourcesBufferIndex, d3d12Sampler->m_descriptorIndex, bindingIndex);
+	}
 
 	auto& descHeapsMgr = DescriptorsHeapsManager::GetInstance();
 	auto rtv_heap = descHeapsMgr.GetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
@@ -88,11 +141,14 @@ void RHI::D3D12CommandBuffer::BeginRecording(std::shared_ptr<ICommandQueue> comm
 
 	auto d3d12RenderPass = std::static_pointer_cast<D3D12RenderPass>(m_currentRenderPipeline->m_description.renderPass);
 
-	auto d3d12DepthStencilRT = std::static_pointer_cast<D3D12Texture>(d3d12RenderPass->m_depthStencilRT);
+	auto d3d12DepthStencilRT = std::static_pointer_cast<D3D12Texture>(d3d12RenderPass->m_depthStencilRT.texture);
 	D3D12_CPU_DESCRIPTOR_HANDLE depthStencilHandle = {};
 	D3D12_CPU_DESCRIPTOR_HANDLE* depthStencilHandlePtr = nullptr;
 	if (d3d12RenderPass->m_description.depthStencilAttachment.has_value())
 	{
+		ASSERT(d3d12DepthStencilRT, "No depth-stencil texture was provided or it's nullptr");
+		ASSERT(d3d12RenderPass->m_depthStencilRT.slicesToInclude.size() > 1, "Mutiple depth targets are not allowed");
+		ASSERT(d3d12RenderPass->m_depthStencilRT.slicesToInclude[0].mipsToInclude.size() > 1, "Mutiple depth targets are not allowed");
 		auto texturePtr = d3d12DepthStencilRT->m_texture.ptr() ? d3d12DepthStencilRT->m_texture.ptr() : d3d12DepthStencilRT->m_allocation->GetResource();
 		auto targetState = ConvertTextureLayoutToResourceState(d3d12RenderPass->m_description.depthStencilAttachment->initialLayout);
 		if (d3d12DepthStencilRT->m_resourceState != targetState)
@@ -101,7 +157,8 @@ void RHI::D3D12CommandBuffer::BeginRecording(std::shared_ptr<ICommandQueue> comm
 			m_commandList->ResourceBarrier(1, &transitedRT);
 			d3d12DepthStencilRT->m_resourceState = targetState;
 		}
-		depthStencilHandle = dsv_heap->GetCpuHandle(d3d12DepthStencilRT->m_DSVDescriptorIndex);
+		depthStencilHandle = dsv_heap->GetCpuHandle(d3d12DepthStencilRT->m_DSVDescriptorIndices[d3d12RenderPass->m_depthStencilRT.slicesToInclude[0].sliceIndex * d3d12DepthStencilRT->m_dimensionsInfo.m_mipLevels 
+			+ d3d12RenderPass->m_depthStencilRT.slicesToInclude[0].mipsToInclude[0]]);
 		depthStencilHandlePtr = &depthStencilHandle;
 	}
 
@@ -110,6 +167,9 @@ void RHI::D3D12CommandBuffer::BeginRecording(std::shared_ptr<ICommandQueue> comm
 	{
 		auto& attachmentDesc = d3d12RenderPass->m_description.colorAttachments[i];
 		auto d3d12ColorRT = std::static_pointer_cast<D3D12Texture>(d3d12RenderPass->m_colorRTs[i].texture);
+
+		ASSERT(d3d12ColorRT, "No render target texture was provided or it's nullptr");
+
 		auto texturePtr = d3d12ColorRT->m_texture.ptr() ? d3d12ColorRT->m_texture.ptr() : d3d12ColorRT->m_allocation->GetResource();
 
 		auto targetState = ConvertTextureLayoutToResourceState(attachmentDesc.initialLayout);
@@ -123,7 +183,7 @@ void RHI::D3D12CommandBuffer::BeginRecording(std::shared_ptr<ICommandQueue> comm
 		{
 			for (auto& mipRT : sliceRT.mipsToInclude)
 			{
-				auto rtvHandle = rtv_heap->GetCpuHandle(d3d12ColorRT->m_RTVDescriptorsIndices[mipRT]);
+				auto rtvHandle = rtv_heap->GetCpuHandle(d3d12ColorRT->m_RTVDescriptorsIndices[sliceRT.sliceIndex * d3d12ColorRT->m_dimensionsInfo.m_mipLevels + mipRT]);
 				colorRTsHandles.push_back(rtvHandle);
 				switch (attachmentDesc.loadOp)
 				{
@@ -156,7 +216,7 @@ void RHI::D3D12CommandBuffer::EndRecording()
 
 	auto d3d12RenderPass = std::static_pointer_cast<D3D12RenderPass>(m_currentRenderPipeline->m_description.renderPass);
 
-	auto d3d12DepthStencilRT = std::static_pointer_cast<D3D12Texture>(d3d12RenderPass->m_depthStencilRT);
+	auto d3d12DepthStencilRT = std::static_pointer_cast<D3D12Texture>(d3d12RenderPass->m_depthStencilRT.texture);
 	if (d3d12RenderPass->m_description.depthStencilAttachment.has_value())
 	{
 		auto& attachmentDesc = d3d12RenderPass->m_description.depthStencilAttachment;

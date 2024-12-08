@@ -1,4 +1,5 @@
 #include <stdafx.h>
+#include <ranges>
 #include "D3D12Device.h"
 #include "D3D12CommandQueue.h"
 #include "D3D12Texture.h"
@@ -9,6 +10,8 @@
 #include "D3D12Shader.h"
 #include "D3D12Buffer.h"
 #include "D3D12Sampler.h"
+#include <StringToWstring.h>
+#include <unordered_set>
 
 RHI::D3D12Device::D3D12Device()
 {
@@ -54,8 +57,11 @@ std::shared_ptr<RHI::IRenderPass> RHI::D3D12Device::CreateRenderPass(const Rende
     return std::make_shared<D3D12RenderPass>(renderPassDesc);
 }
 
-std::shared_ptr<RHI::IPipelineLayout> RHI::D3D12Device::CreatePipelineLayout(const PipelineLayoutDescription& pipelineLayoutDesc) const
+std::shared_ptr<RHI::IPipelineLayout> RHI::D3D12Device::CreatePipelineLayout(const std::vector<PipelineStageDescription>& pipelineStages) const
 {
+    //check **rtarun9.github.io**
+    PipelineLayoutBindings resultBindings = {};
+
     D3D12_FEATURE_DATA_ROOT_SIGNATURE featureData = {};
     featureData.HighestVersion = D3D_ROOT_SIGNATURE_VERSION_1_1;
     if (FAILED(m_device->CheckFeatureSupport(D3D12_FEATURE_ROOT_SIGNATURE, &featureData, sizeof(featureData))))
@@ -63,84 +69,78 @@ std::shared_ptr<RHI::IPipelineLayout> RHI::D3D12Device::CreatePipelineLayout(con
         featureData.HighestVersion = D3D_ROOT_SIGNATURE_VERSION_1_0;
     }
 
-    D3D12_ROOT_SIGNATURE_FLAGS rootSignatureFlags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
+    D3D12_ROOT_SIGNATURE_FLAGS rootSignatureFlags = 
+        D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT |
+        D3D12_ROOT_SIGNATURE_FLAG_CBV_SRV_UAV_HEAP_DIRECTLY_INDEXED |
+        D3D12_ROOT_SIGNATURE_FLAG_SAMPLER_HEAP_DIRECTLY_INDEXED;
 
     std::vector<CD3DX12_ROOT_PARAMETER1> rootParameters;
-    std::list< D3D12_DESCRIPTOR_RANGE1> ranges;
 
-    for (auto& constant : pipelineLayoutDesc.constantsBindings) 
+    for (auto& pipelineStage : pipelineStages)
     {
-        rootParameters.emplace_back().InitAsConstants(constant.size / sizeof(uint32_t), constant.bindingIndex, 0, ConvertShaderVisibilityToD3D12(constant.visibility));
-    }
+        auto d3d12StageShader = std::static_pointer_cast<D3D12Shader>(pipelineStage.shader);
 
-    for (auto& item : pipelineLayoutDesc.buffersBindings)
-    {
-        auto buffer = std::static_pointer_cast<D3D12Buffer>(item.first);
-        const DescriptorBinding& binding = item.second;
-        CD3DX12_DESCRIPTOR_RANGE1 range = {};
-        switch (binding.descriptorType)
+        D3D12_SHADER_DESC shaderDesc{};
+        d3d12StageShader->m_reflection->GetDesc(&shaderDesc);
+        
+        rootParameters.reserve(shaderDesc.BoundResources);
+        for (uint32_t i : std::views::iota(0u, shaderDesc.BoundResources))
         {
-        case DescriptorType::DataReadBuffer:
-            range.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, binding.bindingIndex, 0, D3D12_DESCRIPTOR_RANGE_FLAG_NONE);
-            range.OffsetInDescriptorsFromTableStart = buffer->m_SRVDescriptorIndex;
-            ranges.push_back(range);
-            break;
-        case DescriptorType::StorageBuffer:
-            range.Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, binding.bindingIndex, 0, D3D12_DESCRIPTOR_RANGE_FLAG_DATA_VOLATILE);
-            range.OffsetInDescriptorsFromTableStart = buffer->m_UAVDescriptorIndex;
-            ranges.push_back(range);
-            break;
-        case DescriptorType::UniformBuffer:
-            range.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, binding.bindingIndex, 0, D3D12_DESCRIPTOR_RANGE_FLAG_NONE);
-            range.OffsetInDescriptorsFromTableStart = buffer->m_CBVDescriptorIndex;
-            ranges.push_back(range);
-            break;
-        }
-        CD3DX12_ROOT_PARAMETER1 rootParam;
-        rootParam.InitAsDescriptorTable(1, &ranges.back(), ConvertShaderVisibilityToD3D12(binding.stageVisbility));
-        rootParameters.push_back(rootParam);
-    }
+            D3D12_SHADER_INPUT_BIND_DESC shaderInputBindDesc{};
+            ThrowIfFailed(d3d12StageShader->m_reflection->GetResourceBindingDesc(i, &shaderInputBindDesc));
 
-    for (auto& item : pipelineLayoutDesc.texturesBindings)
-    {
-        auto texture = std::static_pointer_cast<D3D12Texture>(item.first);
-        const DescriptorBinding& binding = item.second;
-        CD3DX12_DESCRIPTOR_RANGE1 range = {};
-        switch (item.second.descriptorType)
-        {
-        case DescriptorType::SampledImage:
-            range.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, binding.bindingIndex, D3D12_DESCRIPTOR_RANGE_FLAG_NONE);
-            range.OffsetInDescriptorsFromTableStart = texture->m_SRVDescriptorIndex;
-            ranges.push_back(range);
-            break;
-        case DescriptorType::StorageImage:
-            for(int i = 0; i < binding.mipsToIncludeForUAV.size(); i++)
+            if (resultBindings.m_BoundConstantBuffers.IsConstantBufferPresent(shaderInputBindDesc.Name))
             {
-                range.Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, binding.bindingIndex, D3D12_DESCRIPTOR_RANGE_FLAG_DATA_VOLATILE);
-                range.OffsetInDescriptorsFromTableStart = texture->m_UAVDescriptorsIndices[i];
-                ranges.push_back(range);
+                continue;
             }
-            break;
+
+            resultBindings.m_BoundConstantBuffers.AddConstantBufferBinding(shaderInputBindDesc.Name, i);
+
+            ID3D12ShaderReflectionConstantBuffer* shaderReflectionConstantBuffer = d3d12StageShader->m_reflection->GetConstantBufferByIndex(i);
+            D3D12_SHADER_BUFFER_DESC constantBufferDesc{};
+            shaderReflectionConstantBuffer->GetDesc(&constantBufferDesc);
+
+            if (strcmp(shaderInputBindDesc.Name, BoundConstantBuffers::boundResourcesBufferName) == 0)
+            {
+                const D3D12_ROOT_PARAMETER1 rootParameter
+                {
+                    .ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS,
+                    .Constants
+                    {
+                        .ShaderRegister = shaderInputBindDesc.BindPoint,
+                        .RegisterSpace = shaderInputBindDesc.Space,
+                        .Num32BitValues = constantBufferDesc.Size / 4
+                    }
+                };
+                rootParameters.emplace_back(rootParameter);
+
+                for (UINT variableIndex = 0; variableIndex < constantBufferDesc.Variables; ++variableIndex)
+                {
+                    ID3D12ShaderReflectionVariable* variableReflection = shaderReflectionConstantBuffer->GetVariableByIndex(variableIndex);
+                    D3D12_SHADER_VARIABLE_DESC variableDesc;
+                    variableReflection->GetDesc(&variableDesc);
+
+                    resultBindings.m_dynamicallyBoundResources.SetParameterIndex(variableDesc.Name, variableIndex);
+                }
+            }
+            else if (shaderInputBindDesc.Type == D3D_SIT_CBUFFER)
+            {
+                const D3D12_ROOT_PARAMETER1 rootParameter
+                {
+                    .ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV,
+                    .Descriptor
+                    {
+                        .ShaderRegister = shaderInputBindDesc.BindPoint,
+                        .RegisterSpace = shaderInputBindDesc.Space,
+                        .Flags = D3D12_ROOT_DESCRIPTOR_FLAG_NONE
+                    }
+                };
+
+                rootParameters.emplace_back(rootParameter);
+            }
         }
-        CD3DX12_ROOT_PARAMETER1 rootParam;
-        rootParam.InitAsDescriptorTable(1, &ranges.back(), ConvertShaderVisibilityToD3D12(binding.stageVisbility));
-        rootParameters.push_back(rootParam);
     }
-
-    for (auto& item : pipelineLayoutDesc.samplersBindings)
-    {
-        auto sampler = std::static_pointer_cast<D3D12Sampler>(item.first);
-        const DescriptorBinding& binding = item.second;
-        CD3DX12_DESCRIPTOR_RANGE1 range = {};
-        range.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER, 1, binding.bindingIndex, D3D12_DESCRIPTOR_RANGE_FLAG_NONE);
-        range.OffsetInDescriptorsFromTableStart = sampler->m_descriptorIndex;
-        ranges.push_back(range);
-
-        CD3DX12_ROOT_PARAMETER1 rootParam;
-        rootParam.InitAsDescriptorTable(1, &ranges.back(), ConvertShaderVisibilityToD3D12(binding.stageVisbility));
-        rootParameters.push_back(rootParam);
-    }
-
+    
     CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC rootSignatureDescription;
     rootSignatureDescription.Init_1_1(rootParameters.size(), rootParameters.data(), 0, nullptr, rootSignatureFlags);
 
@@ -162,7 +162,7 @@ std::shared_ptr<RHI::IPipelineLayout> RHI::D3D12Device::CreatePipelineLayout(con
         IID_PPV_ARGS(&rootSignature)
     ));
 
-    return std::make_shared<D3D12PipelineLayout>(rootSignature, pipelineLayoutDesc);
+    return std::make_shared<D3D12PipelineLayout>(rootSignature, resultBindings);
 }
 
 std::shared_ptr<RHI::IRenderPipeline> RHI::D3D12Device::CreateRenderPipeline(const RenderPipelineDescription& renderPipelineDesc) const
@@ -175,13 +175,13 @@ std::shared_ptr<RHI::IRenderPipeline> RHI::D3D12Device::CreateRenderPipeline(con
     for (auto& pipelineStage : renderPipelineDesc.pipelineStages)
     {
         auto d3d12pipelineStage = std::static_pointer_cast<D3D12Shader>(pipelineStage.shader);
-        switch (d3d12pipelineStage->m_pipelineStage)
+        switch (d3d12pipelineStage->m_pipelineStageType)
         {
-        case PipelineStage::Vertex:
+        case PipelineStageType::Vertex:
             psoDesc.VS.pShaderBytecode = d3d12pipelineStage->m_compiledShader->GetBufferPointer();
             psoDesc.VS.BytecodeLength = d3d12pipelineStage->m_compiledShader->GetBufferSize();
             break;
-        case PipelineStage::Fragment:
+        case PipelineStageType::Fragment:
             psoDesc.PS.pShaderBytecode = d3d12pipelineStage->m_compiledShader->GetBufferPointer();
             psoDesc.PS.BytecodeLength = d3d12pipelineStage->m_compiledShader->GetBufferSize();
             break;

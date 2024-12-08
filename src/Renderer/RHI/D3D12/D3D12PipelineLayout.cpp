@@ -1,55 +1,38 @@
 #include "stdafx.h"
 #include "D3D12PipelineLayout.h"
 
-RHI::D3D12PipelineLayout::D3D12PipelineLayout(RscPtr<ID3D12RootSignature> rootSignature, PipelineLayoutDescription description)
-    : m_rootSignature(rootSignature), m_description(description)
+RHI::D3D12PipelineLayout::D3D12PipelineLayout(RscPtr<ID3D12RootSignature> rootSignature, PipelineLayoutBindings pipelineLayoutBindings)
+    : m_rootSignature(rootSignature), IPipelineLayout(pipelineLayoutBindings)
 {
 }
 
-D3D12_SHADER_VISIBILITY RHI::ConvertShaderVisibilityToD3D12(BindingVisibility visibility)
-{
-    switch (visibility)
-    {
-    case BindingVisibility::Vertex:
-        return D3D12_SHADER_VISIBILITY_VERTEX;
-    case BindingVisibility::Fragment:
-        return D3D12_SHADER_VISIBILITY_PIXEL;
-    case BindingVisibility::Compute:
-        return D3D12_SHADER_VISIBILITY_ALL;
-    case BindingVisibility::VertexFragment:
-        return D3D12_SHADER_VISIBILITY_ALL;
-    default:
-        return D3D12_SHADER_VISIBILITY_ALL;
-    }
-}
 
-
-D3D12_RESOURCE_STATES RHI::ConvertDescriptorBindingToResourceState(const DescriptorBinding& descriptorBinding)
+D3D12_RESOURCE_STATES RHI::ConvertDescriptorBindingToResourceState(const DynamicallyBoundResources::ResourceBindingInfo& descriptorBinding)
 {
-    switch (descriptorBinding.descriptorType)
+    switch (descriptorBinding.type)
     {
-    case DescriptorType::UniformBuffer:
+    case DescriptorResourceType::UniformBuffer:
         return D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER;
 
-    case DescriptorType::StorageBuffer:
+    case DescriptorResourceType::StorageBuffer:
         return D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
 
-    case DescriptorType::DataReadBuffer:
-    case DescriptorType::SampledImage:
+    case DescriptorResourceType::DataReadOnlyBuffer:
+    case DescriptorResourceType::SampledImage:
     {
         D3D12_RESOURCE_STATES result = {};
-        if (descriptorBinding.stageVisbility & BindingVisibility::Fragment)
+        if (descriptorBinding.visibility & BindingVisibility::Fragment)
         {
             result |= D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
         }
-        if (descriptorBinding.stageVisbility & ~BindingVisibility::Fragment)
+        if (descriptorBinding.visibility & ~BindingVisibility::Fragment)
         {
             result |= D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE;
         }
         return result;
     }  
 
-    case DescriptorType::StorageImage:
+    case DescriptorResourceType::StorageImage:
         return D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
 
     default:
