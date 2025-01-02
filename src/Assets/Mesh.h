@@ -1,9 +1,11 @@
 #pragma once
+#include <vector>
+#include "Submesh.h"
 
 namespace Assets
 {
-	struct Mesh
+	struct StaticMesh
 	{
-
+		std::vector<StaticSubmesh> m_submeshes;
 	};
 }

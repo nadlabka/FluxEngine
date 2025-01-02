@@ -56,5 +56,11 @@ namespace RHI
 		virtual uint32_t GetSize() = 0;
 
 		virtual ~IBuffer() {}
-;	};
+	};
+
+	struct BufferWithRegionDescription
+	{
+		std::shared_ptr<IBuffer> buffer;
+		BufferRegionDescription regionDescription;
+	};
 }

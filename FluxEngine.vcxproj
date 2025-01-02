@@ -150,6 +150,7 @@
   <ItemGroup>
     <ClCompile Include="src\Application\WinAPI\WinApplication.cpp" />
     <ClCompile Include="src\Application\WinAPI\WinWindow.cpp" />
+    <ClCompile Include="src\Assets\Submesh.cpp" />
     <ClCompile Include="src\Core\ECS\Managers\EntitiesPool.cpp" />
     <ClCompile Include="src\Core\FluxEngine.cpp" />
     <ClCompile Include="src\Core\stdafx.cpp">

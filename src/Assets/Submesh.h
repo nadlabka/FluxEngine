@@ -1,32 +1,114 @@
 #pragma once
+#include <memory>
 #include <../Renderer/RHI/RHIContext.h>
 #include "Material.h"
 #include "AssetsManager.h"
 #include "Vertex.h"
+#include <entt/entt.hpp>
+#include <ECS/Entity.h>
 
 namespace Assets
 {
-	struct SubmeshRawData
+	struct PerInstanceCommonData
 	{
-		struct DataAdressRange
-		{
-			uint32_t offset;
-			uint32_t size;
-		};
-
-		std::pair<std::shared_ptr<std::vector<VertexPrimaryAttributes>>, DataAdressRange> m_primaryVertexAttributes;  //u don't want indidvial buffers, u want 1 big shared data buffer with accessors details for each submesh
-		std::pair<std::shared_ptr<std::vector<VertexSecondaryAttributes>>, DataAdressRange> m_secondaryVertexAttributes; asasasasasasa;
-
-		std::pair<std::shared_ptr<std::vector<std::byte>>, DataAdressRange> m_indices;
-		uint32_t m_indexSizeInBytes;
+		Matrix perInstanceTransform;
 	};
 
-	struct SubmeshAsset
+	struct BuffersWithDirtyIndices
 	{
-		std::pair<std::shared_ptr<RHI::IBuffer>, RHI::BufferRegionDescription> m_primaryVertexAttributesBuffer;
-		std::pair<std::shared_ptr<RHI::IBuffer>, RHI::BufferRegionDescription> m_secondaryVertexAttributesBuffer;
-		std::pair<std::shared_ptr<RHI::IBuffer>, RHI::BufferRegionDescription> m_indexBuffer;
+		std::shared_ptr<RHI::IBuffer> uploadBuffer;
+		std::shared_ptr<RHI::IBuffer> dataBuffer;
+		std::vector<uint32_t> dirtyIndices;
+	};
 
-		AssetsManager<Material>::AssetId m_materialId;
+	class StaticSubmesh
+	{
+	public:
+		StaticSubmesh() = default;
+		StaticSubmesh(RHI::BufferWithRegionDescription primaryVertexData, RHI::BufferWithRegionDescription secondaryVertexData, RHI::BufferWithRegionDescription indicesData);
+
+		template <typename T>
+		void SetPerInstanceData(Core::Entity entity, T&& data)
+		{
+			auto* bufferWithIndices = m_registry.ctx().find<BuffersWithDirtyIndices>(entt::type_id<T>().hash());
+			ASSERT(bufferWithIndices, "You have to set RHI buffer before adding any PerInstance data");
+
+			if (!m_registry.valid(entity))
+			{
+				m_registry.create(entity);
+				bufferWithIndices->dirtyIndices.push_back(m_registry.storage<T>().size());
+			}
+			else
+			{
+				bufferWithIndices->dirtyIndices.push_back(m_registry.storage<T>().index(entity));
+			}
+
+			m_registry.emplace_or_replace<T>(entity, std::forward<T>(data));
+		}
+
+		void DestroyEntityReference(Core::Entity entity)
+		{
+			for (auto&& typedStorage : m_registry.storage())
+			{
+				auto storageType = typedStorage.first;
+				auto& storage = typedStorage.second;
+
+				auto* bufferWithIndices = m_registry.ctx().find<BuffersWithDirtyIndices>(storageType);
+				bufferWithIndices->dirtyIndices.push_back(storage.index(entity));
+			}
+			m_registry.destroy(entity);
+		}
+		
+		template<typename T>
+		void SetRHIBuffersForPerInstanceData(std::shared_ptr<RHI::IBuffer> uploadBuffer, std::shared_ptr<RHI::IBuffer> dataBuffer)
+		{
+			auto* bufferWithIndices = m_registry.ctx().find<BuffersWithDirtyIndices>(entt::type_id<T>().hash());
+			if (!bufferWithIndices)
+			{
+				m_registry.ctx().insert_or_assign(entt::type_id<T>().hash(), BuffersWithDirtyIndices{ uploadBuffer, dataBuffer, {} });
+			}
+			else
+			{
+				bufferWithIndices->uploadBuffer = uploadBuffer;
+				bufferWithIndices->dataBuffer = dataBuffer;
+			}
+		}
+
+		template<typename T>
+		std::shared_ptr<RHI::IBuffer> GetRHIBufferForPerInstanceData() const
+		{
+			auto* bufferWithIndices = m_registry.ctx().find<BuffersWithDirtyIndices>(entt::type_id<T>().hash());
+			if (!bufferWithIndices)
+			{
+				throw std::runtime_error("No buffer found for the given type");
+			}
+			return bufferWithIndices->dataBuffer;
+		}
+
+		template<typename T>
+		void UpdateRHIBufferWithPerInstanceData(std::shared_ptr<RHI::ICommandBuffer> commandBuffer)
+		{
+			auto& storage = m_registry.storage<T>();
+			auto* bufferWithIndices = m_registry.ctx().find<BuffersWithDirtyIndices>(entt::type_id<T>().hash());
+			for (auto& dirtyIndex : bufferWithIndices->dirtyIndices)
+			{
+				RHI::BufferRegionCopyDescription regionDesc =
+				{
+					.srcOffset = sizeof(T) * dirtyIndex,
+					.destOffset = sizeof(T) * dirtyIndex,
+					.width = sizeof(T)
+				};
+				bufferWithIndices->uploadBuffer->UploadData((void*)storage.data(), regionDesc);
+				commandBuffer->CopyDataBetweenBuffers(bufferWithIndices->uploadBuffer, bufferWithIndices->dataBuffer, regionDesc);
+			}
+			bufferWithIndices->dirtyIndices.clear();
+		}
+
+	private:
+		RHI::BufferWithRegionDescription m_primaryVertexData;
+		RHI::BufferWithRegionDescription m_secondaryVertexData;
+		RHI::BufferWithRegionDescription m_indicesData;
+
+		entt::registry m_registry;
 	};
 }

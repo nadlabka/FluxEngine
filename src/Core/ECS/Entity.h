@@ -36,6 +36,8 @@ namespace Core
 			return EntitiesPool::GetInstance().m_registry.all_of<ComponentTs...>(m_enityId);
 		}
 
+		operator entt::entity() const { return m_enityId; }
+
 		entt::entity m_enityId;
 	};
 }
