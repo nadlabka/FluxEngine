@@ -28,7 +28,7 @@ namespace Assets
 		StaticSubmesh(RHI::BufferWithRegionDescription primaryVertexData, RHI::BufferWithRegionDescription secondaryVertexData, RHI::BufferWithRegionDescription indicesData);
 
 		template <typename T>
-		void SetPerInstanceData(Core::Entity entity, T&& data)
+		void SetPerInstanceData(Core::Entity entity, T&& data) // we need to delete all requested instances first and insert only after this
 		{
 			auto* bufferWithIndices = m_registry.ctx().find<BuffersWithDirtyIndices>(entt::type_id<T>().hash());
 			ASSERT(bufferWithIndices, "You have to set RHI buffer before adding any PerInstance data");
@@ -46,7 +46,7 @@ namespace Assets
 			m_registry.emplace_or_replace<T>(entity, std::forward<T>(data));
 		}
 
-		void DestroyEntityReference(Core::Entity entity)
+		void DestroyEntityReference(Core::Entity entity) // we need to delete all requested instances first and insert only after this
 		{
 			for (auto&& typedStorage : m_registry.storage())
 			{
@@ -98,7 +98,7 @@ namespace Assets
 					.destOffset = sizeof(T) * dirtyIndex,
 					.width = sizeof(T)
 				};
-				bufferWithIndices->uploadBuffer->UploadData((void*)storage.data(), regionDesc);
+				bufferWithIndices->uploadBuffer->UploadData((void*)storage.data(), regionDesc); // maybe upload as contiguous data to improve cache hits on gpu when copying 1-by-1
 				commandBuffer->CopyDataBetweenBuffers(bufferWithIndices->uploadBuffer, bufferWithIndices->dataBuffer, regionDesc);
 			}
 			bufferWithIndices->dirtyIndices.clear();
