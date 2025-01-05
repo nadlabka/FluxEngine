@@ -190,6 +190,7 @@
     <ClInclude Include="src\Assets\Submesh.h" />
     <ClInclude Include="src\Assets\Vertex.h" />
     <ClInclude Include="src\Core\ECS\Components\HierarchyRelationship.h" />
+    <ClInclude Include="src\Core\ECS\Components\Transform.h" />
     <ClInclude Include="src\Core\ECS\Entity.h" />
     <ClInclude Include="src\Core\ECS\Managers\EntitiesPool.h" />
     <ClInclude Include="src\Renderer\Renderer1.h" />

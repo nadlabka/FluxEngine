@@ -5,18 +5,27 @@
 
 Application::WinWindow Application::WinApplication::m_window;
 std::wstring Application::WinApplication::m_title;
+Core::FluxEngine* Application::WinApplication::m_engine;
 
-int Application::WinApplication::Run(Core::FluxEngine* engine, HINSTANCE hInstance, int nCmdShow, int windowWidth, int windowHeight, const std::wstring& title)
+void Application::WinApplication::Init(Core::FluxEngine* engine, HINSTANCE hInstance, int nCmdShow, int windowWidth, int windowHeight, const std::wstring& title)
 {
+    m_engine = engine;
+
     int argc;
     LPWSTR* argv = CommandLineToArgvW(GetCommandLineW(), &argc);
-    engine->ParseCommandLineArgs(argv, argc);
+    m_engine->ParseCommandLineArgs(argv, argc);
     LocalFree(argv);
 
     m_window = Application::WinWindow(WindowProc, hInstance, nCmdShow, windowWidth, windowHeight, title, engine);
 
     engine->Init();
 
+    //custom client entity-related init logic is currently executed here
+
+}
+
+int Application::WinApplication::Run()
+{
     MSG msg = {};
     while (msg.message != WM_QUIT)
     {
@@ -26,11 +35,11 @@ int Application::WinApplication::Run(Core::FluxEngine* engine, HINSTANCE hInstan
             DispatchMessage(&msg);
         }
 
-        engine->Update();
-        engine->Render();
+        m_engine->Update();
+        m_engine->Render();
     }
 
-    engine->Destroy();
+    m_engine->Destroy();
 
     return static_cast<char>(msg.wParam);
 }

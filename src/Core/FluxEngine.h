@@ -16,12 +16,12 @@ namespace Core
         void Render();
         void Destroy();
 
-        void OnKeyDown(EKeyboardKey key) {}
-        void OnKeyUp(EKeyboardKey key) {}
-
         void ParseCommandLineArgs(WCHAR* argv[], int argc);
 
-    private:
+        void RegisterOnKeyDownEvent(EKeyboardKey key);
+        void RegisterOnKeyUpevent(EKeyboardKey key);
 
+    private:
+        
     };
 }

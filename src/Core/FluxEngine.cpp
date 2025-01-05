@@ -8,12 +8,10 @@
 
 Core::FluxEngine::FluxEngine()
 {
-
 }
 
 Core::FluxEngine::~FluxEngine()
 {
-
 }
 
 void Core::FluxEngine::Init()

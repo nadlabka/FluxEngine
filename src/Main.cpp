@@ -13,7 +13,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLine,
 	freopen_s(&fp, "CONOUT$", "w", stderr);
 
 	Core::FluxEngine engineInstance = Core::FluxEngine();
-	Application::WinApplication::Run(&engineInstance, hInstance, nCmdShow, 1280, 720, L"name");
+	Application::WinApplication::Init(&engineInstance, hInstance, nCmdShow, 1280, 720, L"name");
+	Application::WinApplication::Run();
 
     return 0;
 }
