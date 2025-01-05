@@ -16,6 +16,7 @@ void Renderer1::Init()
     auto& rhiContext = RHIContext::GetInstance();
     auto factory = rhiContext.GetFactory();
     auto device = rhiContext.GetDevice();
+    auto rhiAllocator = rhiContext.GetAllocator();
      
     auto& window = Application::WinApplication::GetWindow();
     auto surface = ISurface::CreateSurfaceFromWindow(window);
@@ -39,6 +40,16 @@ void Renderer1::Init()
     m_commandQueue = device->CreateCommandQueue(QueueType::AllCommands);
     m_swapchain = factory->CreateSwapchain(surface, m_commandQueue, 2);
     m_commandBuffer = device->CreateCommandBuffer(QueueType::AllCommands);
+
+    TextureDescription depthStencilDesc = {};
+    depthStencilDesc.usage = eTextureUsage_DepthStencilAttachment;
+    depthStencilDesc.aspect = static_cast<TextureAspect>(eTextureAspect_HasStencil | eTextureAspect_HasDepth);
+    depthStencilDesc.format = TextureFormat::D24_UNORM_S8_UINT;
+    depthStencilDesc.type = TextureType::Texture2D;
+    depthStencilDesc.layout = TextureLayout::DepthStencilAttachmentOptimal;
+    depthStencilDesc.width = window.GetWidth();
+    depthStencilDesc.height = window.GetHeight();
+    m_depthStencil = rhiAllocator->CreateTexture(depthStencilDesc);
 
     WCHAR assetsPath[512];
     GetAssetsPath(assetsPath, _countof(assetsPath));
@@ -101,6 +112,9 @@ void Renderer1::LoadPipeline()
 
 
     DepthStencilDescription depthStencilDesc = {};
+    depthStencilDesc.depthTestEnabled = true;
+    depthStencilDesc.depthCompareOperation = DepthStencilCompareOperation::GreaterOrEqual;
+    depthStencilDesc.depthWriteEnabled = true;
 
 
     std::vector<PipelineStageDescription> pipelineStagesDesc = {};
@@ -133,6 +147,14 @@ void Renderer1::LoadPipeline()
     AttachmentDesc rtAttachmentDesc = {};
     rtAttachmentDesc.clearColor = { 0.0f, 0.2f, 0.4f, 1.0f };
     colorAttachmentsDesc.push_back(rtAttachmentDesc);
+    AttachmentDesc dsAttachmentDesc = {};
+    dsAttachmentDesc.format = TextureFormat::D24_UNORM_S8_UINT;
+    dsAttachmentDesc.clearDepth = 0.0f;
+    dsAttachmentDesc.clearStencil = 0.0f;
+    dsAttachmentDesc.initialLayout = TextureLayout::DepthStencilAttachmentOptimal;
+    dsAttachmentDesc.finalLayout = TextureLayout::DepthStencilAttachmentOptimal;
+    depthStencilAttachmentDesc = dsAttachmentDesc;
+
     RenderPassDesc renderPassDesc =
     {
         colorAttachmentsDesc,
@@ -167,9 +189,9 @@ void Renderer1::LoadPipeline()
     float aspectRatio = Application::WinApplication::GetWindow().GetAspectRatio();
     Vertex1 triangleVertices[] =
     {
-        { { 0.0f, 0.25f * aspectRatio, 0.0f}, {1.0f, 0.0f, 0.0f, 1.0f}},
-        { { 0.25f, -0.25f * aspectRatio, 0.0f }, { 0.0f, 1.0f, 0.0f, 1.0f } },
-        { { -0.25f, -0.25f * aspectRatio, 0.0f }, { 0.0f, 0.0f, 1.0f, 1.0f } }
+        { { 0.0f, 0.25f * aspectRatio, 0.5f}, {1.0f, 0.0f, 0.0f, 1.0f}},
+        { { 0.25f, -0.25f * aspectRatio, 0.5f }, { 0.0f, 1.0f, 0.0f, 1.0f } },
+        { { -0.25f, -0.25f * aspectRatio, 0.5f }, { 0.0f, 0.0f, 1.0f, 1.0f } }
     };
     BufferRegionCopyDescription regionCopyDesc = {};
     regionCopyDesc.width = 84;
@@ -177,7 +199,10 @@ void Renderer1::LoadPipeline()
 
     m_commandQueue->WaitUntilCompleted();
 
+    m_commandBuffer->BeginRecording(m_commandQueue);
     m_commandBuffer->BindDescriptorsHeaps();
+    m_commandBuffer->EndRecording();
+    m_commandBuffer->SubmitToQueue(m_commandQueue);
 }
 
 void Renderer1::PopulateCommandList()
@@ -209,11 +234,12 @@ void Renderer1::WaitForGpu()
 
 void Renderer1::Destroy()
 {
-    m_swapchain.reset();
-    m_commandQueue.reset();
-    m_commandBuffer.reset();
-    m_renderPipeline.reset();
+    m_depthStencil.reset();
     m_buffer.reset();
+    m_renderPipeline.reset();
+    m_commandBuffer.reset();
+    m_commandQueue.reset();
+    m_swapchain.reset();
 }
 
 void Renderer1::UpdatePipelineDynamicStates()
@@ -222,6 +248,8 @@ void Renderer1::UpdatePipelineDynamicStates()
     std::vector<SubResourceRTsDescription::TextureArraySliceToInclude> slicesToInclude = {};
     slicesToInclude.push_back({});
     subresourceRTs.push_back({ m_swapchain->GetNextRenderTarget(), slicesToInclude });
-    SubResourceRTsDescription subresourceDSTs = {};
-    m_renderPipeline->GetPipelineDescription().renderPass->SetAttachments(subresourceRTs, subresourceDSTs);
+    SubResourceRTsDescription subresourceDST = {};
+    subresourceDST.slicesToInclude.push_back({});
+    subresourceDST.texture = m_depthStencil;
+    m_renderPipeline->GetPipelineDescription().renderPass->SetAttachments(subresourceRTs, subresourceDST);
 }

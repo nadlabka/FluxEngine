@@ -45,6 +45,7 @@ public:
 	std::shared_ptr<IBuffer> m_buffer;
 	ViewportInfo m_viewportInfo;
 	ScissorsRect m_scissorsRect;
+	std::shared_ptr<ITexture> m_depthStencil;
 
 	std::wstring m_assetsPath;
 

@@ -302,5 +302,8 @@
     <ClInclude Include="src\Renderer\RHI\PipelineBindings.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\Core\ECS\Components\HierarchyRelationship.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

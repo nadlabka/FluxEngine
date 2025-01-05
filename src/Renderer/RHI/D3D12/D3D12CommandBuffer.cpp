@@ -54,6 +54,11 @@ void RHI::D3D12CommandBuffer::BeginRecording(std::shared_ptr<ICommandQueue> comm
 	d3d12CommandQueue->WaitForFenceValue(m_fenceValue, m_fenceEvent);
 
 	m_commandAllocator->Reset();
+	if (!m_currentRenderPipeline)
+	{
+		m_commandList->Reset(m_commandAllocator.ptr(), nullptr);
+		return;
+	}
 	m_commandList->Reset(m_commandAllocator.ptr(), m_currentRenderPipeline->m_pipelineState.ptr());
 
 	auto d3d12PipelineLayout = std::static_pointer_cast<D3D12PipelineLayout>(m_currentRenderPipeline->m_description.pipelineLayout);
@@ -147,8 +152,8 @@ void RHI::D3D12CommandBuffer::BeginRecording(std::shared_ptr<ICommandQueue> comm
 	if (d3d12RenderPass->m_description.depthStencilAttachment.has_value())
 	{
 		ASSERT(d3d12DepthStencilRT, "No depth-stencil texture was provided or it's nullptr");
-		ASSERT(d3d12RenderPass->m_depthStencilRT.slicesToInclude.size() > 1, "Mutiple depth targets are not allowed");
-		ASSERT(d3d12RenderPass->m_depthStencilRT.slicesToInclude[0].mipsToInclude.size() > 1, "Mutiple depth targets are not allowed");
+		ASSERT(d3d12RenderPass->m_depthStencilRT.slicesToInclude.size() <= 1, "Mutiple depth targets are not allowed");
+		ASSERT(d3d12RenderPass->m_depthStencilRT.slicesToInclude[0].mipsToInclude.size() <= 1, "Mutiple depth targets are not allowed");
 		auto texturePtr = d3d12DepthStencilRT->m_texture.ptr() ? d3d12DepthStencilRT->m_texture.ptr() : d3d12DepthStencilRT->m_allocation->GetResource();
 		auto targetState = ConvertTextureLayoutToResourceState(d3d12RenderPass->m_description.depthStencilAttachment->initialLayout);
 		if (d3d12DepthStencilRT->m_resourceState != targetState)
@@ -213,6 +218,12 @@ void RHI::D3D12CommandBuffer::EndRecording()
 	auto& descHeapsMgr = DescriptorsHeapsManager::GetInstance();
 	auto rtv_heap = descHeapsMgr.GetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 	auto dsv_heap = descHeapsMgr.GetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
+
+	if (!m_currentRenderPipeline)
+	{
+		m_commandList->Close();
+		return;
+	}
 
 	auto d3d12RenderPass = std::static_pointer_cast<D3D12RenderPass>(m_currentRenderPipeline->m_description.renderPass);
 
