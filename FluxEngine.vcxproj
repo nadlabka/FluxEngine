@@ -190,6 +190,7 @@
     <ClInclude Include="src\Assets\Submesh.h" />
     <ClInclude Include="src\Assets\Vertex.h" />
     <ClInclude Include="src\Core\ECS\Components\HierarchyRelationship.h" />
+    <ClInclude Include="src\Core\ECS\Components\InstancedStaticMesh.h" />
     <ClInclude Include="src\Core\ECS\Components\Transform.h" />
     <ClInclude Include="src\Core\ECS\Entity.h" />
     <ClInclude Include="src\Core\ECS\Managers\EntitiesPool.h" />
@@ -225,6 +226,7 @@
     <ClInclude Include="src\Renderer\RHI\ShaderCompiler.h" />
     <ClInclude Include="src\Renderer\RHI\Texture.h" />
     <ClInclude Include="src\Scene\Scene.h" />
+    <ClInclude Include="src\Utils\CubeMeshLoader.h" />
     <ClInclude Include="src\Utils\D3D12Math.h" />
     <ClInclude Include="src\Utils\DataStructures\IndicesRangeSolidVector.h" />
     <ClInclude Include="src\Utils\DataStructures\SolidVector.h" />

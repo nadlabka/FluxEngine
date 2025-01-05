@@ -2,6 +2,10 @@
 #include "WinApplication.h"
 #include <FluxEngine.h>
 #include "WinWindow.h"
+#include <ECS/Entity.h>
+#include <ECS/Components/InstancedStaticMesh.h>
+#include <ECS/Components/Transform.h>
+#include <ECS/Components/HierarchyRelationship.h>
 
 Application::WinWindow Application::WinApplication::m_window;
 std::wstring Application::WinApplication::m_title;
@@ -21,7 +25,13 @@ void Application::WinApplication::Init(Core::FluxEngine* engine, HINSTANCE hInst
     engine->Init();
 
     //custom client entity-related init logic is currently executed here
+    auto& entityManager = Core::EntitiesPool::GetInstance();
+    auto cubeEntity = entityManager.CreateEntity();
+    auto& cubeMeshComponent = cubeEntity.AddComponent<Components::InstancedStaticMesh>();
 
+    auto& cubeTransformComponent = cubeEntity.AddComponent<Components::Transform>();
+
+    auto& cubeRelationshipComponent = cubeEntity.AddComponent<Components::HierarchyRelationship>();
 }
 
 int Application::WinApplication::Run()

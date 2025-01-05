@@ -1,9 +1,12 @@
 #pragma once
 #include <D3D12Math.h>
 
-struct Transform
+namespace Components
 {
-	Vector3 position;
-	Vector3 rotationAngles;
-	Vector3 scale;
-};
+	struct Transform
+	{
+		Vector3 position;
+		Vector3 rotationAngles;
+		Vector3 scale;
+	};
+}

@@ -1,11 +1,14 @@
 #pragma once
 #include <entt/entt.hpp>
 
-struct HierarchyRelationship
+namespace Components
 {
-    std::size_t children{};
-    entt::entity first{ entt::null };
-    entt::entity prev{ entt::null };
-    entt::entity next{ entt::null };
-    entt::entity parent{ entt::null };
-};
+    struct HierarchyRelationship
+    {
+        std::size_t children{};
+        entt::entity first{ entt::null };
+        entt::entity prev{ entt::null };
+        entt::entity next{ entt::null };
+        entt::entity parent{ entt::null };
+    };
+}
