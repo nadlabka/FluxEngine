@@ -9,7 +9,7 @@ namespace Core
 		template<typename ComponentT, typename... Args>
 		ComponentT& AddComponent(Args&&... args)
 		{
-			return EntitiesPool::GetInstance().m_registry.emplace<ComponentT>(m_enityId, std::forward(args));
+			return EntitiesPool::GetInstance().m_registry.emplace<ComponentT>(m_enityId, std::forward<Args>(args)...);
 		}
 
 		template<typename ComponentT>

@@ -6,6 +6,7 @@
 #include <ECS/Components/InstancedStaticMesh.h>
 #include <ECS/Components/Transform.h>
 #include <ECS/Components/HierarchyRelationship.h>
+#include <CubeMeshLoader.h>
 
 Application::WinWindow Application::WinApplication::m_window;
 std::wstring Application::WinApplication::m_title;
@@ -27,7 +28,7 @@ void Application::WinApplication::Init(Core::FluxEngine* engine, HINSTANCE hInst
     //custom client entity-related init logic is currently executed here
     auto& entityManager = Core::EntitiesPool::GetInstance();
     auto cubeEntity = entityManager.CreateEntity();
-    auto& cubeMeshComponent = cubeEntity.AddComponent<Components::InstancedStaticMesh>();
+    auto& cubeMeshComponent = cubeEntity.AddComponent<Components::InstancedStaticMesh>(LoadCubeMesh());
 
     auto& cubeTransformComponent = cubeEntity.AddComponent<Components::Transform>();
 

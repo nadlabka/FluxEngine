@@ -11,3 +11,8 @@ void Core::EntitiesPool::RemoveEntity(const Entity& entity)
 {
 	m_registry.destroy(entity.m_enityId);
 }
+
+void Core::EntitiesPool::Destroy()
+{
+	m_registry.clear();
+}

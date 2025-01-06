@@ -34,6 +34,8 @@ namespace RHI
 		virtual void BeginRecording(std::shared_ptr<ICommandQueue> commandQueue) = 0;
 		virtual void EndRecording() = 0;
 
+		virtual void ForceWaitUntilFinished(std::shared_ptr<ICommandQueue> commandQueue) = 0;
+
 		virtual void SetViewport(const ViewportInfo& viewportInfo) = 0;
 		virtual void SetScissors(const ScissorsRect& scissorsRect) = 0;
 		virtual void SetBlendConstants(const std::array<float, 4> constantsValues) = 0;

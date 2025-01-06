@@ -259,6 +259,12 @@ void RHI::D3D12CommandBuffer::EndRecording()
 	m_commandList->Close();
 }
 
+void RHI::D3D12CommandBuffer::ForceWaitUntilFinished(std::shared_ptr<ICommandQueue> commandQueue)
+{
+	auto d3d12CommandQueue = std::static_pointer_cast<D3D12CommandQueue>(commandQueue);
+	d3d12CommandQueue->WaitForFenceValue(m_fenceValue, m_fenceEvent);
+}
+
 void RHI::D3D12CommandBuffer::SetViewport(const ViewportInfo& viewportInfo)
 {
 	D3D12_VIEWPORT viewport = {};
@@ -362,9 +368,9 @@ void RHI::D3D12CommandBuffer::CopyDataBetweenBuffers(std::shared_ptr<IBuffer> fr
 	}
 
 	m_commandList->CopyBufferRegion(
-		toD3D12Buffer->m_buffer.ptr(),
+		toBufferPtr,
 		regionCopyDesc.destOffset,
-		fromD3D12Buffer->m_buffer.ptr(),
+		fromBufferPtr,
 		regionCopyDesc.srcOffset,
 		regionCopyDesc.width
 	);

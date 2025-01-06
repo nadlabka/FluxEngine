@@ -21,6 +21,8 @@ namespace Core
 
 		void RemoveEntity(const Entity& entity);
 
+		void Destroy();
+
 	private:
 		EntitiesPool() {}
 

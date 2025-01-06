@@ -22,6 +22,8 @@ namespace RHI
 		void BeginRecording(std::shared_ptr<ICommandQueue> commandQueue);
 		void EndRecording();
 
+		void ForceWaitUntilFinished(std::shared_ptr<ICommandQueue> commandQueue);
+
 		void SetViewport(const ViewportInfo& viewportInfo);
 		void SetScissors(const ScissorsRect& scissorsRect);
 		void SetBlendConstants(const std::array<float, 4> constantsValues);

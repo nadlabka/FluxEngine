@@ -1,5 +1,6 @@
 #pragma once
 #include <DataStructures/SolidVector.h>
+#include <unordered_map>
 
 namespace Assets
 {
@@ -43,6 +44,12 @@ namespace Assets
 		void RemoveAsset(AssetId assetId)
 		{
 			m_assetsStorage.erase(assetId);
+		}
+
+		void Destroy()
+		{
+			m_assetsStorage.clear();
+			m_assetsCacheMap.clear();
 		}
 
 	private:

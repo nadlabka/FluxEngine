@@ -98,7 +98,7 @@ std::shared_ptr<RHI::IBuffer> RHI::D3D12Allocator::CreateBuffer(const BufferDesc
 	D3D12_RESOURCE_DESC resourceDesc = {};
 	resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
 	resourceDesc.Alignment = 0;
-	resourceDesc.Width = (desc.usage & BufferUsage::UniformBuffer) ? ((desc.unstructuredSize + 255) & ~255) : desc.unstructuredSize;
+	resourceDesc.Width = (desc.usage & BufferUsage::UniformBuffer) ? ((desc.unstructuredSize + 255) & ~255) : bufferWidth;
 	resourceDesc.Height = 1;
 	resourceDesc.DepthOrArraySize = 1;
 	resourceDesc.MipLevels = 1;

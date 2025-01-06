@@ -5,6 +5,8 @@
 #include "../Application/WinAPI/WinWindow.h"
 #include "../Renderer/Renderer1.h"
 #include "../Renderer/RHI/RHIContext.h"
+#include "./ECS/Entity.h"
+#include "../Assets/Mesh.h"
 
 Core::FluxEngine::FluxEngine()
 {
@@ -42,11 +44,15 @@ void Core::FluxEngine::Render()
 
 void Core::FluxEngine::Destroy()
 {
+    auto& entityPool = EntitiesPool::GetInstance();
     auto& renderer = Renderer1::GetInstance();
     // Ensure that the GPU is no longer referencing resources that are about to be
     // cleaned up by the destructor.
     renderer.WaitForGpu();
     
+    Assets::AssetsManager<Assets::StaticMesh>::GetInstance().Destroy();
+
+    entityPool.Destroy();
     renderer.Destroy();
 
     auto& rhiContext = RHIContext::GetInstance();
