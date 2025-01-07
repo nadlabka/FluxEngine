@@ -7,6 +7,8 @@
 #include "../Renderer/RHI/RHIContext.h"
 #include "./ECS/Entity.h"
 #include "../Assets/Mesh.h"
+#include <ECS/Components/Transform.h>
+#include <ECS/Components/InstancedStaticMesh.h>
 
 Core::FluxEngine::FluxEngine()
 {
@@ -34,6 +36,27 @@ void Core::FluxEngine::Init()
 
 void Core::FluxEngine::Update()
 {
+    //here we want to propagate transfer to the final children to be reflected in RHI buffer
+    auto view = EntitiesPool::GetInstance().GetRegistry().view<Components::Transform, Components::InstancedStaticMesh>();
+    for (auto entity : view)
+    {
+        auto& transformComponent = view.get<Components::Transform>(entity);
+        auto& meshComponent = view.get<Components::InstancedStaticMesh>(entity);
+        auto& staticMesh = Assets::AssetsManager<Assets::StaticMesh>::GetInstance().GetAsset(meshComponent.staticMesh);
+        for (auto& submesh : staticMesh.m_submeshes)
+        {
+            //remove custom roation logic, test only
+            transformComponent.rotationAngles.x += 0.002f;
+            transformComponent.rotationAngles.y += 0.005f;
+            transformComponent.rotationAngles.z += 0.0015f;
+            Matrix transformMatrix = Matrix::CreateScale(transformComponent.scale) *
+                Matrix::CreateFromYawPitchRoll(transformComponent.rotationAngles.x, transformComponent.rotationAngles.y, transformComponent.rotationAngles.z) *
+                Matrix::CreateTranslation(transformComponent.position);
+
+            Assets::PerInstanceCommonData perInstanceMatrix = { .perInstanceTransform = transformMatrix };
+            submesh.SetPerInstanceData<Assets::PerInstanceCommonData>((Entity)entity, perInstanceMatrix);
+        }
+    }
 }
 
 void Core::FluxEngine::Render()

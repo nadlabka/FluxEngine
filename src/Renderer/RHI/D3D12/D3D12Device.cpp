@@ -276,6 +276,7 @@ std::shared_ptr<RHI::IRenderPipeline> RHI::D3D12Device::CreateRenderPipeline(con
         elementDesc.InputSlot = attribute.binding;
         elementDesc.AlignedByteOffset = attribute.offset;
         elementDesc.InputSlotClass = bindingDescription.inputRate == BindingInputRate::PerVertex ? D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA : D3D12_INPUT_CLASSIFICATION_PER_INSTANCE_DATA;
+        elementDesc.InstanceDataStepRate = bindingDescription.inputRate == BindingInputRate::PerVertex ? 0 : 1;
         inputElementDescs.push_back(elementDesc);
     }
     psoDesc.InputLayout = 

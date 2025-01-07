@@ -55,6 +55,9 @@ namespace RHI
 
 		virtual uint32_t GetSize() = 0;
 
+		virtual uint32_t GetStructuredElementsNum() = 0;
+		virtual uint32_t GetStructuredElementsStride() = 0;
+
 		virtual ~IBuffer() {}
 	};
 

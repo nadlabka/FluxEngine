@@ -22,6 +22,9 @@ namespace RHI
 
         uint32_t GetSize() { return m_elementsNum * m_elementStride; }
 
+        uint32_t GetStructuredElementsNum() { return m_elementsNum; }
+        uint32_t GetStructuredElementsStride() { return m_elementStride; }
+
         uint32_t m_UAVDescriptorIndex = D3D12DescriptorHeap::INDEX_INVALID;
         uint32_t m_SRVDescriptorIndex = D3D12DescriptorHeap::INDEX_INVALID;
         uint32_t m_CBVDescriptorIndex = D3D12DescriptorHeap::INDEX_INVALID;

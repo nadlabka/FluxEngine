@@ -2,6 +2,7 @@
 #include <../Assets/AssetsManager.h>
 #include "../Assets/Mesh.h"
 #include "../Renderer/Renderer1.h"
+#include "../Assets/Material.h"
 
 static Assets::AssetsManager<Assets::StaticMesh>::AssetId LoadCubeMesh()
 {
@@ -13,15 +14,15 @@ static Assets::AssetsManager<Assets::StaticMesh>::AssetId LoadCubeMesh()
 	{
 		// Front face (Z = 0.5, Normal {0, 0, 1})
 		{{-0.5f, -0.5f,  0.5f}, {0.0f, 0.0f,  1.0f}, {0.0f, 0.0f}},
-		{{0.5f, -0.5f,  0.5f}, {0.0f, 0.0f,  1.0f}, {1.0f, 0.0f}},
+		{{-0.5f, 0.5f,  0.5f}, {0.0f, 0.0f,  1.0f}, {1.0f, 0.0f}},
 		{{0.5f,  0.5f,  0.5f}, {0.0f, 0.0f,  1.0f}, {1.0f, 1.0f}},
-		{{-0.5f,  0.5f,  0.5f}, {0.0f, 0.0f,  1.0f}, {0.0f, 1.0f}},
+		{{0.5f,  -0.5f,  0.5f}, {0.0f, 0.0f,  1.0f}, {0.0f, 1.0f}},
 
 		// Back face (Z = -0.5, Normal {0, 0, -1})
 		{{-0.5f, -0.5f, -0.5f}, {0.0f, 0.0f, -1.0f}, {1.0f, 0.0f}},
-		{{0.5f, -0.5f, -0.5f}, {0.0f, 0.0f, -1.0f}, {0.0f, 0.0f}},
+		{{-0.5f, 0.5f, -0.5f}, {0.0f, 0.0f, -1.0f}, {0.0f, 0.0f}},
 		{{0.5f,  0.5f, -0.5f}, {0.0f, 0.0f, -1.0f}, {0.0f, 1.0f}},
-		{{-0.5f,  0.5f, -0.5f}, {0.0f, 0.0f, -1.0f}, {1.0f, 1.0f}},
+		{{0.5f,  -0.5f, -0.5f}, {0.0f, 0.0f, -1.0f}, {1.0f, 1.0f}},
 
 		// Left face (X = -0.5, Normal {-1, 0, 0})
 		{{-0.5f, -0.5f, -0.5f}, {-1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
@@ -31,15 +32,15 @@ static Assets::AssetsManager<Assets::StaticMesh>::AssetId LoadCubeMesh()
 
 		// Right face (X = 0.5, Normal {1, 0, 0})
 		{{0.5f, -0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
-		{{0.5f, -0.5f,  0.5f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
+		{{0.5f, 0.5f,  -0.5f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
 		{{0.5f,  0.5f,  0.5f}, {1.0f, 0.0f, 0.0f}, {1.0f, 1.0f}},
-		{{0.5f,  0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {0.0f, 1.0f}},
+		{{0.5f, -0.5f,  0.5f}, {1.0f, 0.0f, 0.0f}, {0.0f, 1.0f}},
 
 		// Top face (Y = 0.5, Normal {0, 1, 0})
 		{{-0.5f,  0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {0.0f, 1.0f}},
-		{{0.5f,  0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {1.0f, 1.0f}},
+		{{-0.5f,  0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}, {1.0f, 1.0f}},
 		{{0.5f,  0.5f,  0.5f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},
-		{{-0.5f,  0.5f,  0.5f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
+		{{0.5f,  0.5f,  -0.5f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
 
 		// Bottom face (Y = -0.5, Normal {0, -1, 0})
 		{{-0.5f, -0.5f, -0.5f}, {0.0f, -1.0f, 0.0f}, {0.0f, 1.0f}},
@@ -87,14 +88,20 @@ static Assets::AssetsManager<Assets::StaticMesh>::AssetId LoadCubeMesh()
 		{{1.0f, 0.0f, 0.0f}, {0.0f, 0.0f, -1.0f}}
 	};
 
-	uint32_t cubeIndices[36] = 
+	uint32_t cubeIndices[36] =
 	{
-		0, 1, 2, 2, 3, 0, // Front
-		4, 5, 6, 6, 7, 4, // Back
-		0, 4, 7, 7, 3, 0, // Left
-		1, 5, 6, 6, 2, 1, // Right
-		3, 2, 6, 6, 7, 3, // Top
-		0, 1, 5, 5, 4, 0  // Bottom
+		// Front face
+		0, 1, 2, 0, 2, 3,
+		// Back face
+		4, 6, 5, 4, 7, 6,
+		// Left face
+		8, 10, 9, 8, 11, 10,
+		// Right face
+		12, 14, 13, 12, 15, 14,
+		// Top face
+		16, 18, 17, 16, 19, 18,
+		// Bottom face
+		20, 22, 21, 20, 23, 22
 	};
 
 	auto& assetsManager = Assets::AssetsManager<Assets::StaticMesh>::GetInstance();
@@ -146,7 +153,7 @@ static Assets::AssetsManager<Assets::StaticMesh>::AssetId LoadCubeMesh()
 
 	RHI::BufferDescription indicesBufferDesc = {};
 	indicesBufferDesc.access = RHI::BufferAccess::DefaultPrivate;
-	indicesBufferDesc.elementsNum = 32;
+	indicesBufferDesc.elementsNum = 36;
 	indicesBufferDesc.elementStride = sizeof(uint32_t);
 	indicesBufferDesc.flags = { .requiredCopyStateToInit = true };
 	indicesBufferDesc.usage = RHI::BufferUsage::IndexBuffer;
@@ -156,7 +163,7 @@ static Assets::AssetsManager<Assets::StaticMesh>::AssetId LoadCubeMesh()
 		.regionDescription =
 		{
 			.offset = 0,
-			.size = 32 * sizeof(uint32_t)
+			.size = 36 * sizeof(uint32_t)
 		}
 	};
 
@@ -200,7 +207,25 @@ static Assets::AssetsManager<Assets::StaticMesh>::AssetId LoadCubeMesh()
 	commandBuffer->ForceWaitUntilFinished(commandQueue);
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	meshAsset.m_submeshes.emplace_back(primaryVertexData, secondaryVertexData, indicesData);
+	auto& resultSubmesh = meshAsset.m_submeshes.emplace_back(primaryVertexData, secondaryVertexData, indicesData);
+
+	RHI::BufferDescription perInstanceStoreBufferDesc = {};
+	perInstanceStoreBufferDesc.access = RHI::BufferAccess::DefaultPrivate;
+	perInstanceStoreBufferDesc.elementsNum = 10;										 //hardcoded size, fix asap
+	perInstanceStoreBufferDesc.elementStride = sizeof(Assets::PerInstanceCommonData);
+	perInstanceStoreBufferDesc.flags = { .requiredCopyStateToInit = true };
+	perInstanceStoreBufferDesc.usage = RHI::BufferUsage::VertexBuffer;
+	auto perInstanceStoreBuffer = allocator->CreateBuffer(perInstanceStoreBufferDesc);
+
+	RHI::BufferDescription perInstanceUploadBufferDesc = {};
+	perInstanceUploadBufferDesc.access = RHI::BufferAccess::Upload;
+	perInstanceUploadBufferDesc.elementsNum = 10;										 //hardcoded size, fix asap
+	perInstanceUploadBufferDesc.elementStride = sizeof(Assets::PerInstanceCommonData);
+	perInstanceUploadBufferDesc.flags = { .requiredCopyStateToInit = false };
+	perInstanceUploadBufferDesc.usage = RHI::BufferUsage::None;
+	auto perInstanceUploadBuffer = allocator->CreateBuffer(perInstanceUploadBufferDesc);
+
+	resultSubmesh.SetRHIBuffersForPerInstanceData<Assets::PerInstanceCommonData>(perInstanceUploadBuffer, perInstanceStoreBuffer); //hardcoded size, fix asap
 
 	return meshAssetID;
 }

@@ -10,6 +10,8 @@
 #include "RHI/D3D12/D3D12CommandQueue.h"
 #include "RHI/D3D12/D3D12CommandBuffer.h"
 #include "RHI/D3D12/D3D12Buffer.h"
+#include <ECS/Entity.h>
+#include <ECS/Components/InstancedStaticMesh.h>
 
 void Renderer1::Init()
 {
@@ -59,9 +61,8 @@ void Renderer1::Init()
 void Renderer1::Render()
 {
     UpdatePipelineDynamicStates();
-    PopulateCommandList();
-
-    m_commandBuffer->SubmitToQueue(m_commandQueue);
+    ExperimentalDrawCube();
+    //PopulateCommandList();
 
     m_swapchain->Present();
 }
@@ -75,9 +76,21 @@ void Renderer1::LoadPipeline()
     InputAssemblerLayoutDescription inputAssemblerLayoutDesc;
     inputAssemblerLayoutDesc.vertexBindings.push_back(
         {
-            28,
+            sizeof(Assets::VertexPrimaryAttributes),
             0,
             BindingInputRate::PerVertex
+        });
+    inputAssemblerLayoutDesc.vertexBindings.push_back(
+        {
+            sizeof(Assets::VertexSecondaryAttributes),
+            1,
+            BindingInputRate::PerVertex
+        });
+    inputAssemblerLayoutDesc.vertexBindings.push_back(
+        {
+            sizeof(Assets::PerInstanceCommonData),
+            2,
+            BindingInputRate::PerInstance
         });
     inputAssemblerLayoutDesc.attributeDescriptions.push_back(
         {
@@ -93,9 +106,72 @@ void Renderer1::LoadPipeline()
             1,
             0,
             12,
-            VertexAttributeFormat::R32G32B32A32_SignedFloat,
-            "COLOR",
+            VertexAttributeFormat::R32G32B32_SignedFloat,
+            "NORMALS",
             0
+        });
+    inputAssemblerLayoutDesc.attributeDescriptions.push_back(
+        {
+            2,
+            0,
+            24,
+            VertexAttributeFormat::R32G32_SignedFloat,
+            "TEX_COORDS",
+            0
+        });
+    inputAssemblerLayoutDesc.attributeDescriptions.push_back(
+        {
+            4,
+            1,
+            0,
+            VertexAttributeFormat::R32G32B32_SignedFloat,
+            "TANGENT",
+            0
+        });
+    inputAssemblerLayoutDesc.attributeDescriptions.push_back(
+        {
+            5,
+            1,
+            12,
+            VertexAttributeFormat::R32G32B32_SignedFloat,
+            "BITANGENT",
+            0
+        });
+    inputAssemblerLayoutDesc.attributeDescriptions.push_back(
+        {
+            6,
+            2,
+            0,
+            VertexAttributeFormat::R32G32B32A32_SignedFloat,
+            "PER_INSTANCE_MATRIX",
+            0
+        });
+    inputAssemblerLayoutDesc.attributeDescriptions.push_back(
+        {
+            7,
+            2,
+            16,
+            VertexAttributeFormat::R32G32B32A32_SignedFloat,
+            "PER_INSTANCE_MATRIX",
+            1
+        });
+    inputAssemblerLayoutDesc.attributeDescriptions.push_back(
+        {
+            8,
+            2,
+            32,
+            VertexAttributeFormat::R32G32B32A32_SignedFloat,
+            "PER_INSTANCE_MATRIX",
+            2
+        });
+    inputAssemblerLayoutDesc.attributeDescriptions.push_back(
+        {
+            9,
+            2,
+            48,
+            VertexAttributeFormat::R32G32B32A32_SignedFloat,
+            "PER_INSTANCE_MATRIX",
+            3
         });
 
 
@@ -230,6 +306,61 @@ void Renderer1::PopulateCommandList()
 void Renderer1::WaitForGpu()
 {
     m_commandQueue->WaitUntilCompleted();
+}
+
+void Renderer1::ExperimentalDrawCube()
+{
+    // one section per Material
+    {
+        m_commandBuffer->BindRenderPipeline(m_renderPipeline);
+
+        m_commandBuffer->BeginRecording(m_commandQueue);
+
+        m_commandBuffer->SetViewport(m_viewportInfo);
+        m_commandBuffer->SetScissors(m_scissorsRect);
+        m_commandBuffer->SetPrimitiveTopology(PrimitiveTopology::TriangleList);
+
+        auto view = Core::EntitiesPool::GetInstance().GetRegistry().view<Components::InstancedStaticMesh>();
+        for (auto entity : view)
+        {
+            auto& meshComponent = view.get<Components::InstancedStaticMesh>(entity);
+            auto& staticMesh = Assets::AssetsManager<Assets::StaticMesh>::GetInstance().GetAsset(meshComponent.staticMesh);
+            for (auto& submesh : staticMesh.m_submeshes)
+            {
+                submesh.UpdateRHIBufferWithPerInstanceData<Assets::PerInstanceCommonData>(m_commandBuffer);
+                //bind all buffers
+                /////////////////
+                auto perInstanceCommonDataBuffer = submesh.GetRHIBufferForPerInstanceData<Assets::PerInstanceCommonData>();
+
+                auto bufferWithRegionDescription = submesh.GetPrimaryVertexData();
+                m_commandBuffer->SetVertexBuffer(bufferWithRegionDescription.buffer, 0, bufferWithRegionDescription.regionDescription);
+
+                bufferWithRegionDescription = submesh.GetSecondaryVertexData();
+                m_commandBuffer->SetVertexBuffer(bufferWithRegionDescription.buffer, 1, bufferWithRegionDescription.regionDescription);
+
+                bufferWithRegionDescription = submesh.GetIndicesData();
+                m_commandBuffer->SetIndexBuffer(bufferWithRegionDescription.buffer, bufferWithRegionDescription.regionDescription);
+
+                BufferRegionDescription bufferPerInstanceRegionDesc;
+                bufferPerInstanceRegionDesc.offset = 0;
+                bufferPerInstanceRegionDesc.size = perInstanceCommonDataBuffer->GetSize();
+                m_commandBuffer->SetVertexBuffer(perInstanceCommonDataBuffer, 2, bufferPerInstanceRegionDesc);
+
+                IndexedInstancedDrawInfo indexedInstancedDrawInfo = {};
+                indexedInstancedDrawInfo.indicesPerInstanceNum = submesh.GetIndicesData().buffer->GetStructuredElementsNum();
+                indexedInstancedDrawInfo.instancesNum = submesh.GetActiveInstancesNum<Assets::PerInstanceCommonData>();
+                m_commandBuffer->DrawIndexedInstanced(indexedInstancedDrawInfo);
+            }
+        }
+        m_commandBuffer->EndRecording();
+        m_commandBuffer->SubmitToQueue(m_commandQueue);
+    }
+    {
+
+    }
+    {
+
+    }
 }
 
 void Renderer1::Destroy()

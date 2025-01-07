@@ -31,6 +31,9 @@ void Application::WinApplication::Init(Core::FluxEngine* engine, HINSTANCE hInst
     auto& cubeMeshComponent = cubeEntity.AddComponent<Components::InstancedStaticMesh>(LoadCubeMesh());
 
     auto& cubeTransformComponent = cubeEntity.AddComponent<Components::Transform>();
+    cubeTransformComponent.position = { 0, 0, 0.5 };
+    cubeTransformComponent.rotationAngles = { 0.0f, 0.0f, 0.0f };
+    cubeTransformComponent.scale = { 0.1, 0.1, 0.1 };
 
     auto& cubeRelationshipComponent = cubeEntity.AddComponent<Components::HierarchyRelationship>();
 }

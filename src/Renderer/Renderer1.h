@@ -33,6 +33,8 @@ public:
 	void PopulateCommandList();
 	void WaitForGpu();
 
+	void ExperimentalDrawCube();
+
 	std::wstring GetAssetFullPath(LPCWSTR assetName)
 	{
 		return m_assetsPath + assetName;

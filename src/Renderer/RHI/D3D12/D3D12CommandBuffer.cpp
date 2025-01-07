@@ -162,9 +162,28 @@ void RHI::D3D12CommandBuffer::BeginRecording(std::shared_ptr<ICommandQueue> comm
 			m_commandList->ResourceBarrier(1, &transitedRT);
 			d3d12DepthStencilRT->m_resourceState = targetState;
 		}
-		depthStencilHandle = dsv_heap->GetCpuHandle(d3d12DepthStencilRT->m_DSVDescriptorIndices[d3d12RenderPass->m_depthStencilRT.slicesToInclude[0].sliceIndex * d3d12DepthStencilRT->m_dimensionsInfo.m_mipLevels 
-			+ d3d12RenderPass->m_depthStencilRT.slicesToInclude[0].mipsToInclude[0]]);
+		uint32_t sliceIndex = d3d12RenderPass->m_depthStencilRT.slicesToInclude[0].sliceIndex;
+		uint32_t mipIndex = d3d12RenderPass->m_depthStencilRT.slicesToInclude[0].mipsToInclude[0];
+		depthStencilHandle = dsv_heap->GetCpuHandle(d3d12DepthStencilRT->m_DSVDescriptorIndices[sliceIndex * d3d12DepthStencilRT->m_dimensionsInfo.m_mipLevels
+			+ mipIndex]);
 		depthStencilHandlePtr = &depthStencilHandle;
+		switch (d3d12RenderPass->m_description.depthStencilAttachment->loadOp)
+		{
+		case LoadAccessOperation::Load:
+			break;
+		case LoadAccessOperation::Clear:
+			m_commandList->ClearDepthStencilView(depthStencilHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL,
+				d3d12RenderPass->m_description.depthStencilAttachment->clearDepth, d3d12RenderPass->m_description.depthStencilAttachment->clearStencil, 0, nullptr);
+			break;
+		case LoadAccessOperation::DontCare:
+			D3D12_DISCARD_REGION discardRegion = {};
+			discardRegion.NumRects = 0;
+			discardRegion.pRects = nullptr;
+			discardRegion.FirstSubresource = D3D12CalcSubresource(mipIndex, sliceIndex, 0, d3d12DepthStencilRT->m_dimensionsInfo.m_mipLevels, d3d12DepthStencilRT->m_dimensionsInfo.m_arrayLayers);
+			discardRegion.NumSubresources = 1;
+			m_commandList->DiscardResource(texturePtr, &discardRegion);
+			break;
+		}
 	}
 
 	std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> colorRTsHandles = {};
@@ -305,6 +324,13 @@ void RHI::D3D12CommandBuffer::SetVertexBuffer(std::shared_ptr<IBuffer> buffer, u
 	auto d3d12Buffer = std::static_pointer_cast<D3D12Buffer>(buffer);
 	auto bufferPtr = d3d12Buffer->m_buffer.ptr() ? d3d12Buffer->m_buffer.ptr() : d3d12Buffer->m_allocation->GetResource();
 
+	if (d3d12Buffer->m_resourceState != D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER)
+	{
+		auto transitedRT = CD3DX12_RESOURCE_BARRIER::Transition(bufferPtr, d3d12Buffer->m_resourceState, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
+		m_commandList->ResourceBarrier(1, &transitedRT);
+		d3d12Buffer->m_resourceState = D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER;
+	}
+
 	D3D12_VERTEX_BUFFER_VIEW vertexBufferView = {}; 
 	vertexBufferView.BufferLocation = bufferPtr->GetGPUVirtualAddress() + bufferBindDesc.offset;
 	vertexBufferView.StrideInBytes = inputAssemblerLayout.vertexBindings[slot].stride;
@@ -319,10 +345,17 @@ void RHI::D3D12CommandBuffer::SetIndexBuffer(std::shared_ptr<IBuffer> buffer, co
 	auto d3d12Buffer = std::static_pointer_cast<D3D12Buffer>(buffer);
 	auto bufferPtr = d3d12Buffer->m_buffer.ptr() ? d3d12Buffer->m_buffer.ptr() : d3d12Buffer->m_allocation->GetResource();
 
+	if (d3d12Buffer->m_resourceState != D3D12_RESOURCE_STATE_INDEX_BUFFER)
+	{
+		auto transitedRT = CD3DX12_RESOURCE_BARRIER::Transition(bufferPtr, d3d12Buffer->m_resourceState, D3D12_RESOURCE_STATE_INDEX_BUFFER);
+		m_commandList->ResourceBarrier(1, &transitedRT);
+		d3d12Buffer->m_resourceState = D3D12_RESOURCE_STATE_INDEX_BUFFER;
+	}
+
 	D3D12_INDEX_BUFFER_VIEW indexBufferView = {};
 	indexBufferView.BufferLocation = bufferPtr->GetGPUVirtualAddress() + bufferBindDesc.offset;
 	indexBufferView.SizeInBytes = bufferBindDesc.size;
-	indexBufferView.Format = d3d12Buffer->m_elementStride == 4 ? DXGI_FORMAT_R16_UINT : DXGI_FORMAT_R32_UINT;
+	indexBufferView.Format = d3d12Buffer->m_elementStride == 4 ? DXGI_FORMAT_R32_UINT : DXGI_FORMAT_R16_UINT;
 
 	m_commandList->IASetIndexBuffer(&indexBufferView);
 }

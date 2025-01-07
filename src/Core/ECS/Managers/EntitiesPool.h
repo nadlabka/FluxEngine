@@ -21,6 +21,8 @@ namespace Core
 
 		void RemoveEntity(const Entity& entity);
 
+		entt::registry& GetRegistry() { return m_registry; }
+
 		void Destroy();
 
 	private:
