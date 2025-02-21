@@ -9,4 +9,14 @@ namespace Components
 		Vector3 rotationAngles;
 		Vector3 scale;
 	};
+
+	struct TransformFlags
+	{
+		bool isDirty = false;
+	};
+
+	struct AccumulatedHierarchicalTransformMatrix
+	{
+		Matrix matrix;
+	};
 }

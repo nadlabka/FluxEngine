@@ -9,9 +9,9 @@
 
 namespace Assets
 {
-	struct PerInstanceCommonData
+	struct MeshPerInstanceDataHandle
 	{
-		Matrix perInstanceTransform;
+		uint32_t indexInPool;
 	};
 
 	struct BuffersWithDirtyIndices

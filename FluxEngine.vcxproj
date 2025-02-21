@@ -150,8 +150,10 @@
   <ItemGroup>
     <ClCompile Include="src\Application\WinAPI\WinApplication.cpp" />
     <ClCompile Include="src\Application\WinAPI\WinWindow.cpp" />
+    <ClCompile Include="src\Assets\Mesh.cpp" />
     <ClCompile Include="src\Assets\Submesh.cpp" />
     <ClCompile Include="src\Core\ECS\Managers\EntitiesPool.cpp" />
+    <ClCompile Include="src\Core\ECS\Managers\TransformSystem.cpp" />
     <ClCompile Include="src\Core\FluxEngine.cpp" />
     <ClCompile Include="src\Core\stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -194,6 +196,8 @@
     <ClInclude Include="src\Core\ECS\Components\Transform.h" />
     <ClInclude Include="src\Core\ECS\Entity.h" />
     <ClInclude Include="src\Core\ECS\Managers\EntitiesPool.h" />
+    <ClInclude Include="src\Core\ECS\Managers\TransformManager.h" />
+    <ClInclude Include="src\Core\ECS\Managers\TransformSystem.h" />
     <ClInclude Include="src\Renderer\Renderer1.h" />
     <ClInclude Include="src\Renderer\RHI\Allocator.h" />
     <ClInclude Include="src\Renderer\RHI\Buffer.h" />
