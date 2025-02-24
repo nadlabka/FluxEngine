@@ -11,7 +11,9 @@ namespace Assets
 
 	struct StaticMesh
 	{
-		void AddPerInstanceData(entt::entity ent, const MeshPerInstanceData& data);
+		void SetPerInstanceData(Core::Entity ent, const MeshPerInstanceData& data);
+		void SetRHIBuffersForPerInstanceData(std::shared_ptr<RHI::IBuffer> uploadBuffer, std::shared_ptr<RHI::IBuffer> dataBuffer);
+		void UpdateRHIBufferWithPerInstanceData(std::shared_ptr<RHI::ICommandBuffer> commandBuffer);
 
 		std::vector<StaticSubmesh> m_submeshes;
 		entt::storage<MeshPerInstanceData> m_meshPerInstanceData;
