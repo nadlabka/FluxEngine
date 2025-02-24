@@ -212,7 +212,7 @@ static Assets::AssetsManager<Assets::StaticMesh>::AssetId LoadCubeMesh()
 	RHI::BufferDescription perInstanceStoreBufferDesc = {};
 	perInstanceStoreBufferDesc.access = RHI::BufferAccess::DefaultPrivate;
 	perInstanceStoreBufferDesc.elementsNum = 10;										 //hardcoded size, fix asap
-	perInstanceStoreBufferDesc.elementStride = sizeof(Assets::PerInstanceCommonData);
+	perInstanceStoreBufferDesc.elementStride = sizeof(Assets::MeshPerInstanceDataHandle);
 	perInstanceStoreBufferDesc.flags = { .requiredCopyStateToInit = true };
 	perInstanceStoreBufferDesc.usage = RHI::BufferUsage::VertexBuffer;
 	auto perInstanceStoreBuffer = allocator->CreateBuffer(perInstanceStoreBufferDesc);
@@ -220,12 +220,31 @@ static Assets::AssetsManager<Assets::StaticMesh>::AssetId LoadCubeMesh()
 	RHI::BufferDescription perInstanceUploadBufferDesc = {};
 	perInstanceUploadBufferDesc.access = RHI::BufferAccess::Upload;
 	perInstanceUploadBufferDesc.elementsNum = 10;										 //hardcoded size, fix asap
-	perInstanceUploadBufferDesc.elementStride = sizeof(Assets::PerInstanceCommonData);
+	perInstanceUploadBufferDesc.elementStride = sizeof(Assets::MeshPerInstanceDataHandle);
 	perInstanceUploadBufferDesc.flags = { .requiredCopyStateToInit = false };
 	perInstanceUploadBufferDesc.usage = RHI::BufferUsage::None;
 	auto perInstanceUploadBuffer = allocator->CreateBuffer(perInstanceUploadBufferDesc);
 
-	resultSubmesh.SetRHIBuffersForPerInstanceData<Assets::PerInstanceCommonData>(perInstanceUploadBuffer, perInstanceStoreBuffer); //hardcoded size, fix asap
+	resultSubmesh.SetRHIBuffersForPerInstanceData<Assets::MeshPerInstanceDataHandle>(perInstanceUploadBuffer, perInstanceStoreBuffer); //hardcoded size, fix asap
+
+
+	RHI::BufferDescription perMeshBufferDesc = {};
+	perMeshBufferDesc.access = RHI::BufferAccess::DefaultPrivate;
+	perMeshBufferDesc.elementsNum = 10;										 //hardcoded size, fix asap
+	perMeshBufferDesc.elementStride = sizeof(Assets::MeshPerInstanceData);
+	perMeshBufferDesc.flags = { .requiredCopyStateToInit = true };
+	perMeshBufferDesc.usage = RHI::BufferUsage::DataReadOnlyBuffer;
+	auto perMeshBuffer = allocator->CreateBuffer(perMeshBufferDesc);
+
+	RHI::BufferDescription perMeshUploadBufferDesc = {};
+	perMeshUploadBufferDesc.access = RHI::BufferAccess::Upload;
+	perMeshUploadBufferDesc.elementsNum = 10;										 //hardcoded size, fix asap
+	perMeshUploadBufferDesc.elementStride = sizeof(Assets::MeshPerInstanceData);
+	perMeshUploadBufferDesc.flags = { .requiredCopyStateToInit = false };
+	perMeshUploadBufferDesc.usage = RHI::BufferUsage::None;
+	auto perMeshUploadBuffer = allocator->CreateBuffer(perMeshUploadBufferDesc);
+
+	meshAsset.SetRHIBuffersForPerInstanceData(perMeshUploadBuffer, perMeshBuffer);
 
 	return meshAssetID;
 }

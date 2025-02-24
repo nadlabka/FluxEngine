@@ -88,7 +88,7 @@ void Renderer1::LoadPipeline()
         });
     inputAssemblerLayoutDesc.vertexBindings.push_back(
         {
-            sizeof(Assets::PerInstanceCommonData),
+            sizeof(Assets::MeshPerInstanceDataHandle),
             2,
             BindingInputRate::PerInstance
         });
@@ -142,36 +142,9 @@ void Renderer1::LoadPipeline()
             6,
             2,
             0,
-            VertexAttributeFormat::R32G32B32A32_SignedFloat,
-            "PER_INSTANCE_MATRIX",
+            VertexAttributeFormat::R32_Uint,
+            "PER_INSTANCE_PER_MESH_INDEX",
             0
-        });
-    inputAssemblerLayoutDesc.attributeDescriptions.push_back(
-        {
-            7,
-            2,
-            16,
-            VertexAttributeFormat::R32G32B32A32_SignedFloat,
-            "PER_INSTANCE_MATRIX",
-            1
-        });
-    inputAssemblerLayoutDesc.attributeDescriptions.push_back(
-        {
-            8,
-            2,
-            32,
-            VertexAttributeFormat::R32G32B32A32_SignedFloat,
-            "PER_INSTANCE_MATRIX",
-            2
-        });
-    inputAssemblerLayoutDesc.attributeDescriptions.push_back(
-        {
-            9,
-            2,
-            48,
-            VertexAttributeFormat::R32G32B32A32_SignedFloat,
-            "PER_INSTANCE_MATRIX",
-            3
         });
 
 
@@ -249,6 +222,9 @@ void Renderer1::LoadPipeline()
     pipelineDesc.renderPass = renderPass;
 
     m_renderPipeline = device->CreateRenderPipeline(pipelineDesc);
+    auto& dynamicallyBoundResources = m_renderPipeline->GetPipelineDescription().pipelineLayout->m_pipelineLayoutBindings.m_dynamicallyBoundResources;
+    dynamicallyBoundResources.SetBufferDescriptorResourceType("perMeshDataBufferIndex", RHI::DescriptorResourceType::DataReadOnlyBuffer);
+    dynamicallyBoundResources.SetBufferDescriptorVisibility("perMeshDataBufferIndex", RHI::BindingVisibility::Vertex);
 
     BufferDescription bufferDesc = 
     {
@@ -310,6 +286,17 @@ void Renderer1::WaitForGpu()
 
 void Renderer1::ExperimentalDrawCube()
 {
+    m_commandBuffer->BeginRecording(m_commandQueue);
+    auto view = Core::EntitiesPool::GetInstance().GetRegistry().view<Components::InstancedStaticMesh>();
+    for (auto entity : view)
+    {
+        auto& meshComponent = view.get<Components::InstancedStaticMesh>(entity);
+        auto& staticMesh = Assets::AssetsManager<Assets::StaticMesh>::GetInstance().GetAsset(meshComponent.staticMesh);
+        staticMesh.UpdateRHIBufferWithPerInstanceData(m_commandBuffer);
+    }
+    m_commandBuffer->EndRecording();
+    m_commandBuffer->SubmitToQueue(m_commandQueue);
+
     // one section per Material
     {
         m_commandBuffer->BindRenderPipeline(m_renderPipeline);
@@ -325,12 +312,17 @@ void Renderer1::ExperimentalDrawCube()
         {
             auto& meshComponent = view.get<Components::InstancedStaticMesh>(entity);
             auto& staticMesh = Assets::AssetsManager<Assets::StaticMesh>::GetInstance().GetAsset(meshComponent.staticMesh);
+            auto& dynamicallyBoundResources = m_commandBuffer->GetCurrentRenderPipeline()->GetPipelineDescription().pipelineLayout->m_pipelineLayoutBindings.m_dynamicallyBoundResources;
+            dynamicallyBoundResources.SetBufferBindingResource("perMeshDataBufferIndex", staticMesh.GetRHIBufferForPerInstanceData());
+
+            m_commandBuffer->BindRenderTargets();
+            m_commandBuffer->BindPipelineResources();
             for (auto& submesh : staticMesh.m_submeshes)
             {
-                submesh.UpdateRHIBufferWithPerInstanceData<Assets::PerInstanceCommonData>(m_commandBuffer);
-                //bind all buffers
-                /////////////////
-                auto perInstanceCommonDataBuffer = submesh.GetRHIBufferForPerInstanceData<Assets::PerInstanceCommonData>();
+                submesh.UpdateRHIBufferWithPerInstanceData<Assets::MeshPerInstanceDataHandle>(m_commandBuffer);
+
+                // Bind all buffers
+                auto perInstancePerMeshDataBuffer = submesh.GetRHIBufferForPerInstanceData<Assets::MeshPerInstanceDataHandle>();
 
                 auto bufferWithRegionDescription = submesh.GetPrimaryVertexData();
                 m_commandBuffer->SetVertexBuffer(bufferWithRegionDescription.buffer, 0, bufferWithRegionDescription.regionDescription);
@@ -343,15 +335,16 @@ void Renderer1::ExperimentalDrawCube()
 
                 BufferRegionDescription bufferPerInstanceRegionDesc;
                 bufferPerInstanceRegionDesc.offset = 0;
-                bufferPerInstanceRegionDesc.size = perInstanceCommonDataBuffer->GetSize();
-                m_commandBuffer->SetVertexBuffer(perInstanceCommonDataBuffer, 2, bufferPerInstanceRegionDesc);
+                bufferPerInstanceRegionDesc.size = perInstancePerMeshDataBuffer->GetSize();
+                m_commandBuffer->SetVertexBuffer(perInstancePerMeshDataBuffer, 2, bufferPerInstanceRegionDesc);
 
                 IndexedInstancedDrawInfo indexedInstancedDrawInfo = {};
                 indexedInstancedDrawInfo.indicesPerInstanceNum = submesh.GetIndicesData().buffer->GetStructuredElementsNum();
-                indexedInstancedDrawInfo.instancesNum = submesh.GetActiveInstancesNum<Assets::PerInstanceCommonData>();
+                indexedInstancedDrawInfo.instancesNum = submesh.GetActiveInstancesNum<Assets::MeshPerInstanceDataHandle>();
                 m_commandBuffer->DrawIndexedInstanced(indexedInstancedDrawInfo);
             }
         }
+        m_commandBuffer->FinishRenderTargets();
         m_commandBuffer->EndRecording();
         m_commandBuffer->SubmitToQueue(m_commandQueue);
     }

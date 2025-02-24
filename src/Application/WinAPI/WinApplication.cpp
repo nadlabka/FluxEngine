@@ -35,7 +35,9 @@ void Application::WinApplication::Init(Core::FluxEngine* engine, HINSTANCE hInst
     cubeTransformComponent.rotationAngles = { 0.0f, 0.0f, 0.0f };
     cubeTransformComponent.scale = { 0.1, 0.1, 0.1 };
 
-    auto& cubeRelationshipComponent = cubeEntity.AddComponent<Components::HierarchyRelationship>();
+    cubeEntity.AddComponent<Components::HierarchyRelationship>();
+    cubeEntity.AddComponent<Components::TransformFlags>();
+    cubeEntity.AddComponent<Components::AccumulatedHierarchicalTransformMatrix>();
 }
 
 int Application::WinApplication::Run()

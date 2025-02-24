@@ -78,10 +78,7 @@ namespace Assets
 		std::shared_ptr<RHI::IBuffer> GetRHIBufferForPerInstanceData() const
 		{
 			auto* bufferWithIndices = m_registry.ctx().find<BuffersWithDirtyIndices>(entt::type_id<T>().hash());
-			if (!bufferWithIndices)
-			{
-				throw std::runtime_error("No buffer found for the given type");
-			}
+			ASSERT(bufferWithIndices, "No buffer found for the given type");
 			return bufferWithIndices->dataBuffer;
 		}
 

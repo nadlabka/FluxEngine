@@ -15,12 +15,17 @@ namespace RHI
 		void BindDescriptorsHeaps();
 
 		void BindRenderPipeline(std::shared_ptr<IRenderPipeline> renderPipeline);
+		std::shared_ptr<IRenderPipeline> GetCurrentRenderPipeline();
 
 		void SubmitToQueue(std::shared_ptr<ICommandQueue> commandQueue);
 
 		//includes implicict commands such as pipeline dynamic states binds and resource states transitions
 		void BeginRecording(std::shared_ptr<ICommandQueue> commandQueue);
 		void EndRecording();
+
+		void BindPipelineResources();
+		void BindRenderTargets();
+		void FinishRenderTargets();
 
 		void ForceWaitUntilFinished(std::shared_ptr<ICommandQueue> commandQueue);
 

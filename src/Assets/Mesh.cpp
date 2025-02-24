@@ -14,9 +14,9 @@ void Assets::StaticMesh::SetPerInstanceData(Core::Entity ent, const MeshPerInsta
 		m_meshPerInstanceDataBuffers.dirtyIndices.push_back(m_meshPerInstanceData.index(ent));
 	}
 
-	m_meshPerInstanceData.patch(ent, data);
+	m_meshPerInstanceData.get(ent) = data;
 
-	size_t perInstanceDataPoolIndex = m_meshPerInstanceData.index(ent);
+	uint32_t perInstanceDataPoolIndex = m_meshPerInstanceData.index(ent);
 	for (auto& submesh : m_submeshes)
 	{
 		submesh.SetPerInstanceData<MeshPerInstanceDataHandle>(ent, perInstanceDataPoolIndex);
@@ -50,4 +50,10 @@ void Assets::StaticMesh::UpdateRHIBufferWithPerInstanceData(std::shared_ptr<RHI:
 		commandBuffer->CopyDataBetweenBuffers(m_meshPerInstanceDataBuffers.uploadBuffer, m_meshPerInstanceDataBuffers.dataBuffer, regionDesc);
 	}
 	m_meshPerInstanceDataBuffers.dirtyIndices.clear();
+}
+
+std::shared_ptr<RHI::IBuffer> Assets::StaticMesh::GetRHIBufferForPerInstanceData() const
+{
+	ASSERT(m_meshPerInstanceDataBuffers.dataBuffer, "You have to set RHI buffer");
+	return m_meshPerInstanceDataBuffers.dataBuffer;
 }

@@ -28,11 +28,16 @@ namespace RHI
 		virtual void BindDescriptorsHeaps() = 0;
 
 		virtual void BindRenderPipeline(std::shared_ptr<IRenderPipeline> renderPipeline) = 0;
+		virtual std::shared_ptr<IRenderPipeline> GetCurrentRenderPipeline() = 0;
 
 		virtual void SubmitToQueue(std::shared_ptr<ICommandQueue> commandQueue) = 0;
 
 		virtual void BeginRecording(std::shared_ptr<ICommandQueue> commandQueue) = 0;
 		virtual void EndRecording() = 0;
+
+		virtual void BindPipelineResources() = 0;
+		virtual void BindRenderTargets() = 0;
+		virtual void FinishRenderTargets() = 0;
 
 		virtual void ForceWaitUntilFinished(std::shared_ptr<ICommandQueue> commandQueue) = 0;
 
