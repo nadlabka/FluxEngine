@@ -4,8 +4,6 @@
 
 enum EMouseButton : uint8_t
 {
-    eMouseButton_Invalid = 0,
-
     eMouseButton_Left,
     eMouseButton_Right,
     eMouseButton_Middle,
@@ -18,4 +16,6 @@ enum EMouseButtonState : uint8_t
     eMouseButtonState_Released = 0,
     eMouseButtonState_ClickedOnce = 1,
     eMouseButtonState_ClickedTwice = 2,
+
+    eMouseButtonState_NumStates,
 };

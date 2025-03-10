@@ -3,12 +3,13 @@
 #include "KeyboardKey.h"
 #include <array>
 #include <windows.h>
-
-using KeycodeMapping = std::unordered_map<WORD, EKeyboardKey>;
+#include <queue>
 
 class KeyboardManager
 {
 public:
+    using KeycodeMapping = std::unordered_map<WORD, EKeyboardKey>;
+
     static KeyboardManager& GetInstance()
     {
         static KeyboardManager instance;

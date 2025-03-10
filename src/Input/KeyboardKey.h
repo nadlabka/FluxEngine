@@ -3,8 +3,6 @@
 
 enum EKeyboardKey : uint16_t
 {
-    eKeycode_Invalid = 0,
-
     eKeycode_F1, eKeycode_F2, eKeycode_F3, eKeycode_F4, eKeycode_F5, eKeycode_F6,
     eKeycode_F7, eKeycode_F8, eKeycode_F9, eKeycode_F10, eKeycode_F11, eKeycode_F12,
 
@@ -24,6 +22,8 @@ enum EKeyboardKey : uint16_t
 
 enum EKeyboardKeyState : uint8_t
 {
-    EKeyboardKeyState_Released = 0,
-    EKeyboardKeyState_Pressed,
+    eKeyboardKeyState_Released = 0,
+    eKeyboardKeyState_Pressed,
+
+    eKeyboardKeyState_NumStates,
 };
