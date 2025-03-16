@@ -45,9 +45,6 @@ void RHI::D3D12Buffer::AllocateDescriptorsInHeaps(const BufferDescription& desc)
 
     if (desc.usage & BufferUsage::StorageBuffer)
     {
-        //create UAV
-        uint32_t uavIDX = cbv_srv_uav_heap->AllocateIndex();
-
         uint32_t uavIndex = cbv_srv_uav_heap->AllocateIndex();
         D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = 
         {
@@ -69,7 +66,6 @@ void RHI::D3D12Buffer::AllocateDescriptorsInHeaps(const BufferDescription& desc)
     if (desc.usage & BufferUsage::DataReadOnlyBuffer)
     {
         //create SRV
-        uint32_t srvIndex = cbv_srv_uav_heap->AllocateIndex();
         D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc =
         {
             .Format = DXGI_FORMAT_UNKNOWN,

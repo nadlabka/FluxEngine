@@ -83,13 +83,10 @@ void TransformSystem::UpdateMarkedTransforms(entt::registry& registry)
                 child = childHierarchy.next;
             }
 
-            if (registry.get<Components::HierarchyRelationship>(current).children == 0)
+            if (registry.all_of<Components::InstancedStaticMesh>(current))
             {
-                if (registry.all_of<Components::InstancedStaticMesh>(current))
-                {
-                    auto& meshComponent = registry.get<Components::InstancedStaticMesh>(current);
-                    Assets::AssetsManager<Assets::StaticMesh>::GetInstance().GetAsset(meshComponent.staticMesh).SetPerInstanceData((Core::Entity)current, { accumulatedTransform.matrix });
-                }
+                auto& meshComponent = registry.get<Components::InstancedStaticMesh>(current);
+                Assets::AssetsManager<Assets::StaticMesh>::GetInstance().GetAsset(meshComponent.staticMesh).SetPerInstanceData((Core::Entity)current, { accumulatedTransform.matrix });
             }
         }
     }

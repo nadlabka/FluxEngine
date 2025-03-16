@@ -307,15 +307,14 @@ void Renderer1::ExperimentalDrawCube()
         m_commandBuffer->SetScissors(m_scissorsRect);
         m_commandBuffer->SetPrimitiveTopology(PrimitiveTopology::TriangleList);
 
-        auto view = Core::EntitiesPool::GetInstance().GetRegistry().view<Components::InstancedStaticMesh>();
-        for (auto entity : view)
+        m_commandBuffer->BindRenderTargets();
+
+        auto& assetsManager = Assets::AssetsManager<Assets::StaticMesh>::GetInstance();
+        for (auto& staticMesh : assetsManager.GetAssetsStorage().GetDataStorage())
         {
-            auto& meshComponent = view.get<Components::InstancedStaticMesh>(entity);
-            auto& staticMesh = Assets::AssetsManager<Assets::StaticMesh>::GetInstance().GetAsset(meshComponent.staticMesh);
             auto& dynamicallyBoundResources = m_commandBuffer->GetCurrentRenderPipeline()->GetPipelineDescription().pipelineLayout->m_pipelineLayoutBindings.m_dynamicallyBoundResources;
             dynamicallyBoundResources.SetBufferBindingResource("perMeshDataBufferIndex", staticMesh.GetRHIBufferForPerInstanceData());
-
-            m_commandBuffer->BindRenderTargets();
+            
             m_commandBuffer->BindPipelineResources();
             for (auto& submesh : staticMesh.m_submeshes)
             {

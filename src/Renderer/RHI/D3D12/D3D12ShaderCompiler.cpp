@@ -33,9 +33,14 @@ std::shared_ptr<RHI::IShader> RHI::D3D12ShaderCompiler::CompileShader(const Shad
     std::vector<LPCWSTR> compileFlags = {};
     compileFlags.push_back(L"-Zpr"); // sets row-major order
 
+#ifdef DISABLE_SHADER_DEBUGGING
+    compileFlags.push_back(L"-Od");
+#endif
+
 #ifdef INCLUDE_SHADER_DEBUG_INFO
     compileFlags.push_back(L"-Zi"); // adds debug info
 
+#ifdef STRIP_SHADER_DEBUG_INFO
     compileFlags.push_back(L"-Qstrip_debug");
     compileFlags.push_back(L"-Fd"); // better than /Fo, bcs in case of directory path will create file
 
@@ -48,11 +53,17 @@ std::shared_ptr<RHI::IShader> RHI::D3D12ShaderCompiler::CompileShader(const Shad
     {
         pdbFilepath = std::filesystem::path(desc.shaderPDBPath).replace_filename(desc.shaderSourcePath.filename().replace_extension("pdb"));
     }
-    
+
     compileFlags.push_back(pdbFilepath.c_str());
+#else
+    compileFlags.push_back(L"-Qembed_debug");
+#endif
+    
 #endif
 
+#ifdef STRIP_SHADER_REFLECT_INFO
     compileFlags.push_back(L"-Qstrip_reflect");
+#endif
 
     auto& rhiContext = RHIContext::GetInstance();
     ASSERT(rhiContext.GetCurrentAPI() == ERHIRenderingAPI::D3D12, "Shaders target platform doesn't match current API");
@@ -114,7 +125,7 @@ std::shared_ptr<RHI::IShader> RHI::D3D12ShaderCompiler::CompileShader(const Shad
     ASSERT(SUCCEEDED(hr), "Failed to retrieve the compiled shader blob.");
 
     RscPtr<IDxcBlob> pdbBlob;
-#ifdef INCLUDE_SHADER_DEBUG_INFO
+#ifdef STRIP_SHADER_DEBUG_INFO
     hr = result->GetOutput(
         DXC_OUT_PDB,
         IID_PPV_ARGS(&pdbBlob),

@@ -52,6 +52,11 @@ namespace Assets
 			m_assetsCacheMap.clear();
 		}
 
+		SolidVector<T>& GetAssetsStorage()
+		{
+			return m_assetsStorage;
+		}
+
 	private:
 		AssetsManager() {}
 

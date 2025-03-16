@@ -15,6 +15,8 @@ public:
     const T* data() const { return m_data.data(); }
     T* data() { return m_data.data(); }
 
+    std::vector<T>& GetDataStorage() { return m_data; }
+
     const T& operator[](ID id) const 
     {
         ASSERT(isValidID(id), "Invalid ID");

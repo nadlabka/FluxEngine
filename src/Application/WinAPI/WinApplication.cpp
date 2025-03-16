@@ -27,17 +27,33 @@ void Application::WinApplication::Init(Core::FluxEngine* engine, HINSTANCE hInst
 
     //custom client entity-related init logic is currently executed here
     auto& entityManager = Core::EntitiesPool::GetInstance();
+
     auto cubeEntity = entityManager.CreateEntity();
     auto& cubeMeshComponent = cubeEntity.AddComponent<Components::InstancedStaticMesh>(LoadCubeMesh());
+
+    auto cubeEntity1 = entityManager.CreateEntity();
+    auto& cubeMeshComponent1 = cubeEntity1.AddComponent<Components::InstancedStaticMesh>(LoadCubeMesh());
 
     auto& cubeTransformComponent = cubeEntity.AddComponent<Components::Transform>();
     cubeTransformComponent.position = { 0, 0, 0.5 };
     cubeTransformComponent.rotationAngles = { 0.0f, 0.0f, 0.0f };
     cubeTransformComponent.scale = { 0.1, 0.1, 0.1 };
 
-    cubeEntity.AddComponent<Components::HierarchyRelationship>();
+    auto& hierarchyComp = cubeEntity.AddComponent<Components::HierarchyRelationship>();
+    hierarchyComp.children = 1;
+    hierarchyComp.first = cubeEntity1;
     cubeEntity.AddComponent<Components::TransformFlags>();
     cubeEntity.AddComponent<Components::AccumulatedHierarchicalTransformMatrix>();
+
+    auto& cubeTransformComponent1 = cubeEntity1.AddComponent<Components::Transform>();
+    cubeTransformComponent1.position = { 0, 0.1, 0 };
+    cubeTransformComponent1.rotationAngles = { 0.0f, 0.0f, 0.0f };
+    cubeTransformComponent1.scale = { 0.5, 0.5, 0.5 };
+
+    auto& hierarchyComp1 = cubeEntity1.AddComponent<Components::HierarchyRelationship>();
+    hierarchyComp1.parent = cubeEntity;
+    cubeEntity1.AddComponent<Components::TransformFlags>();
+    cubeEntity1.AddComponent<Components::AccumulatedHierarchicalTransformMatrix>();
 }
 
 int Application::WinApplication::Run()

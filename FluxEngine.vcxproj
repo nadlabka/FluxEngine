@@ -132,7 +132,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;INCLUDE_SHADER_DEBUG_INFO;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <LanguageStandard>stdcpp20</LanguageStandard>
@@ -161,9 +161,11 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="src\Input\InputManager.cpp" />
     <ClCompile Include="src\Input\KeyboardManager.cpp" />
     <ClCompile Include="src\Input\MouseManager.cpp" />
     <ClCompile Include="src\Main.cpp" />
+    <ClCompile Include="src\Renderer\Managers\ConstantBufferManager.cpp" />
     <ClCompile Include="src\Renderer\Renderer.cpp" />
     <ClCompile Include="src\Renderer\Renderer1.cpp" />
     <ClCompile Include="src\Renderer\RHI\D3D12\D3D12Adapter.cpp" />
@@ -198,6 +200,8 @@
     <ClInclude Include="src\Core\ECS\Managers\EntitiesPool.h" />
     <ClInclude Include="src\Core\ECS\Managers\TransformManager.h" />
     <ClInclude Include="src\Core\ECS\Managers\TransformSystem.h" />
+    <ClInclude Include="src\Input\InputManager.h" />
+    <ClInclude Include="src\Renderer\Managers\ConstantBufferManager.h" />
     <ClInclude Include="src\Renderer\Renderer1.h" />
     <ClInclude Include="src\Renderer\RHI\Allocator.h" />
     <ClInclude Include="src\Renderer\RHI\Buffer.h" />
