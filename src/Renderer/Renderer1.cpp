@@ -260,7 +260,7 @@ void Renderer1::LoadPipeline()
 void Renderer1::PopulateCommandList()
 {
     m_commandBuffer->BindRenderPipeline(m_renderPipeline);
-
+    
     m_commandBuffer->BeginRecording(m_commandQueue);
 
     m_commandBuffer->SetViewport(m_viewportInfo);
@@ -300,8 +300,8 @@ void Renderer1::ExperimentalDrawCube()
     // one section per Material
     {
         m_commandBuffer->BindRenderPipeline(m_renderPipeline);
-
         m_commandBuffer->BeginRecording(m_commandQueue);
+        m_commandBuffer->BindDescriptorsHeaps();
 
         m_commandBuffer->SetViewport(m_viewportInfo);
         m_commandBuffer->SetScissors(m_scissorsRect);

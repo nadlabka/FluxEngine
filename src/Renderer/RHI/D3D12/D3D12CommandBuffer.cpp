@@ -25,8 +25,8 @@ void RHI::D3D12CommandBuffer::BindDescriptorsHeaps()
 	auto sampler_heap = descHeapsMgr.GetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER)->Heap();
 	auto cbv_uav_srv_heap = descHeapsMgr.GetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV)->Heap();
 
-	m_commandList->SetDescriptorHeaps(1, &sampler_heap);
-	m_commandList->SetDescriptorHeaps(1, &cbv_uav_srv_heap);
+	ID3D12DescriptorHeap* heaps[] = { cbv_uav_srv_heap, sampler_heap };
+	m_commandList->SetDescriptorHeaps(_countof(heaps), heaps);
 }
 
 void RHI::D3D12CommandBuffer::BindRenderPipeline(std::shared_ptr<IRenderPipeline> renderPipeline)
