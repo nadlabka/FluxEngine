@@ -262,16 +262,6 @@ void RHI::D3D12CommandBuffer::BindRenderTargets()
 
 void RHI::D3D12CommandBuffer::FinishRenderTargets()
 {
-	auto& descHeapsMgr = DescriptorsHeapsManager::GetInstance();
-	auto rtv_heap = descHeapsMgr.GetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
-	auto dsv_heap = descHeapsMgr.GetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
-
-	if (!m_currentRenderPipeline)
-	{
-		m_commandList->Close();
-		return;
-	}
-
 	auto d3d12RenderPass = std::static_pointer_cast<D3D12RenderPass>(m_currentRenderPipeline->m_description.renderPass);
 
 	auto d3d12DepthStencilRT = std::static_pointer_cast<D3D12Texture>(d3d12RenderPass->m_depthStencilRT.texture);

@@ -316,6 +316,7 @@ void Renderer1::ExperimentalDrawCube()
             dynamicallyBoundResources.SetBufferBindingResource("perMeshDataBufferIndex", staticMesh.GetRHIBufferForPerInstanceData());
             
             m_commandBuffer->BindPipelineResources();
+
             for (auto& submesh : staticMesh.m_submeshes)
             {
                 submesh.UpdateRHIBufferWithPerInstanceData<Assets::MeshPerInstanceDataHandle>(m_commandBuffer);
