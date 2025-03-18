@@ -32,7 +32,6 @@ void RHI::D3D12CommandBuffer::BindDescriptorsHeaps()
 void RHI::D3D12CommandBuffer::BindRenderPipeline(std::shared_ptr<IRenderPipeline> renderPipeline)
 {
 	m_currentRenderPipeline = std::static_pointer_cast<D3D12RenderPipeline>(renderPipeline);
-	m_pipelineChanged = true;
 }
 
 std::shared_ptr<RHI::IRenderPipeline> RHI::D3D12CommandBuffer::GetCurrentRenderPipeline()
@@ -42,8 +41,6 @@ std::shared_ptr<RHI::IRenderPipeline> RHI::D3D12CommandBuffer::GetCurrentRenderP
 
 void RHI::D3D12CommandBuffer::SubmitToQueue(std::shared_ptr<ICommandQueue> commandQueue)
 {
-	m_pipelineChanged = false;
-
 	auto d3d12CommandQueue = std::static_pointer_cast<D3D12CommandQueue>(commandQueue);
 
 	ID3D12CommandList* ppCommandLists[] = { m_commandList.ptr() };
@@ -66,12 +63,8 @@ void RHI::D3D12CommandBuffer::BeginRecording(std::shared_ptr<ICommandQueue> comm
     }
     m_commandList->Reset(m_commandAllocator.ptr(), m_currentRenderPipeline->m_pipelineState.ptr());
 
-    auto d3d12PipelineLayout = std::static_pointer_cast<D3D12PipelineLayout>(m_currentRenderPipeline->m_description.pipelineLayout);
-    if (m_pipelineChanged)
-    {
-        m_commandList->SetGraphicsRootSignature(d3d12PipelineLayout->m_rootSignature.ptr());
-        m_pipelineChanged = false; // Reset flag after applying
-    }
+	auto d3d12PipelineLayout = std::static_pointer_cast<D3D12PipelineLayout>(m_currentRenderPipeline->m_description.pipelineLayout);
+	m_commandList->SetGraphicsRootSignature(d3d12PipelineLayout->m_rootSignature.ptr());
 }
 
 void RHI::D3D12CommandBuffer::EndRecording()

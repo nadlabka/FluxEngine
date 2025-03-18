@@ -286,6 +286,7 @@ void Renderer1::WaitForGpu()
 
 void Renderer1::ExperimentalDrawCube()
 {
+    m_commandBuffer->BindRenderPipeline(nullptr);
     m_commandBuffer->BeginRecording(m_commandQueue);
     auto view = Core::EntitiesPool::GetInstance().GetRegistry().view<Components::InstancedStaticMesh>();
     for (auto entity : view)
