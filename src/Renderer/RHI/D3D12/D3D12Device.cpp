@@ -110,7 +110,8 @@ std::shared_ptr<RHI::IPipelineLayout> RHI::D3D12Device::CreatePipelineLayout(con
                         .ShaderRegister = shaderInputBindDesc.BindPoint,
                         .RegisterSpace = shaderInputBindDesc.Space,
                         .Num32BitValues = constantBufferDesc.Size / 4
-                    }
+                    },
+                    .ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL
                 };
                 rootParameters.emplace_back(rootParameter);
 
@@ -133,7 +134,8 @@ std::shared_ptr<RHI::IPipelineLayout> RHI::D3D12Device::CreatePipelineLayout(con
                         .ShaderRegister = shaderInputBindDesc.BindPoint,
                         .RegisterSpace = shaderInputBindDesc.Space,
                         .Flags = D3D12_ROOT_DESCRIPTOR_FLAG_NONE
-                    }
+                    },
+                    .ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL
                 };
 
                 rootParameters.emplace_back(rootParameter);
