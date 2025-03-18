@@ -250,11 +250,6 @@ void Renderer1::LoadPipeline()
     m_buffer->UploadData(triangleVertices, regionCopyDesc);
 
     m_commandQueue->WaitUntilCompleted();
-
-    m_commandBuffer->BeginRecording(m_commandQueue);
-    m_commandBuffer->BindDescriptorsHeaps();
-    m_commandBuffer->EndRecording();
-    m_commandBuffer->SubmitToQueue(m_commandQueue);
 }
 
 void Renderer1::PopulateCommandList()
