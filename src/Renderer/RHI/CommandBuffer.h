@@ -25,8 +25,6 @@ namespace RHI
 
 	struct ICommandBuffer
 	{
-		virtual void BindDescriptorsHeaps() = 0;
-
 		virtual void BindRenderPipeline(std::shared_ptr<IRenderPipeline> renderPipeline) = 0;
 		virtual std::shared_ptr<IRenderPipeline> GetCurrentRenderPipeline() = 0;
 
