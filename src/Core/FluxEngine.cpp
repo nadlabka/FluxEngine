@@ -50,9 +50,6 @@ void Core::FluxEngine::Update()
         transformComponent.rotationAngles.x += 0.002f;
         transformComponent.rotationAngles.y += 0.005f;
         transformComponent.rotationAngles.z += 0.0015f;
-        Matrix transformMatrix = Matrix::CreateScale(transformComponent.scale) *
-            Matrix::CreateFromYawPitchRoll(transformComponent.rotationAngles.x, transformComponent.rotationAngles.y, transformComponent.rotationAngles.z) *
-            Matrix::CreateTranslation(transformComponent.position);
 
         transformSystem.MarkDirty(EntitiesPool::GetInstance().GetRegistry(), entity);
     }
