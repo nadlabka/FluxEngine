@@ -39,7 +39,7 @@ void Application::WinApplication::Init(Core::FluxEngine* engine, HINSTANCE hInst
 
     auto& cubeTransformComponent = cubeEntity.AddComponent<Components::Transform>();
     cubeTransformComponent.position = { 0, 0, 0.5 };
-    cubeTransformComponent.rotationAngles = { 0.0f, 0.0f, 0.0f };
+    cubeTransformComponent.rotationAngles = { 30.0f, 30.0f, 30.0f };
     cubeTransformComponent.scale = { 0.1, 0.1, 0.1 };
 
     auto& hierarchyComp = cubeEntity.AddComponent<Components::HierarchyRelationship>();
@@ -54,8 +54,8 @@ void Application::WinApplication::Init(Core::FluxEngine* engine, HINSTANCE hInst
 
     auto& cubeTransformComponent1 = cubeEntity1.AddComponent<Components::Transform>();
     cubeTransformComponent1.position = { 3, 2, 0.5 };
-    cubeTransformComponent1.rotationAngles = { 0.0f, 0.0f, 0.0f };
-    cubeTransformComponent1.scale = { 1, 1, 1 };
+    cubeTransformComponent1.rotationAngles = { 30.0f, 30.0f, 30.0f };
+    cubeTransformComponent1.scale = { 0.5, 0.5, 0.5 };
 
     auto& hierarchyComp1 = cubeEntity1.AddComponent<Components::HierarchyRelationship>();
     hierarchyComp1.parent = cubeEntity;
