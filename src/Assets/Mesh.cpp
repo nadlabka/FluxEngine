@@ -3,7 +3,6 @@
 
 void Assets::StaticMesh::CreatePerInstanceData(Core::Entity ent, const MeshPerInstanceData& data)
 {
-	ASSERT(m_meshPerInstanceDataBuffers.dataBuffer && m_meshPerInstanceDataBuffers.uploadBuffer, "You have to set RHI buffer before adding any PerInstance data");
 	if (!m_meshPerInstanceData.contains(ent))
 	{
 		m_meshPerInstanceDataBuffers.dirtyIndices.push_back(m_meshPerInstanceData.size());

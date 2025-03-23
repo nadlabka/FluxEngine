@@ -86,7 +86,7 @@ void TransformSystem::UpdateMarkedTransforms(entt::registry& registry)
             if (registry.all_of<Components::InstancedStaticMesh>(current))
             {
                 auto& meshComponent = registry.get<Components::InstancedStaticMesh>(current);
-                Assets::AssetsManager<Assets::StaticMesh>::GetInstance().GetAsset(meshComponent.staticMesh).SetPerInstanceData((Core::Entity)current, { accumulatedTransform.matrix });
+                Assets::AssetsManager<Assets::StaticMesh>::GetInstance().GetAsset(meshComponent.staticMesh).UpdatePerInstanceData((Core::Entity)current, { accumulatedTransform.matrix });
             }
         }
     }

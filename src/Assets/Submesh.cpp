@@ -16,15 +16,16 @@ void Assets::PrivateUploadBuffersPair::Resize(uint32_t newElementCount, uint32_t
         RHI::BufferDescription desc{};
         desc.elementsNum = newElementCount;
         desc.elementStride = elementStride;
-        desc.flags = { .requiredCopyStateToInit = true };
         desc.usage = RHI::BufferUsage::DataReadOnlyBuffer;
 
         desc.access = RHI::BufferAccess::Upload;
         desc.usage = RHI::BufferUsage::None;
+        desc.flags = { .requiredCopyStateToInit = false };
         uploadBuffer = allocator->CreateBuffer(desc);
 
         desc.access = RHI::BufferAccess::DefaultPrivate;
         desc.usage = RHI::BufferUsage::DataReadOnlyBuffer;
+        desc.flags = { .requiredCopyStateToInit = true };
         dataBuffer = allocator->CreateBuffer(desc);
         return;
     }
@@ -37,10 +38,12 @@ void Assets::PrivateUploadBuffersPair::Resize(uint32_t newElementCount, uint32_t
 
     desc.access = RHI::BufferAccess::Upload;
     desc.usage = RHI::BufferUsage::None;
+    desc.flags = { .requiredCopyStateToInit = false };
     auto newUploadBuffer = allocator->CreateBuffer(desc);
 
     desc.access = RHI::BufferAccess::DefaultPrivate;
     desc.usage = RHI::BufferUsage::DataReadOnlyBuffer;
+    desc.flags = { .requiredCopyStateToInit = true };
     auto newDataBuffer = allocator->CreateBuffer(desc);
 
 

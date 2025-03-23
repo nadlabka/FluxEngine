@@ -21,7 +21,7 @@ namespace Assets
 		void CreateSubmeshPerInstanceData(Core::Entity ent, uint32_t submeshIndex, Args&&... args)
 		{
 			ASSERT(m_meshPerInstanceData.contains(ent), "PerMesh perInstance data has to be created first");
-			m_submeshes[submeshIndex].CreatePerInstanceData<T>(ent, m_meshPerInstanceData.index(ent), std::forward<Args>(args)...);
+			m_submeshes[submeshIndex].CreatePerInstanceData<T>(ent, MeshPerInstanceDataHandle{ (uint32_t)m_meshPerInstanceData.index(ent) }, std::forward<Args>(args)...);
 		}
 
 		std::vector<StaticSubmesh> m_submeshes;

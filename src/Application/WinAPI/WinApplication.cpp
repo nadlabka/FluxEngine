@@ -7,6 +7,7 @@
 #include <ECS/Components/Transform.h>
 #include <ECS/Components/HierarchyRelationship.h>
 #include <CubeMeshLoader.h>
+#include <ECS/Components/MaterialParameters.h>
 
 Application::WinWindow Application::WinApplication::m_window;
 std::wstring Application::WinApplication::m_title;
@@ -29,10 +30,12 @@ void Application::WinApplication::Init(Core::FluxEngine* engine, HINSTANCE hInst
     auto& entityManager = Core::EntitiesPool::GetInstance();
 
     auto cubeEntity = entityManager.CreateEntity();
-    auto& cubeMeshComponent = cubeEntity.AddComponent<Components::InstancedStaticMesh>(LoadCubeMesh());
+    uint32_t meshId = LoadCubeMesh();
+    auto& cubeMeshComponent = cubeEntity.AddComponent<Components::InstancedStaticMesh>(meshId);
 
     auto cubeEntity1 = entityManager.CreateEntity();
-    auto& cubeMeshComponent1 = cubeEntity1.AddComponent<Components::InstancedStaticMesh>(LoadCubeMesh());
+    uint32_t meshId1 = LoadCubeMesh();
+    auto& cubeMeshComponent1 = cubeEntity1.AddComponent<Components::InstancedStaticMesh>(meshId1);
 
     auto& cubeTransformComponent = cubeEntity.AddComponent<Components::Transform>();
     cubeTransformComponent.position = { 0, 0, 0.5 };
@@ -45,6 +48,10 @@ void Application::WinApplication::Init(Core::FluxEngine* engine, HINSTANCE hInst
     cubeEntity.AddComponent<Components::TransformFlags>();
     cubeEntity.AddComponent<Components::AccumulatedHierarchicalTransformMatrix>();
 
+    auto& staticMesh = Assets::AssetsManager<Assets::StaticMesh>::GetInstance().GetAsset(meshId);
+    staticMesh.CreatePerInstanceData(cubeEntity, Assets::MeshPerInstanceData{});
+    staticMesh.CreateSubmeshPerInstanceData<MaterialParameters::UnlitDefault>(cubeEntity, 0u, MaterialParameters::UnlitDefault{0u});
+
     auto& cubeTransformComponent1 = cubeEntity1.AddComponent<Components::Transform>();
     cubeTransformComponent1.position = { 0, 0.1, 0 };
     cubeTransformComponent1.rotationAngles = { 0.0f, 0.0f, 0.0f };
@@ -54,6 +61,10 @@ void Application::WinApplication::Init(Core::FluxEngine* engine, HINSTANCE hInst
     hierarchyComp1.parent = cubeEntity;
     cubeEntity1.AddComponent<Components::TransformFlags>();
     cubeEntity1.AddComponent<Components::AccumulatedHierarchicalTransformMatrix>();
+
+    auto& staticMesh1 = Assets::AssetsManager<Assets::StaticMesh>::GetInstance().GetAsset(meshId1);
+    staticMesh1.CreatePerInstanceData(cubeEntity1, Assets::MeshPerInstanceData{});
+    staticMesh1.CreateSubmeshPerInstanceData<MaterialParameters::UnlitDefault>(cubeEntity1, 0u, MaterialParameters::UnlitDefault{ 0u });
 }
 
 int Application::WinApplication::Run()

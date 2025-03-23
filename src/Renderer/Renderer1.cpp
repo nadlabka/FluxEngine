@@ -215,8 +215,15 @@ void Renderer1::LoadPipeline()
 
     m_renderPipeline = device->CreateRenderPipeline(pipelineDesc);
     auto& dynamicallyBoundResources = m_renderPipeline->GetPipelineDescription().pipelineLayout->m_pipelineLayoutBindings.m_dynamicallyBoundResources;
+
     dynamicallyBoundResources.SetBufferDescriptorResourceType("perMeshDataBufferIndex", RHI::DescriptorResourceType::DataReadOnlyBuffer);
     dynamicallyBoundResources.SetBufferDescriptorVisibility("perMeshDataBufferIndex", RHI::BindingVisibility::Vertex);
+
+    dynamicallyBoundResources.SetBufferDescriptorResourceType("perInstancePerMeshHandleBufferIndex", RHI::DescriptorResourceType::DataReadOnlyBuffer);
+    dynamicallyBoundResources.SetBufferDescriptorVisibility("perInstancePerMeshHandleBufferIndex", RHI::BindingVisibility::Vertex);
+
+    dynamicallyBoundResources.SetBufferDescriptorResourceType("perInstanceMaterialParamsBufferIndex", RHI::DescriptorResourceType::DataReadOnlyBuffer);
+    dynamicallyBoundResources.SetBufferDescriptorVisibility("perInstanceMaterialParamsBufferIndex", RHI::BindingVisibility::Vertex);
 
     BufferDescription bufferDesc = 
     {
