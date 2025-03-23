@@ -195,6 +195,7 @@
     <ClInclude Include="src\Assets\Vertex.h" />
     <ClInclude Include="src\Core\ECS\Components\HierarchyRelationship.h" />
     <ClInclude Include="src\Core\ECS\Components\InstancedStaticMesh.h" />
+    <ClInclude Include="src\Core\ECS\Components\MaterialParameters.h" />
     <ClInclude Include="src\Core\ECS\Components\Transform.h" />
     <ClInclude Include="src\Core\ECS\Entity.h" />
     <ClInclude Include="src\Core\ECS\Managers\EntitiesPool.h" />

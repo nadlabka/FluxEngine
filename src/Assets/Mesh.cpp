@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "Mesh.h"
 
-void Assets::StaticMesh::SetPerInstanceData(Core::Entity ent, const MeshPerInstanceData& data)
+void Assets::StaticMesh::CreatePerInstanceData(Core::Entity ent, const MeshPerInstanceData& data)
 {
 	ASSERT(m_meshPerInstanceDataBuffers.dataBuffer && m_meshPerInstanceDataBuffers.uploadBuffer, "You have to set RHI buffer before adding any PerInstance data");
 	if (!m_meshPerInstanceData.contains(ent))
@@ -15,29 +15,25 @@ void Assets::StaticMesh::SetPerInstanceData(Core::Entity ent, const MeshPerInsta
 	}
 
 	m_meshPerInstanceData.get(ent) = data;
-
-	uint32_t perInstanceDataPoolIndex = m_meshPerInstanceData.index(ent);
-	for (auto& submesh : m_submeshes)
-	{
-		submesh.SetPerInstanceData<MeshPerInstanceDataHandle>(ent, perInstanceDataPoolIndex);
-	}
 }
 
-void Assets::StaticMesh::SetRHIBuffersForPerInstanceData(std::shared_ptr<RHI::IBuffer> uploadBuffer, std::shared_ptr<RHI::IBuffer> dataBuffer)
+void Assets::StaticMesh::UpdatePerInstanceData(Core::Entity ent, const MeshPerInstanceData& data)
 {
-	if (!m_meshPerInstanceDataBuffers.dataBuffer || !m_meshPerInstanceDataBuffers.uploadBuffer)
-	{
-		m_meshPerInstanceDataBuffers = BuffersWithDirtyIndices{ uploadBuffer, dataBuffer, {} };
-	}
-	else
-	{
-		m_meshPerInstanceDataBuffers.uploadBuffer = uploadBuffer;
-		m_meshPerInstanceDataBuffers.dataBuffer = dataBuffer;
-	}
+	m_meshPerInstanceData.get(ent) = data;
+	m_meshPerInstanceDataBuffers.dirtyIndices.push_back(m_meshPerInstanceData.index(ent));
 }
 
 void Assets::StaticMesh::UpdateRHIBufferWithPerInstanceData(std::shared_ptr<RHI::ICommandBuffer> commandBuffer)
 {
+	auto& rhiContext = RHI::RHIContext::GetInstance();
+	auto allocator = rhiContext.GetAllocator();
+
+	uint32_t currentSize = m_meshPerInstanceDataBuffers.dataBuffer ? m_meshPerInstanceDataBuffers.dataBuffer->GetStructuredElementsNum() : 0;
+	if (currentSize < m_meshPerInstanceData.size())
+	{
+		m_meshPerInstanceDataBuffers.Resize(m_meshPerInstanceData.size() * 2, sizeof(MeshPerInstanceData), commandBuffer);
+	}
+
 	for (auto& dirtyIndex : m_meshPerInstanceDataBuffers.dirtyIndices)
 	{
 		RHI::BufferRegionCopyDescription regionDesc =
@@ -56,4 +52,13 @@ std::shared_ptr<RHI::IBuffer> Assets::StaticMesh::GetRHIBufferForPerInstanceData
 {
 	ASSERT(m_meshPerInstanceDataBuffers.dataBuffer, "You have to set RHI buffer");
 	return m_meshPerInstanceDataBuffers.dataBuffer;
+}
+
+void Assets::StaticMesh::DeleteInstance(Core::Entity ent)
+{
+	for (auto& submesh : m_submeshes)
+	{
+		submesh.DestroyEntityReference(ent, (Core::Entity)m_meshPerInstanceData.data()[m_meshPerInstanceData.size() - 1], MeshPerInstanceDataHandle{ (uint32_t)m_meshPerInstanceData.index(ent) });
+	}
+	m_meshPerInstanceData.remove(ent);
 }

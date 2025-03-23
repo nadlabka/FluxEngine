@@ -338,5 +338,8 @@
     <ClInclude Include="src\Input\InputManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\Core\ECS\Components\MaterialParameters.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

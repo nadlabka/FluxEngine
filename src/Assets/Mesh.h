@@ -11,10 +11,18 @@ namespace Assets
 
 	struct StaticMesh
 	{
-		void SetPerInstanceData(Core::Entity ent, const MeshPerInstanceData& data);
-		void SetRHIBuffersForPerInstanceData(std::shared_ptr<RHI::IBuffer> uploadBuffer, std::shared_ptr<RHI::IBuffer> dataBuffer);
+		void CreatePerInstanceData(Core::Entity ent, const MeshPerInstanceData& data); //set up perMesh data for instance first, then procceed with submesh
+		void UpdatePerInstanceData(Core::Entity ent, const MeshPerInstanceData& data);
 		void UpdateRHIBufferWithPerInstanceData(std::shared_ptr<RHI::ICommandBuffer> commandBuffer);
 		std::shared_ptr<RHI::IBuffer> GetRHIBufferForPerInstanceData() const;
+		void DeleteInstance(Core::Entity ent);
+
+		template <typename T, typename... Args>
+		void CreateSubmeshPerInstanceData(Core::Entity ent, uint32_t submeshIndex, Args&&... args)
+		{
+			ASSERT(m_meshPerInstanceData.contains(ent), "PerMesh perInstance data has to be created first");
+			m_submeshes[submeshIndex].CreatePerInstanceData<T>(ent, m_meshPerInstanceData.index(ent), std::forward<Args>(args)...);
+		}
 
 		std::vector<StaticSubmesh> m_submeshes;
 		entt::storage<MeshPerInstanceData> m_meshPerInstanceData;

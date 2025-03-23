@@ -12,6 +12,7 @@
 #include "RHI/D3D12/D3D12Buffer.h"
 #include <ECS/Entity.h>
 #include <ECS/Components/InstancedStaticMesh.h>
+#include <ECS/Components/MaterialParameters.h>
 
 void Renderer1::Init()
 {
@@ -135,15 +136,6 @@ void Renderer1::LoadPipeline()
             12,
             VertexAttributeFormat::R32G32B32_SignedFloat,
             "BITANGENT",
-            0
-        });
-    inputAssemblerLayoutDesc.attributeDescriptions.push_back(
-        {
-            6,
-            2,
-            0,
-            VertexAttributeFormat::R32_Uint,
-            "PER_INSTANCE_PER_MESH_INDEX",
             0
         });
 
@@ -310,14 +302,18 @@ void Renderer1::ExperimentalDrawCube()
             auto& dynamicallyBoundResources = m_commandBuffer->GetCurrentRenderPipeline()->GetPipelineDescription().pipelineLayout->m_pipelineLayoutBindings.m_dynamicallyBoundResources;
             dynamicallyBoundResources.SetBufferBindingResource("perMeshDataBufferIndex", staticMesh.GetRHIBufferForPerInstanceData());
             
-            m_commandBuffer->BindPipelineResources();
-
             for (auto& submesh : staticMesh.m_submeshes)
             {
-                submesh.UpdateRHIBufferWithPerInstanceData<Assets::MeshPerInstanceDataHandle>(m_commandBuffer);
+                submesh.UpdateRHIBuffersWithPerInstanceData<MaterialParameters::UnlitDefault>(m_commandBuffer);
 
                 // Bind all buffers
-                auto perInstancePerMeshDataBuffer = submesh.GetRHIBufferForPerInstanceData<Assets::MeshPerInstanceDataHandle>();
+                auto perInstancePerMeshDataBuffer = submesh.GetRHIBufferForPerMeshData<MaterialParameters::UnlitDefault>();
+                auto perInstancePerMaterialDataBuffer = submesh.GetRHIBufferForPerMaterialData<MaterialParameters::UnlitDefault>();
+
+                dynamicallyBoundResources.SetBufferBindingResource("perInstancePerMeshHandleBufferIndex", perInstancePerMeshDataBuffer);
+                dynamicallyBoundResources.SetBufferBindingResource("perInstanceMaterialParamsBufferIndex", perInstancePerMaterialDataBuffer);
+
+                m_commandBuffer->BindPipelineResources();
 
                 auto bufferWithRegionDescription = submesh.GetPrimaryVertexData();
                 m_commandBuffer->SetVertexBuffer(bufferWithRegionDescription.buffer, 0, bufferWithRegionDescription.regionDescription);
@@ -328,14 +324,9 @@ void Renderer1::ExperimentalDrawCube()
                 bufferWithRegionDescription = submesh.GetIndicesData();
                 m_commandBuffer->SetIndexBuffer(bufferWithRegionDescription.buffer, bufferWithRegionDescription.regionDescription);
 
-                BufferRegionDescription bufferPerInstanceRegionDesc;
-                bufferPerInstanceRegionDesc.offset = 0;
-                bufferPerInstanceRegionDesc.size = perInstancePerMeshDataBuffer->GetSize();
-                m_commandBuffer->SetVertexBuffer(perInstancePerMeshDataBuffer, 2, bufferPerInstanceRegionDesc);
-
                 IndexedInstancedDrawInfo indexedInstancedDrawInfo = {};
                 indexedInstancedDrawInfo.indicesPerInstanceNum = submesh.GetIndicesData().buffer->GetStructuredElementsNum();
-                indexedInstancedDrawInfo.instancesNum = submesh.GetActiveInstancesNum<Assets::MeshPerInstanceDataHandle>();
+                indexedInstancedDrawInfo.instancesNum = submesh.GetActiveInstancesNum<MaterialParameters::UnlitDefault>();
                 m_commandBuffer->DrawIndexedInstanced(indexedInstancedDrawInfo);
             }
         }
