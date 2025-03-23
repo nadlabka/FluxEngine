@@ -42,7 +42,7 @@ void TransformSystem::UpdateMarkedTransforms(entt::registry& registry)
         if (hierarchy.parent != entt::null)
         {
             auto& parentAccumulatedTransform = registry.get<Components::AccumulatedHierarchicalTransformMatrix>(hierarchy.parent);
-            accumulatedTransform.matrix = parentAccumulatedTransform.matrix * localMatrix;
+            accumulatedTransform.matrix = localMatrix * parentAccumulatedTransform.matrix;
         }
         else
         {
@@ -75,7 +75,7 @@ void TransformSystem::UpdateMarkedTransforms(entt::registry& registry)
                     Matrix::CreateFromYawPitchRoll(childLocalTransform.rotationAngles) *
                     Matrix::CreateTranslation(childLocalTransform.position);
 
-                childAccumulatedTransform.matrix = accumulatedTransform.matrix * childLocalMatrix;
+                childAccumulatedTransform.matrix = childLocalMatrix * accumulatedTransform.matrix;
 
                 queue.push(child);
 

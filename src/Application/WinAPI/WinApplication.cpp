@@ -53,9 +53,9 @@ void Application::WinApplication::Init(Core::FluxEngine* engine, HINSTANCE hInst
     staticMesh.CreateSubmeshPerInstanceData<MaterialParameters::UnlitDefault>(cubeEntity, 0u, MaterialParameters::UnlitDefault{0u});
 
     auto& cubeTransformComponent1 = cubeEntity1.AddComponent<Components::Transform>();
-    cubeTransformComponent1.position = { 0, 0.1, 0 };
+    cubeTransformComponent1.position = { 3, 2, 0.5 };
     cubeTransformComponent1.rotationAngles = { 0.0f, 0.0f, 0.0f };
-    cubeTransformComponent1.scale = { 0.5, 0.5, 0.5 };
+    cubeTransformComponent1.scale = { 1, 1, 1 };
 
     auto& hierarchyComp1 = cubeEntity1.AddComponent<Components::HierarchyRelationship>();
     hierarchyComp1.parent = cubeEntity;

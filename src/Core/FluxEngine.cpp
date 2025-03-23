@@ -47,9 +47,9 @@ void Core::FluxEngine::Update()
         auto& meshComponent = view.get<Components::InstancedStaticMesh>(entity);
         auto& staticMesh = Assets::AssetsManager<Assets::StaticMesh>::GetInstance().GetAsset(meshComponent.staticMesh);
 
-        transformComponent.rotationAngles.x += 0.002f;
-        transformComponent.rotationAngles.y += 0.005f;
-        transformComponent.rotationAngles.z += 0.0015f;
+        transformComponent.rotationAngles.x += 0.000f;
+        transformComponent.rotationAngles.y += 0.010f * ((uint32_t)(entity) * 10 + 1);
+        transformComponent.rotationAngles.z += 0.000f;
 
         transformSystem.MarkDirty(EntitiesPool::GetInstance().GetRegistry(), entity);
     }
