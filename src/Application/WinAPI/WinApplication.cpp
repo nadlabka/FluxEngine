@@ -34,8 +34,8 @@ void Application::WinApplication::Init(Core::FluxEngine* engine, HINSTANCE hInst
     auto& cubeMeshComponent = cubeEntity.AddComponent<Components::InstancedStaticMesh>(meshId);
 
     auto cubeEntity1 = entityManager.CreateEntity();
-    uint32_t meshId1 = LoadCubeMesh();
-    auto& cubeMeshComponent1 = cubeEntity1.AddComponent<Components::InstancedStaticMesh>(meshId1);
+    /*uint32_t meshId1 = LoadCubeMesh();*/
+    auto& cubeMeshComponent1 = cubeEntity1.AddComponent<Components::InstancedStaticMesh>(meshId);
 
     auto& cubeTransformComponent = cubeEntity.AddComponent<Components::Transform>();
     cubeTransformComponent.position = { 0, 0, 0.5 };
@@ -62,9 +62,8 @@ void Application::WinApplication::Init(Core::FluxEngine* engine, HINSTANCE hInst
     cubeEntity1.AddComponent<Components::TransformFlags>();
     cubeEntity1.AddComponent<Components::AccumulatedHierarchicalTransformMatrix>();
 
-    auto& staticMesh1 = Assets::AssetsManager<Assets::StaticMesh>::GetInstance().GetAsset(meshId1);
-    staticMesh1.CreatePerInstanceData(cubeEntity1, Assets::MeshPerInstanceData{});
-    staticMesh1.CreateSubmeshPerInstanceData<MaterialParameters::UnlitDefault>(cubeEntity1, 0u, MaterialParameters::UnlitDefault{ 0u });
+    staticMesh.CreatePerInstanceData(cubeEntity1, Assets::MeshPerInstanceData{});
+    staticMesh.CreateSubmeshPerInstanceData<MaterialParameters::UnlitDefault>(cubeEntity1, 0u, MaterialParameters::UnlitDefault{ 0u });
 }
 
 int Application::WinApplication::Run()

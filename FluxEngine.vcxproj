@@ -193,8 +193,10 @@
     <ClInclude Include="src\Assets\Mesh.h" />
     <ClInclude Include="src\Assets\Submesh.h" />
     <ClInclude Include="src\Assets\Vertex.h" />
+    <ClInclude Include="src\Core\ECS\Components\Camera.h" />
     <ClInclude Include="src\Core\ECS\Components\HierarchyRelationship.h" />
     <ClInclude Include="src\Core\ECS\Components\InstancedStaticMesh.h" />
+    <ClInclude Include="src\Core\ECS\Components\PointLightSource.h" />
     <ClInclude Include="src\Core\ECS\Components\MaterialParameters.h" />
     <ClInclude Include="src\Core\ECS\Components\Transform.h" />
     <ClInclude Include="src\Core\ECS\Entity.h" />
@@ -203,6 +205,7 @@
     <ClInclude Include="src\Core\ECS\Managers\TransformSystem.h" />
     <ClInclude Include="src\Input\InputManager.h" />
     <ClInclude Include="src\Renderer\Managers\ConstantBufferManager.h" />
+    <ClInclude Include="src\Renderer\Managers\LightSourcesManager.h" />
     <ClInclude Include="src\Renderer\Renderer1.h" />
     <ClInclude Include="src\Renderer\RHI\Allocator.h" />
     <ClInclude Include="src\Renderer\RHI\Buffer.h" />
