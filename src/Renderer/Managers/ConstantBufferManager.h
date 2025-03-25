@@ -1,16 +1,11 @@
 #pragma once
 #include <entt/entt.hpp>
 #include "../Renderer/RHI/RHIContext.h"
+#include "../DataTypes/BuffersPair.h"
 
 class ConstantBufferManager
 {
 public:
-    struct UploadAndPrivateBuffersPair
-    {
-        std::shared_ptr<RHI::IBuffer> uploadBuffer;
-        std::shared_ptr<RHI::IBuffer> dataBuffer;
-    };
-
     static ConstantBufferManager& GetInstance()
     {
         static ConstantBufferManager instance;
@@ -21,6 +16,22 @@ public:
     ConstantBufferManager& operator=(const ConstantBufferManager& arg) = delete;
 
     void Destroy();
+
+    template <typename T>
+    T& GetCpuBuffer(const std::string& name)
+    {
+        auto& cpuBuffer = m_cpuBuffers[name];
+        ASSERT(cpuBuffer.size() >= sizeof(T), "Buffer size mismatch");
+        return *reinterpret_cast<T*>(cpuBuffer.data());
+    }
+
+    template <typename T>
+    void SetCpuBuffer(const std::string& name, const T& data)
+    {
+        auto& cpuBuffer = m_cpuBuffers[name];
+        ASSERT(cpuBuffer.size() >= sizeof(T), "Buffer size mismatch");
+        std::memcpy(cpuBuffer.data(), &data, sizeof(T));
+    }
 
     template <typename T>
     void RegisterBuffer(const std::string& name)
@@ -48,14 +59,15 @@ public:
     }
 
     template <typename T>
-    void UpdateBuffer(std::shared_ptr<RHI::ICommandQueue> commandQueue, std::shared_ptr<RHI::ICommandBuffer> commandBuffer, const std::string& name, const T& data)
+    void UpdateBuffer(std::shared_ptr<RHI::ICommandQueue> commandQueue, std::shared_ptr<RHI::ICommandBuffer> commandBuffer, const std::string& name)
     {
         auto& buffersPair = m_nameToEntity[name];
+        auto& cpuBuffer = m_cpuBuffers[name];
 
-        buffersPair.uploadBuffer->UploadData((void*)&data, {.srcOffset = 0, .destOffset = 0, .width = sizeof(T)});
+        buffersPair.uploadBuffer->UploadData(cpuBuffer.data(), { .srcOffset = 0, .destOffset = 0, .width = cpuBuffer.size() });
 
         commandBuffer->BeginRecording(commandQueue);
-        commandBuffer->CopyDataBetweenBuffers(buffersPair.uploadBuffer, buffersPair.dataBuffer, { .srcOffset = 0, .destOffset = 0, .width = sizeof(T) });
+        commandBuffer->CopyDataBetweenBuffers(buffersPair.uploadBuffer, buffersPair.dataBuffer, { .srcOffset = 0, .destOffset = 0, .width = cpuBuffer.size() });
         commandBuffer->EndRecording();
         commandBuffer->SubmitToQueue(commandQueue);
 
@@ -70,5 +82,6 @@ public:
 private:
     ConstantBufferManager() {}
 
-    std::unordered_map<std::string, UploadAndPrivateBuffersPair> m_nameToEntity;
+    std::unordered_map<std::string, PrivateUploadBuffersPair> m_nameToEntity;
+    std::unordered_map<std::string, std::vector<uint8_t>> m_cpuBuffers;
 };

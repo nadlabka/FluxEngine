@@ -6,25 +6,13 @@
 #include "Vertex.h"
 #include <entt/entt.hpp>
 #include <ECS/Entity.h>
+#include "../Renderer/DataTypes/BuffersPair.h"
 
 namespace Assets
 {
 	struct MeshPerInstanceDataHandle
 	{
 		uint32_t indexInPool;
-	};
-
-	struct PrivateUploadBuffersPair
-	{
-		std::shared_ptr<RHI::IBuffer> uploadBuffer;
-		std::shared_ptr<RHI::IBuffer> dataBuffer;
-
-		void Resize(uint32_t newElementCount, uint32_t elementStride, std::shared_ptr<RHI::ICommandBuffer> commandBuffer);
-	};
-
-	struct BuffersWithDirtyIndices : PrivateUploadBuffersPair
-	{
-		std::vector<uint32_t> dirtyIndices;
 	};
 
 	struct PerMaterialContextData

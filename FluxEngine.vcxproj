@@ -165,6 +165,7 @@
     <ClCompile Include="src\Input\KeyboardManager.cpp" />
     <ClCompile Include="src\Input\MouseManager.cpp" />
     <ClCompile Include="src\Main.cpp" />
+    <ClCompile Include="src\Renderer\DataTypes\BuffersPair.cpp" />
     <ClCompile Include="src\Renderer\Managers\ConstantBufferManager.cpp" />
     <ClCompile Include="src\Renderer\Renderer.cpp" />
     <ClCompile Include="src\Renderer\Renderer1.cpp" />
@@ -204,6 +205,9 @@
     <ClInclude Include="src\Core\ECS\Managers\TransformManager.h" />
     <ClInclude Include="src\Core\ECS\Managers\TransformSystem.h" />
     <ClInclude Include="src\Input\InputManager.h" />
+    <ClInclude Include="src\Renderer\DataTypes\BuffersPair.h" />
+    <ClInclude Include="src\Renderer\DataTypes\PerFrameConstantBuffer.h" />
+    <ClInclude Include="src\Renderer\DataTypes\PerViewConstantBuffer.h" />
     <ClInclude Include="src\Renderer\Managers\ConstantBufferManager.h" />
     <ClInclude Include="src\Renderer\Managers\LightSourcesManager.h" />
     <ClInclude Include="src\Renderer\Renderer1.h" />
