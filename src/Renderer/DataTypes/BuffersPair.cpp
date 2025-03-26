@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "BuffersPair.h"
 
-void PrivateUploadBuffersPair::Resize(uint32_t newElementCount, uint32_t elementStride, std::shared_ptr<RHI::ICommandBuffer> commandBuffer)
+void PrivateUploadBuffersPair::Resize(uint32_t newElementCount, uint32_t elementStride, std::shared_ptr<RHI::ICommandBuffer> commandBuffer, RHI::BufferUsage privateBufferUsage)
 {
     auto& rhiContext = RHI::RHIContext::GetInstance();
     auto allocator = rhiContext.GetAllocator();
@@ -19,7 +19,7 @@ void PrivateUploadBuffersPair::Resize(uint32_t newElementCount, uint32_t element
         uploadBuffer = allocator->CreateBuffer(desc);
 
         desc.access = RHI::BufferAccess::DefaultPrivate;
-        desc.usage = RHI::BufferUsage::DataReadOnlyBuffer;
+        desc.usage = privateBufferUsage;
         desc.flags = { .requiredCopyStateToInit = true };
         dataBuffer = allocator->CreateBuffer(desc);
         return;
@@ -37,7 +37,7 @@ void PrivateUploadBuffersPair::Resize(uint32_t newElementCount, uint32_t element
     auto newUploadBuffer = allocator->CreateBuffer(desc);
 
     desc.access = RHI::BufferAccess::DefaultPrivate;
-    desc.usage = RHI::BufferUsage::DataReadOnlyBuffer;
+    desc.usage = privateBufferUsage;
     desc.flags = { .requiredCopyStateToInit = true };
     auto newDataBuffer = allocator->CreateBuffer(desc);
 
