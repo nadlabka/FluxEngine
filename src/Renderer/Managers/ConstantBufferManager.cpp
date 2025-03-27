@@ -3,5 +3,5 @@
 
 void ConstantBufferManager::Destroy()
 {
-
+	m_nameToRHIBuffers.clear();
 }

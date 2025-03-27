@@ -20,6 +20,8 @@ public:
 	KeyboardManager& operator=(const KeyboardManager& arg) = delete; 
 
     void InitWinApiMapping();
+
+    EKeyboardKey GetPlatformSpecificKeycode(uint16_t key);
     
     void SetKeyState(EKeyboardKey key, EKeyboardKeyState state);
     EKeyboardKeyState GetKeyState(EKeyboardKey key) const;
@@ -27,6 +29,6 @@ public:
 private:
     KeyboardManager() {}
 
-    KeycodeMapping m_KeycodeMapping;
+    KeycodeMapping m_keycodeMapping;
     std::array<EKeyboardKeyState, EKeyboardKey::eKeycode_NumKeycodes> m_keysStates = {};
 };

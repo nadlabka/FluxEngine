@@ -18,11 +18,10 @@ public:
     void Destroy();
 
     template <typename T>
-    void RegisterBuffer(const std::string& name)
+    void RegisterBuffer(const std::string& name, std::shared_ptr<RHI::ICommandBuffer> commandBuffer)
     {
         ASSERT(m_nameToRHIBuffers.find(name) == m_nameToRHIBuffers.end(), "Buffer already registered");
 
-        auto commandBuffer = RHI::RHIContext::GetInstance().GetAllocator()->CreateCommandBuffer();
         m_nameToRHIBuffers[name].Resize(1, sizeof(T), commandBuffer, RHI::BufferUsage::UniformBuffer);
         m_cpuBuffers[name] = std::vector<uint8_t>(sizeof(T), 0);
     }
@@ -59,10 +58,10 @@ public:
         auto& cpuBuffer = m_cpuBuffers[name];
         ASSERT(cpuBuffer.size() > 0, "Buffer not registered");
 
-        buffersPair.uploadBuffer->UploadData(cpuBuffer.data(), { .srcOffset = 0, .destOffset = 0, .width = cpuBuffer.size() });
+        buffersPair.uploadBuffer->UploadData(cpuBuffer.data(), { .srcOffset = 0, .destOffset = 0, .width = (uint32_t)cpuBuffer.size() });
 
         commandBuffer->BeginRecording(commandQueue);
-        commandBuffer->CopyDataBetweenBuffers(buffersPair.uploadBuffer, buffersPair.dataBuffer, { .srcOffset = 0, .destOffset = 0, .width = cpuBuffer.size() });
+        commandBuffer->CopyDataBetweenBuffers(buffersPair.uploadBuffer, buffersPair.dataBuffer, { .srcOffset = 0, .destOffset = 0, .width = (uint32_t)cpuBuffer.size() });
         commandBuffer->EndRecording();
         commandBuffer->SubmitToQueue(commandQueue);
     }

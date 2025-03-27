@@ -77,6 +77,38 @@ void RHI::D3D12CommandBuffer::BindPipelineResources()
 	}
 
 	auto d3d12PipelineLayout = std::static_pointer_cast<D3D12PipelineLayout>(m_currentRenderPipeline->m_description.pipelineLayout);
+
+	for (const auto& constBufferName : d3d12PipelineLayout->m_pipelineLayoutBindings.m_BoundConstantBuffers.GetConstantBuffersBindingsNames())
+	{
+		if (constBufferName != BoundConstantBuffers::boundResourcesBufferName)
+		{
+			auto& bufferBinding = d3d12PipelineLayout->m_pipelineLayoutBindings.m_BoundConstantBuffers.GetConstantBufferBinding(constBufferName);
+			auto d3d12Buffer = std::static_pointer_cast<D3D12Buffer>(bufferBinding.buffer);
+			auto bufferPtr = d3d12Buffer->m_buffer.ptr() ? d3d12Buffer->m_buffer.ptr() : d3d12Buffer->m_allocation->GetResource();
+			auto targetState = D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER;
+
+			if (bufferBinding.visibility & BindingVisibility::Fragment)
+			{
+				targetState |= D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+			}
+			if (bufferBinding.visibility & ~BindingVisibility::Fragment)
+			{
+				targetState |= D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE;
+			}
+
+			if (d3d12Buffer->m_resourceState != targetState)
+			{
+				auto transitedRT = CD3DX12_RESOURCE_BARRIER::Transition(bufferPtr, d3d12Buffer->m_resourceState, targetState);
+				m_commandList->ResourceBarrier(1, &transitedRT);
+				d3d12Buffer->m_resourceState = targetState;
+			}
+
+			auto& descHeapsMgr = DescriptorsHeapsManager::GetInstance();
+			auto cbv_uav_srv_heap = descHeapsMgr.GetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+			m_commandList->SetGraphicsRootConstantBufferView(bufferBinding.parameterIndex, bufferPtr->GetGPUVirtualAddress());
+		}
+	}
+
 	auto boundResourcesBufferIndex = d3d12PipelineLayout->m_pipelineLayoutBindings.m_BoundConstantBuffers.GetConstantBufferBinding(BoundConstantBuffers::boundResourcesBufferName).parameterIndex;
 
 	// Bind buffers

@@ -5,12 +5,20 @@ namespace Components
 {
 	struct Camera
 	{
-        Vector3 position;
-        Vector3 forward;
-        Vector3 up;
         float fovY;
         float aspectRatio;
         float nearPlane; 
         float farPlane;
+
+        Vector3 forward;
+        Vector3 right;
+        Vector3 up;
 	};
+
+    struct CameraControl
+    {
+        float sensetivity;
+        bool isRotating;
+        float speed;
+    };
 }

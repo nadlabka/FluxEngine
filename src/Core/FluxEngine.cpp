@@ -10,6 +10,10 @@
 #include <ECS/Components/Transform.h>
 #include <ECS/Components/InstancedStaticMesh.h>
 #include <ECS/Managers/TransformSystem.h>
+#include "../Input/InputManager.h"
+#include "../Renderer/Managers/ConstantBufferManager.h"
+#include "../Renderer/DataTypes/PerViewConstantBuffer.h"
+#include <FillPerViewBuffer.h>
 
 Core::FluxEngine::FluxEngine()
 {
@@ -21,6 +25,9 @@ Core::FluxEngine::~FluxEngine()
 
 void Core::FluxEngine::Init()
 {
+    auto& inputManager = InputManager::GetInstance();
+    inputManager.Initialize();
+
     auto& rhiContext = RHIContext::GetInstance();
 
     AdapterCreateDesc adapterCreateDesc;
@@ -37,8 +44,9 @@ void Core::FluxEngine::Init()
 
 void Core::FluxEngine::Update()
 {
-    //here we want to propagate transfer to the final children to be reflected in RHI buffer
+    InputManager::GetInstance().Update();
 
+    //here we want to propagate transfer to the final children to be reflected in RHI buffer
     auto& transformSystem = TransformSystem::GetInstance();
     auto view = EntitiesPool::GetInstance().GetRegistry().view<Components::Transform, Components::InstancedStaticMesh>();
     for (auto entity : view)
@@ -52,6 +60,15 @@ void Core::FluxEngine::Update()
         transformComponent.rotationAngles.z += 0.000f;
 
         transformSystem.MarkDirty(EntitiesPool::GetInstance().GetRegistry(), entity);
+    }
+
+    auto cameraView = EntitiesPool::GetInstance().GetRegistry().view<Components::Transform, Components::Camera>();
+    for (auto entity : cameraView)
+    {
+        auto& constantBufferManager = ConstantBufferManager::GetInstance();
+        auto& perViewBuffer = constantBufferManager.GetCpuBuffer<PerViewConstantBuffer>("PerView");
+        auto& window = Application::WinApplication::GetWindow();
+        FillPerViewBuffer(perViewBuffer, cameraView.get<Components::Transform>(entity), cameraView.get<Components::Camera>(entity), window.GetWidth(), window.GetHeight());
     }
 }
 
@@ -72,6 +89,8 @@ void Core::FluxEngine::Destroy()
     // cleaned up by the destructor.
     renderer.WaitForGpu();
     
+    ConstantBufferManager::GetInstance().Destroy();
+
     Assets::AssetsManager<Assets::StaticMesh>::GetInstance().Destroy();
 
     entityPool.Destroy();

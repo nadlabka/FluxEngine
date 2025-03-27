@@ -247,6 +247,7 @@
     <ClInclude Include="src\Utils\DataStructures\IndicesRangeSolidVector.h" />
     <ClInclude Include="src\Utils\DataStructures\SolidVector.h" />
     <ClInclude Include="src\Utils\DebugMacros.h" />
+    <ClInclude Include="src\Utils\FillPerViewBuffer.h" />
     <ClInclude Include="src\Utils\StringToWstring.h" />
     <ClInclude Include="vendor\D3D12MemoryAllocator\include\D3D12MemAlloc.h" />
   </ItemGroup>

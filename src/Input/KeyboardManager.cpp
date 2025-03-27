@@ -1,9 +1,10 @@
 #include "stdafx.h"
 #include "KeyboardManager.h"
+#include <DebugMacros.h>
 
 void KeyboardManager::InitWinApiMapping()
 {
-    KeycodeMapping& keyMapping = m_KeycodeMapping;
+    KeycodeMapping& keyMapping = m_keycodeMapping;
 
     keyMapping['0'] = eKeycode_0;
     keyMapping['1'] = eKeycode_1;
@@ -65,6 +66,12 @@ void KeyboardManager::InitWinApiMapping()
     keyMapping[VK_F10] = eKeycode_F10;
     keyMapping[VK_F11] = eKeycode_F11;
     keyMapping[VK_F12] = eKeycode_F12;
+}
+
+EKeyboardKey KeyboardManager::GetPlatformSpecificKeycode(uint16_t key)
+{
+    ASSERT(m_keycodeMapping.find(key) != m_keycodeMapping.end(), "Keycodde is not present in the mapping for this platform");
+    return m_keycodeMapping[key];
 }
 
 void KeyboardManager::SetKeyState(EKeyboardKey key, EKeyboardKeyState state)

@@ -11,6 +11,7 @@ void PrivateUploadBuffersPair::Resize(uint32_t newElementCount, uint32_t element
         RHI::BufferDescription desc{};
         desc.elementsNum = newElementCount;
         desc.elementStride = elementStride;
+        desc.unstructuredSize = newElementCount * elementStride;
         desc.usage = RHI::BufferUsage::DataReadOnlyBuffer;
 
         desc.access = RHI::BufferAccess::Upload;
@@ -28,6 +29,7 @@ void PrivateUploadBuffersPair::Resize(uint32_t newElementCount, uint32_t element
     RHI::BufferDescription desc{};
     desc.elementsNum = newElementCount;
     desc.elementStride = elementStride;
+    desc.unstructuredSize = newElementCount * elementStride;
     desc.flags = { .requiredCopyStateToInit = true };
     desc.usage = RHI::BufferUsage::DataReadOnlyBuffer;
 

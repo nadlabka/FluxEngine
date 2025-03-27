@@ -28,7 +28,9 @@ namespace RHI
 	{
 		Vertex = 1 << 0,
 		Fragment = 1 << 1,
-		Compute = 1 << 2
+		Compute = 1 << 2,
+
+		All = ~(uint8_t)(0),
 	};
 
 	inline BindingVisibility ConvertPipelineStageTypeToBindingVisibility(PipelineStageType stage)
@@ -179,6 +181,7 @@ namespace RHI
 		{
 			uint32_t parameterIndex;
 			std::shared_ptr<IBuffer> buffer;
+			BindingVisibility visibility = static_cast<BindingVisibility>(BindingVisibility::Vertex | BindingVisibility::Fragment);
 		};
 
 		void AddConstantBufferBinding(const std::string& bindingName, uint32_t parameterIndex)
@@ -199,6 +202,12 @@ namespace RHI
 		{
 			ASSERT(m_bindingNameToConstantBufferBindingMapping.contains(bindingName), "No constant buffer with this name is present in this Pipeline Layout");
 			return m_bindingNameToConstantBufferBindingMapping[bindingName];
+		}
+
+		void SetBufferBindingVisibility(const std::string& bindingName, BindingVisibility visibility)
+		{
+			ASSERT(m_bindingNameToConstantBufferBindingMapping.contains(bindingName), "No constant buffer with this name is present in this Pipeline Layout");
+			m_bindingNameToConstantBufferBindingMapping[bindingName].visibility = visibility;
 		}
 
 		bool IsConstantBufferPresent(const std::string& bindingName)

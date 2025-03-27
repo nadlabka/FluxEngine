@@ -11,23 +11,23 @@ void InputManager::Initialize()
 
 void InputManager::Update()
 {
-    for (uint16_t key = 0; key < eKeycode_NumKeycodes; ++key) 
-    {
-        EKeyboardKey k = static_cast<EKeyboardKey>(key);
-        EKeyboardKeyState state = KeyboardManager::GetInstance().GetKeyState(k);
-        const auto& callbacks = m_keyCallbacks[key][static_cast<size_t>(state)];
-        for (uint32_t i = 0; i < callbacks.size(); ++i) 
-        {
-            callbacks.data()[i]();
-        }
-    }
-
     for (uint8_t btn = 0; btn < eMouseButton_NumButtons; ++btn) 
     {
         EMouseButton b = static_cast<EMouseButton>(btn);
         EMouseButtonState state = MouseManager::GetInstance().GetButtonState(b);
         const auto& callbacks = m_mouseButtonCallbacks[btn][static_cast<size_t>(state)];
         for (uint32_t i = 0; i < callbacks.size(); ++i) 
+        {
+            callbacks.data()[i]();
+        }
+    }
+
+    for (uint16_t key = 0; key < eKeycode_NumKeycodes; ++key)
+    {
+        EKeyboardKey k = static_cast<EKeyboardKey>(key);
+        EKeyboardKeyState state = KeyboardManager::GetInstance().GetKeyState(k);
+        const auto& callbacks = m_keyCallbacks[key][static_cast<size_t>(state)];
+        for (uint32_t i = 0; i < callbacks.size(); ++i)
         {
             callbacks.data()[i]();
         }

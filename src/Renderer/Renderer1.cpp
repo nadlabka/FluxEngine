@@ -13,6 +13,8 @@
 #include <ECS/Entity.h>
 #include <ECS/Components/InstancedStaticMesh.h>
 #include <ECS/Components/MaterialParameters.h>
+#include "Managers/ConstantBufferManager.h"
+#include "DataTypes/PerViewConstantBuffer.h"
 
 void Renderer1::Init()
 {
@@ -57,6 +59,8 @@ void Renderer1::Init()
     WCHAR assetsPath[512];
     GetAssetsPath(assetsPath, _countof(assetsPath));
     m_assetsPath = assetsPath;
+
+    ConstantBufferManager::GetInstance().RegisterBuffer<PerViewConstantBuffer>("PerView", m_commandBuffer);
 }
 
 void Renderer1::Render()
@@ -225,18 +229,19 @@ void Renderer1::LoadPipeline()
     dynamicallyBoundResources.SetBufferDescriptorResourceType("perInstanceMaterialParamsBufferIndex", RHI::DescriptorResourceType::DataReadOnlyBuffer);
     dynamicallyBoundResources.SetBufferDescriptorVisibility("perInstanceMaterialParamsBufferIndex", RHI::BindingVisibility::Vertex);
 
+    auto& constantBuffer = m_renderPipeline->GetPipelineDescription().pipelineLayout->m_pipelineLayoutBindings.m_BoundConstantBuffers;
+    constantBuffer.SetBufferBindingVisibility("PerView", RHI::BindingVisibility::All);
+
+
     BufferDescription bufferDesc = 
     {
         .elementsNum = 3,
         .elementStride = 28,
-        .unstructuredSize = 84,
         .access = BufferAccess::Upload,
         .usage = BufferUsage::VertexBuffer,
         .flags = { .requiredCopyStateToInit = false }
     };
-
     m_buffer = allocator->CreateBuffer(bufferDesc);
-
     float aspectRatio = Application::WinApplication::GetWindow().GetAspectRatio();
     Vertex1 triangleVertices[] =
     {
@@ -295,6 +300,12 @@ void Renderer1::ExperimentalDrawCube()
     // one section per Material
     {
         m_commandBuffer->BindRenderPipeline(m_renderPipeline);
+
+        auto& constantBufferManager = ConstantBufferManager::GetInstance();
+        auto& boundConstantBuffers = m_commandBuffer->GetCurrentRenderPipeline()->GetPipelineDescription().pipelineLayout->m_pipelineLayoutBindings.m_BoundConstantBuffers;
+        boundConstantBuffers.SetConstantBufferBindingMapping("PerView", constantBufferManager.GetDataBufferByName("PerView"));    
+        constantBufferManager.UpdateBuffer<PerViewConstantBuffer>(m_commandQueue, m_commandBuffer, "PerView");
+
         m_commandBuffer->BeginRecording(m_commandQueue);
 
         m_commandBuffer->SetViewport(m_viewportInfo);
