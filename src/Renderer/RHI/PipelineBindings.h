@@ -30,7 +30,7 @@ namespace RHI
 		Fragment = 1 << 1,
 		Compute = 1 << 2,
 
-		All = ~(uint8_t)(0),
+		All = ~0u,
 	};
 
 	inline BindingVisibility ConvertPipelineStageTypeToBindingVisibility(PipelineStageType stage)

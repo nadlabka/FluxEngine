@@ -149,6 +149,7 @@ void Renderer1::LoadPipeline()
 
 
     RasterizerDescription rasterizerDesc = {};
+    rasterizerDesc.windingOrder = WindingOrder::Counterclockwise;
     
 
     ColorBlendDescription colorBlendDesc = {};

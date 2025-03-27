@@ -22,10 +22,10 @@ void FillPerViewBuffer(PerViewConstantBuffer& buffer, const Components::Transfor
     buffer.viewMatrix = XMMatrixLookAtLH(eye, at, up);
 
     buffer.projectionMatrix = DirectX::XMMatrixPerspectiveFovLH(
-        cameraComponent.fovY,
+        DirectX::XMConvertToRadians(cameraComponent.fovY),
         cameraComponent.aspectRatio,
-        cameraComponent.nearPlane,
-        cameraComponent.farPlane
+        cameraComponent.farPlane,
+        cameraComponent.nearPlane
     );
 
     buffer.viewProjectionMatrix = XMMatrixMultiply(buffer.viewMatrix, buffer.projectionMatrix);

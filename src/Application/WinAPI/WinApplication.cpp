@@ -71,16 +71,16 @@ void Application::WinApplication::Init(Core::FluxEngine* engine, HINSTANCE hInst
     auto camera = entityManager.CreateEntity();
     auto& cameraTransformComponent = camera.AddComponent<Components::Transform>();
     cameraTransformComponent.position = { 0, 0, 0 };
-    cameraTransformComponent.rotationAngles = { DirectX::XMConvertToRadians(-90.0f), 0, 0};
+    cameraTransformComponent.rotationAngles = { 0, 0, 0};
     cameraTransformComponent.scale = { 1, 1, 1 };
     auto& cameraComponent = camera.AddComponent<Components::Camera>();
     cameraComponent.aspectRatio = m_window.GetAspectRatio();
     cameraComponent.nearPlane = 0.01f;
     cameraComponent.farPlane = 1000.0f;
-    cameraComponent.fovY = 90.0f;
-    cameraComponent.forward.x = std::cos(cameraTransformComponent.rotationAngles.y) * std::cos(cameraTransformComponent.rotationAngles.x);
+    cameraComponent.fovY = 60.0f;
+    cameraComponent.forward.x = std::cos(cameraTransformComponent.rotationAngles.y) * std::sin(cameraTransformComponent.rotationAngles.x);
     cameraComponent.forward.y = std::sin(cameraTransformComponent.rotationAngles.y);
-    cameraComponent.forward.z = std::cos(cameraTransformComponent.rotationAngles.y) * std::sin(cameraTransformComponent.rotationAngles.x);
+    cameraComponent.forward.z = std::cos(cameraTransformComponent.rotationAngles.y) * std::cos(cameraTransformComponent.rotationAngles.x);
     cameraComponent.forward.Normalize();
     Vector3 globalUp{ 0.0f, 1.0f, 0.0f };
     cameraComponent.right = globalUp.Cross(cameraComponent.forward);
@@ -88,7 +88,7 @@ void Application::WinApplication::Init(Core::FluxEngine* engine, HINSTANCE hInst
     cameraComponent.up = cameraComponent.forward.Cross(cameraComponent.right);
     cameraComponent.up.Normalize();
     auto& cameraControlComponent = camera.AddComponent<Components::CameraControl>();
-    cameraControlComponent.sensetivity = 0.005f;
+    cameraControlComponent.sensetivity = 0.0035f;
     cameraControlComponent.speed = 0.04f;
     cameraControlComponent.isRotating = false;
 
@@ -164,15 +164,15 @@ void Application::WinApplication::Init(Core::FluxEngine* engine, HINSTANCE hInst
 
             Vector2 delta = mouseManager.GetMouseDelta();
 
-            transformComponent.rotationAngles.x -= delta.x * controlComponent.sensetivity;
+            transformComponent.rotationAngles.x += delta.x * controlComponent.sensetivity;
             transformComponent.rotationAngles.y -= delta.y * controlComponent.sensetivity;
 
             // Clamp pitch
             transformComponent.rotationAngles.y = std::clamp(transformComponent.rotationAngles.y, -89.0f * 3.14159f / 180.0f, 89.0f * 3.14159f / 180.0f);
 
-            cameraComponent.forward.x = std::cos(transformComponent.rotationAngles.y) * std::cos(transformComponent.rotationAngles.x);
+            cameraComponent.forward.x = std::cos(transformComponent.rotationAngles.y) * std::sin(transformComponent.rotationAngles.x);
             cameraComponent.forward.y = std::sin(transformComponent.rotationAngles.y);
-            cameraComponent.forward.z = std::cos(transformComponent.rotationAngles.y) * std::sin(transformComponent.rotationAngles.x);
+            cameraComponent.forward.z = std::cos(transformComponent.rotationAngles.y) * std::cos(transformComponent.rotationAngles.x);
             cameraComponent.forward.Normalize();
             Vector3 globalUp{ 0.0f, 1.0f, 0.0f };
             cameraComponent.right = globalUp.Cross(cameraComponent.forward);

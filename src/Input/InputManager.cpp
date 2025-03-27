@@ -22,6 +22,14 @@ void InputManager::Update()
         }
     }
 
+    if (MouseManager::GetInstance().GetMouseDelta().x != 0 || MouseManager::GetInstance().GetMouseDelta().y != 0)
+    {
+        for (uint32_t i = 0; i < m_mouseMoveCallbacks.size(); ++i)
+        {
+            m_mouseMoveCallbacks.data()[i]();
+        }
+    }
+
     for (uint16_t key = 0; key < eKeycode_NumKeycodes; ++key)
     {
         EKeyboardKey k = static_cast<EKeyboardKey>(key);
@@ -30,14 +38,6 @@ void InputManager::Update()
         for (uint32_t i = 0; i < callbacks.size(); ++i)
         {
             callbacks.data()[i]();
-        }
-    }
-
-    if (MouseManager::GetInstance().GetMouseDelta().x != 0 || MouseManager::GetInstance().GetMouseDelta().y != 0)
-    {
-        for (uint32_t i = 0; i < m_mouseMoveCallbacks.size(); ++i) 
-        {
-            m_mouseMoveCallbacks.data()[i]();
         }
     }
 
