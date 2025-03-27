@@ -27,6 +27,8 @@ public:
     void UpdateMousePosition(const Vector2& position);
     const Vector2& GetMouseDelta() const;
 
+    void ResetMouseDelta();
+
 private:
     MouseManager() {}
 

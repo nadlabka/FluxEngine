@@ -40,6 +40,8 @@ void InputManager::Update()
             m_mouseMoveCallbacks.data()[i]();
         }
     }
+
+    MouseManager::GetInstance().ResetMouseDelta();
 }
 
 InputManager::CallbackID InputManager::RegisterKeyCallback(EKeyboardKey key, EKeyboardKeyState state, InputCallback callback)

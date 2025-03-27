@@ -30,3 +30,8 @@ const Vector2& MouseManager::GetMouseDelta() const
 {
 	return m_deltaPos;
 }
+
+void MouseManager::ResetMouseDelta()
+{
+	m_deltaPos = Vector2(0.f, 0.f);
+}

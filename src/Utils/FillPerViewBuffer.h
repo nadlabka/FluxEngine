@@ -6,9 +6,9 @@
 
 void FillPerViewBuffer(PerViewConstantBuffer& buffer, const Components::Transform transformComponent, const Components::Camera cameraComponent, float viewportWidth, float viewportHeight)
 {
-    buffer.cameraPosition = XMVectorSetW(transformComponent.position, 1.0f);
+    buffer.cameraPosition = Vector4(transformComponent.position.x, transformComponent.position.y, transformComponent.position.z, 1.0f);
 
-    buffer.cameraDirection = XMVectorSetW(cameraComponent.forward, 0.0f);
+    buffer.cameraDirection = Vector4(cameraComponent.forward.x, cameraComponent.forward.y, cameraComponent.forward.z, 0.0f);
 
     buffer.nearPlane = cameraComponent.nearPlane;
     buffer.farPlane = cameraComponent.farPlane;
@@ -21,13 +21,12 @@ void FillPerViewBuffer(PerViewConstantBuffer& buffer, const Components::Transfor
     Vector4 up = Vector4(cameraComponent.up.x, cameraComponent.up.y, cameraComponent.up.z, 1.0f);
     buffer.viewMatrix = XMMatrixLookAtLH(eye, at, up);
 
-    buffer.projectionMatrix = Matrix::CreatePerspectiveFieldOfView(
+    buffer.projectionMatrix = DirectX::XMMatrixPerspectiveFovLH(
         cameraComponent.fovY,
         cameraComponent.aspectRatio,
         cameraComponent.nearPlane,
         cameraComponent.farPlane
     );
 
-    // Compute view-projection matrix
     buffer.viewProjectionMatrix = XMMatrixMultiply(buffer.viewMatrix, buffer.projectionMatrix);
 }

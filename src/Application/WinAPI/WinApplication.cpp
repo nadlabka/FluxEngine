@@ -70,8 +70,8 @@ void Application::WinApplication::Init(Core::FluxEngine* engine, HINSTANCE hInst
 
     auto camera = entityManager.CreateEntity();
     auto& cameraTransformComponent = camera.AddComponent<Components::Transform>();
-    cameraTransformComponent.position = { 0, 0, -10 };
-    cameraTransformComponent.rotationAngles = { 0, 0, 0 };
+    cameraTransformComponent.position = { 0, 0, 0 };
+    cameraTransformComponent.rotationAngles = { DirectX::XMConvertToRadians(-90.0f), 0, 0};
     cameraTransformComponent.scale = { 1, 1, 1 };
     auto& cameraComponent = camera.AddComponent<Components::Camera>();
     cameraComponent.aspectRatio = m_window.GetAspectRatio();
@@ -83,13 +83,13 @@ void Application::WinApplication::Init(Core::FluxEngine* engine, HINSTANCE hInst
     cameraComponent.forward.z = std::cos(cameraTransformComponent.rotationAngles.y) * std::sin(cameraTransformComponent.rotationAngles.x);
     cameraComponent.forward.Normalize();
     Vector3 globalUp{ 0.0f, 1.0f, 0.0f };
-    cameraComponent.right = cameraComponent.forward.Cross(globalUp);
+    cameraComponent.right = globalUp.Cross(cameraComponent.forward);
     cameraComponent.right.Normalize();
-    cameraComponent.up = cameraComponent.right.Cross(cameraComponent.forward);
+    cameraComponent.up = cameraComponent.forward.Cross(cameraComponent.right);
     cameraComponent.up.Normalize();
     auto& cameraControlComponent = camera.AddComponent<Components::CameraControl>();
-    cameraControlComponent.sensetivity = 0.001f;
-    cameraControlComponent.speed = 0.1f;
+    cameraControlComponent.sensetivity = 0.005f;
+    cameraControlComponent.speed = 0.04f;
     cameraControlComponent.isRotating = false;
 
     InputManager& input = InputManager::GetInstance();
@@ -143,8 +143,7 @@ void Application::WinApplication::Init(Core::FluxEngine* engine, HINSTANCE hInst
         });
 
     // Mouse look
-    input.RegisterMouseButtonCallback(eMouseButton_Left, eMouseButtonState_ClickedOnce,
-        [camera]()
+    input.RegisterMouseMoveCallback([camera]()
         {
             auto& entityManager = Core::EntitiesPool::GetInstance();
             auto& cameraComponent = entityManager.GetRegistry().get<Components::Camera>(camera);
@@ -152,13 +151,17 @@ void Application::WinApplication::Init(Core::FluxEngine* engine, HINSTANCE hInst
             auto& controlComponent = entityManager.GetRegistry().get<Components::CameraControl>(camera);
 
             auto& mouseManager = MouseManager::GetInstance();
+            if (mouseManager.GetButtonState(eMouseButton_Left) == eMouseButtonState_Released)
+            {
+                return;
+            }
 
             if (!controlComponent.isRotating)
             {
                 controlComponent.isRotating = true;
                 return;
             }
-        
+
             Vector2 delta = mouseManager.GetMouseDelta();
 
             transformComponent.rotationAngles.x -= delta.x * controlComponent.sensetivity;
@@ -171,13 +174,13 @@ void Application::WinApplication::Init(Core::FluxEngine* engine, HINSTANCE hInst
             cameraComponent.forward.y = std::sin(transformComponent.rotationAngles.y);
             cameraComponent.forward.z = std::cos(transformComponent.rotationAngles.y) * std::sin(transformComponent.rotationAngles.x);
             cameraComponent.forward.Normalize();
-
             Vector3 globalUp{ 0.0f, 1.0f, 0.0f };
-            cameraComponent.right = cameraComponent.forward.Cross(globalUp);
+            cameraComponent.right = globalUp.Cross(cameraComponent.forward);
             cameraComponent.right.Normalize();
-            cameraComponent.up = cameraComponent.right.Cross(cameraComponent.forward);
+            cameraComponent.up = cameraComponent.forward.Cross(cameraComponent.right);
             cameraComponent.up.Normalize();
         });
+
     input.RegisterMouseButtonCallback(eMouseButton_Left, eMouseButtonState_Released,
         [camera]()
         {
