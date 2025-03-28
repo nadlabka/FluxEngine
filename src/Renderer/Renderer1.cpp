@@ -56,10 +56,6 @@ void Renderer1::Init()
     depthStencilDesc.height = window.GetHeight();
     m_depthStencil = rhiAllocator->CreateTexture(depthStencilDesc);
 
-    WCHAR assetsPath[512];
-    GetAssetsPath(assetsPath, _countof(assetsPath));
-    m_assetsPath = assetsPath;
-
     ConstantBufferManager::GetInstance().RegisterBuffer<PerViewConstantBuffer>("PerView", m_commandBuffer);
 }
 
@@ -166,15 +162,17 @@ void Renderer1::LoadPipeline()
     std::vector<PipelineStageDescription> pipelineStagesDesc = {};
     ShaderCreateDesription vertexShaderDesc =
     {
-        GetAssetFullPath(L"shaders.hlsl"),
+        "../../../../Assets/Shaders/Source/shaders.hlsl",
         L"VSMain",
-        PipelineStageType::Vertex
+        PipelineStageType::Vertex,
+        "../../../../Assets/Shaders/PDB"
     };
     ShaderCreateDesription fragmentShaderDesc =
     {
-        GetAssetFullPath(L"shaders.hlsl"),
+        "../../../../Assets/Shaders/Source/shaders.hlsl",
         L"PSMain",
-        PipelineStageType::Fragment
+        PipelineStageType::Fragment,
+        "../../../../Assets/Shaders/PDB"
     };
     auto shaderCompiler = rhiContext.GetShaderCompiler();
     std::shared_ptr<IShader> vertexShader = shaderCompiler->CompileShader(vertexShaderDesc);

@@ -51,7 +51,7 @@ std::shared_ptr<RHI::IShader> RHI::D3D12ShaderCompiler::CompileShader(const Shad
     }
     else
     {
-        pdbFilepath = std::filesystem::path(desc.shaderPDBPath).replace_filename(desc.shaderSourcePath.filename().replace_extension("pdb"));
+        pdbFilepath = std::filesystem::path(desc.shaderPDBPath) / desc.shaderSourcePath.filename().replace_extension("pdb");
     }
 
     compileFlags.push_back(pdbFilepath.c_str());

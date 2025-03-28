@@ -35,11 +35,6 @@ public:
 
 	void ExperimentalDrawCube();
 
-	std::wstring GetAssetFullPath(LPCWSTR assetName)
-	{
-		return m_assetsPath + assetName;
-	}
-
 	std::shared_ptr<ISwapchain> m_swapchain;
 	std::shared_ptr<ICommandQueue> m_commandQueue;
 	std::shared_ptr<ICommandBuffer> m_commandBuffer;
@@ -48,8 +43,6 @@ public:
 	ViewportInfo m_viewportInfo;
 	ScissorsRect m_scissorsRect;
 	std::shared_ptr<ITexture> m_depthStencil;
-
-	std::wstring m_assetsPath;
 
 private:
 	Renderer1() {}
