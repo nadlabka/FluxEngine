@@ -22,7 +22,7 @@ EMouseButtonState MouseManager::GetButtonState(EMouseButton button)
 
 void MouseManager::UpdateMousePosition(const Vector2& position)
 {
-	m_deltaPos = position - m_position;
+	m_deltaPos += position - m_position;
 	m_position = position;
 }
 
