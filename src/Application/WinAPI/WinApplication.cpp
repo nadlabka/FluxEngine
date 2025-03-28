@@ -29,6 +29,7 @@ void Application::WinApplication::Init(Core::FluxEngine* engine, HINSTANCE hInst
     m_window = Application::WinWindow(WindowProc, hInstance, nCmdShow, windowWidth, windowHeight, title, engine);
 
     engine->Init();
+    engine->GetFrameTimer().SetTargetFramerate(60.0f);
 
     //custom client entity-related init logic is currently executed here
     auto& entityManager = Core::EntitiesPool::GetInstance();
@@ -88,63 +89,69 @@ void Application::WinApplication::Init(Core::FluxEngine* engine, HINSTANCE hInst
     cameraComponent.up = cameraComponent.forward.Cross(cameraComponent.right);
     cameraComponent.up.Normalize();
     auto& cameraControlComponent = camera.AddComponent<Components::CameraControl>();
-    cameraControlComponent.sensetivity = 0.0035f;
-    cameraControlComponent.speed = 0.04f;
+    cameraControlComponent.sensetivity = 0.2f;
+    cameraControlComponent.speed = 1.0f;
     cameraControlComponent.isRotating = false;
 
     InputManager& input = InputManager::GetInstance();
 
     input.RegisterKeyCallback(eKeycode_W, eKeyboardKeyState_Pressed,
-        [camera]()
+        [camera, engine]()
         {
+            auto& timer = engine->GetFrameTimer();
             auto& entityManager = Core::EntitiesPool::GetInstance();
             auto& cameraComponent = entityManager.GetRegistry().get<Components::Camera>(camera);
             auto& transformComponent = entityManager.GetRegistry().get<Components::Transform>(camera);
             auto& controlComponent = entityManager.GetRegistry().get<Components::CameraControl>(camera);
                 
-            Vector3 move = cameraComponent.forward * controlComponent.speed;
+            Vector3 move = cameraComponent.forward * controlComponent.speed * timer.GetDeltaTime();
             transformComponent.position += move;
         });
 
     input.RegisterKeyCallback(eKeycode_S, eKeyboardKeyState_Pressed,
-        [camera]()
+        [camera, engine]()
         {
+            auto& timer = engine->GetFrameTimer();
             auto& entityManager = Core::EntitiesPool::GetInstance();
             auto& cameraComponent = entityManager.GetRegistry().get<Components::Camera>(camera);
             auto& transformComponent = entityManager.GetRegistry().get<Components::Transform>(camera);
             auto& controlComponent = entityManager.GetRegistry().get<Components::CameraControl>(camera);
 
-            Vector3 move = cameraComponent.forward * controlComponent.speed;
+            Vector3 move = cameraComponent.forward * controlComponent.speed * timer.GetDeltaTime();
             transformComponent.position -= move;
         });
 
     input.RegisterKeyCallback(eKeycode_A, eKeyboardKeyState_Pressed,
-        [camera]()
+        [camera, engine]()
         {
+            auto& timer = engine->GetFrameTimer();
             auto& entityManager = Core::EntitiesPool::GetInstance();
             auto& cameraComponent = entityManager.GetRegistry().get<Components::Camera>(camera);
             auto& transformComponent = entityManager.GetRegistry().get<Components::Transform>(camera);
             auto& controlComponent = entityManager.GetRegistry().get<Components::CameraControl>(camera);
 
-            Vector3 move = cameraComponent.right * controlComponent.speed;
+            Vector3 move = cameraComponent.right * controlComponent.speed * timer.GetDeltaTime();
             transformComponent.position -= move;
         });
 
     input.RegisterKeyCallback(eKeycode_D, eKeyboardKeyState_Pressed,
-        [camera]()
+        [camera, engine]()
         {
+            auto& timer = engine->GetFrameTimer();
             auto& entityManager = Core::EntitiesPool::GetInstance();
             auto& cameraComponent = entityManager.GetRegistry().get<Components::Camera>(camera);
             auto& transformComponent = entityManager.GetRegistry().get<Components::Transform>(camera);
             auto& controlComponent = entityManager.GetRegistry().get<Components::CameraControl>(camera);
 
-            Vector3 move = cameraComponent.right * controlComponent.speed;
+            Vector3 move = cameraComponent.right * controlComponent.speed * timer.GetDeltaTime();
             transformComponent.position += move;
         });
 
     // Mouse look
-    input.RegisterMouseMoveCallback([camera]()
+    input.RegisterMouseMoveCallback(
+        [camera, engine]()
         {
+            auto& timer = engine->GetFrameTimer();
             auto& entityManager = Core::EntitiesPool::GetInstance();
             auto& cameraComponent = entityManager.GetRegistry().get<Components::Camera>(camera);
             auto& transformComponent = entityManager.GetRegistry().get<Components::Transform>(camera);
@@ -164,8 +171,8 @@ void Application::WinApplication::Init(Core::FluxEngine* engine, HINSTANCE hInst
 
             Vector2 delta = mouseManager.GetMouseDelta();
 
-            transformComponent.rotationAngles.x += delta.x * controlComponent.sensetivity;
-            transformComponent.rotationAngles.y -= delta.y * controlComponent.sensetivity;
+            transformComponent.rotationAngles.x += delta.x * controlComponent.sensetivity * timer.GetDeltaTime();
+            transformComponent.rotationAngles.y -= delta.y * controlComponent.sensetivity * timer.GetDeltaTime();
 
             // Clamp pitch
             transformComponent.rotationAngles.y = std::clamp(transformComponent.rotationAngles.y, -89.0f * 3.14159f / 180.0f, 89.0f * 3.14159f / 180.0f);
@@ -196,9 +203,13 @@ void Application::WinApplication::Init(Core::FluxEngine* engine, HINSTANCE hInst
 
 int Application::WinApplication::Run()
 {
+    auto& timer = m_engine->GetFrameTimer();
+
     MSG msg = {};
     while (msg.message != WM_QUIT)
     {
+        timer.StartFrame();
+
         while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
         {
             TranslateMessage(&msg);
@@ -207,6 +218,9 @@ int Application::WinApplication::Run()
 
         m_engine->Update();
         m_engine->Render();
+
+        timer.WaitForFrame();
+        timer.FinishFrame();
     }
 
     m_engine->Destroy();

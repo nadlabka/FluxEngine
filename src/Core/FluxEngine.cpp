@@ -55,9 +55,9 @@ void Core::FluxEngine::Update()
         auto& meshComponent = view.get<Components::InstancedStaticMesh>(entity);
         auto& staticMesh = Assets::AssetsManager<Assets::StaticMesh>::GetInstance().GetAsset(meshComponent.staticMesh);
 
-        transformComponent.rotationAngles.x += 0.000f;
-        transformComponent.rotationAngles.y += 0.010f * ((uint32_t)(entity) * 10 + 1);
-        transformComponent.rotationAngles.z += 0.000f;
+        transformComponent.rotationAngles.x += 0.001f * m_timer.GetDeltaTime();
+        transformComponent.rotationAngles.y += 0.5f * ((uint32_t)(entity) * 10 + 1) * m_timer.GetDeltaTime();
+        transformComponent.rotationAngles.z += 0.0001f * m_timer.GetDeltaTime();
 
         transformSystem.MarkDirty(EntitiesPool::GetInstance().GetRegistry(), entity);
     }
@@ -110,4 +110,9 @@ void Core::FluxEngine::ParseCommandLineArgs(WCHAR* argv[], int argc)
             Application::WinApplication::SetTitle(Application::WinApplication::GetTitle() + L" (WARP)");
         }
     }
+}
+
+Timer& Core::FluxEngine::GetFrameTimer()
+{
+    return m_timer;
 }

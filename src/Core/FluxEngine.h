@@ -2,6 +2,7 @@
 #include "../Input/KeyboardKey.h"
 #include <SimpleMath.h>
 #include <RscPtr.h>
+#include <CoreModules/Timer.h>
 
 namespace Core
 {
@@ -18,10 +19,9 @@ namespace Core
 
         void ParseCommandLineArgs(WCHAR* argv[], int argc);
 
-        void RegisterOnKeyDownEvent(EKeyboardKey key);
-        void RegisterOnKeyUpevent(EKeyboardKey key);
+        Timer& GetFrameTimer();
 
     private:
-        
+        Timer m_timer;
     };
 }
