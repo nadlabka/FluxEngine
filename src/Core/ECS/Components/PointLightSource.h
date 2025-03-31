@@ -3,11 +3,23 @@
 
 namespace Components
 {
-	struct PointLightSource
+	struct PointLight
 	{
-		Vector3 position;
-		float intensity;
 		Vector3 color;
-		float radius;
+		float intensity;
+	};
+
+	struct SpotLight
+	{
+		Vector3 color;
+		float intensity;
+		float innerCone;
+		float outerCone;
+	};
+
+	struct DirectionalLight
+	{
+		Vector3 color;
+		float irradiance;
 	};
 }
