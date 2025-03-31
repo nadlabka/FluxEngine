@@ -5,6 +5,8 @@
 #include <DebugMacros.h>
 #include <queue>
 #include <ECS/Components/InstancedStaticMesh.h>
+#include <ECS/Components/LightSources.h>
+#include "../../../Renderer/Managers/LightSourcesManager.h"
 
 void TransformSystem::MarkDirty(entt::registry& registry, entt::entity entity)
 {
@@ -87,6 +89,19 @@ void TransformSystem::UpdateMarkedTransforms(entt::registry& registry)
             {
                 auto& meshComponent = registry.get<Components::InstancedStaticMesh>(current);
                 Assets::AssetsManager<Assets::StaticMesh>::GetInstance().GetAsset(meshComponent.staticMesh).UpdatePerInstanceData((Core::Entity)current, { accumulatedTransform.matrix });
+            }
+
+            if (registry.all_of<Components::PointLight>(current))
+            {
+                LightSourcesManager::GetInstance().UpdateDirectionalLightTransform((Core::Entity)current, accumulatedTransform.matrix);
+            }
+            else if (registry.all_of<Components::SpotLight>(current))
+            {
+                LightSourcesManager::GetInstance().UpdateDirectionalLightTransform((Core::Entity)current, accumulatedTransform.matrix);
+            }
+            else if (registry.all_of<Components::DirectionalLight>(current))
+            {
+                LightSourcesManager::GetInstance().UpdateDirectionalLightTransform((Core::Entity)current, accumulatedTransform.matrix);
             }
         }
     }

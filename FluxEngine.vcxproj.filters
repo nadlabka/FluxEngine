@@ -120,6 +120,9 @@
     <ClCompile Include="src\Renderer\DataTypes\BuffersPair.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Renderer\Managers\LightSourcesManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Core\stdafx.h">
@@ -347,7 +350,7 @@
     <ClInclude Include="src\Core\ECS\Components\Camera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Core\ECS\Components\PointLightSource.h">
+    <ClInclude Include="src\Core\ECS\Components\LightSources.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Renderer\Managers\LightSourcesManager.h">
