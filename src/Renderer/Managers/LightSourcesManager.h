@@ -79,7 +79,11 @@ private:
     BuffersWithDirtyIndices m_spotLightBuffer;
     BuffersWithDirtyIndices m_directionalLightBuffer;
 
-    entt::storage<PointLightSourceData> perLightCachedMatrices;
-    entt::storage<SpotLightSourceData> perLightCachedMatrices;
-    entt::storage<DirectionalLightSourceData> perLightCachedMatrices;
+    std::unordered_set<uint32_t> m_pointLightBufferDirtyCache;
+    std::unordered_set<uint32_t> m_spotLightBufferDirtyCache;
+    std::unordered_set<uint32_t> m_directionalLightBufferDirtyCache;
+
+    entt::storage<PointLightSourceData> perPointLightSourceData;
+    entt::storage<SpotLightSourceData> perSpotLightSourceData;
+    entt::storage<DirectionalLightSourceData> perDirectionalLightSourceData;
 };
