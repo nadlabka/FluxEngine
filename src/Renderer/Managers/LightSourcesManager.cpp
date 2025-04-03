@@ -18,6 +18,13 @@ void LightSourcesManager::Destroy()
     m_spotLightBuffer.uploadBuffer.reset();
 }
 
+void LightSourcesManager::InitLightsRHIBuffers(std::shared_ptr<RHI::ICommandBuffer> commandBuffer)
+{
+    m_pointLightBuffer.Resize(16, sizeof(PointLightSourceData), commandBuffer);
+    m_spotLightBuffer.Resize(16, sizeof(SpotLightSourceData), commandBuffer);
+    m_directionalLightBuffer.Resize(16, sizeof(DirectionalLightSourceData), commandBuffer);
+}
+
 void LightSourcesManager::UpdateLightsRHIBuffers(std::shared_ptr<RHI::ICommandBuffer> commandBuffer)
 {
     EnsureBufferCapacity(commandBuffer);
@@ -69,14 +76,14 @@ void LightSourcesManager::AddPointLight(Core::Entity entity)
 {
     ASSERT(!perPointLightSourceData.contains(entity), "Point light already exists for this entity");
 
-    perPointLightSourceData.emplace<DirectionalLightSourceData>(entity, {});
+    perPointLightSourceData.emplace<PointLightSourceData>(entity, {});
 }
 
 void LightSourcesManager::AddSpotLight(Core::Entity entity)
 {
     ASSERT(!perSpotLightSourceData.contains(entity), "Spot light already exists for this entity");
 
-    perSpotLightSourceData.emplace<DirectionalLightSourceData>(entity, {});
+    perSpotLightSourceData.emplace<SpotLightSourceData>(entity, {});
 }
 
 void LightSourcesManager::AddDirectionalLight(Core::Entity entity)

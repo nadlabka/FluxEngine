@@ -15,6 +15,7 @@
 #include <ECS/Components/MaterialParameters.h>
 #include "Managers/ConstantBufferManager.h"
 #include "DataTypes/PerViewConstantBuffer.h"
+#include "Managers/LightSourcesManager.h"
 
 void Renderer1::Init()
 {
@@ -231,6 +232,15 @@ void Renderer1::LoadPipeline()
     auto& constantBuffer = m_renderPipeline->GetPipelineDescription().pipelineLayout->m_pipelineLayoutBindings.m_BoundConstantBuffers;
     constantBuffer.SetBufferBindingVisibility("PerView", RHI::BindingVisibility::All);
 
+    dynamicallyBoundResources.SetBufferDescriptorResourceType("pointLightsBufferIndex", RHI::DescriptorResourceType::DataReadOnlyBuffer);
+    dynamicallyBoundResources.SetBufferDescriptorVisibility("pointLightsBufferIndex", RHI::BindingVisibility::Fragment);
+
+    dynamicallyBoundResources.SetBufferDescriptorResourceType("spotLightsBufferIndex", RHI::DescriptorResourceType::DataReadOnlyBuffer);
+    dynamicallyBoundResources.SetBufferDescriptorVisibility("spotLightsBufferIndex", RHI::BindingVisibility::Fragment);
+
+    dynamicallyBoundResources.SetBufferDescriptorResourceType("directionalLightsBufferIndex", RHI::DescriptorResourceType::DataReadOnlyBuffer);
+    dynamicallyBoundResources.SetBufferDescriptorVisibility("directionalLightsBufferIndex", RHI::BindingVisibility::Fragment);
+
 
     BufferDescription bufferDesc = 
     {
@@ -253,6 +263,9 @@ void Renderer1::LoadPipeline()
     m_buffer->UploadData(triangleVertices, regionCopyDesc);
 
     m_commandQueue->WaitUntilCompleted();
+
+    auto& lightSourcesManager = LightSourcesManager::GetInstance();
+    lightSourcesManager.InitLightsRHIBuffers(m_commandBuffer);
 }
 
 void Renderer1::PopulateCommandList()
@@ -313,10 +326,17 @@ void Renderer1::ExperimentalDrawCube()
 
         m_commandBuffer->BindRenderTargets();
 
+        auto& lightSourcesManager = LightSourcesManager::GetInstance();
+        lightSourcesManager.UpdateLightsRHIBuffers(m_commandBuffer);
+
+        auto& dynamicallyBoundResources = m_commandBuffer->GetCurrentRenderPipeline()->GetPipelineDescription().pipelineLayout->m_pipelineLayoutBindings.m_dynamicallyBoundResources;    
+        dynamicallyBoundResources.SetBufferBindingResource("pointLightsBufferIndex", lightSourcesManager.GetPointLightSRV());
+        dynamicallyBoundResources.SetBufferBindingResource("spotLightsBufferIndex", lightSourcesManager.GetSpotLightSRV());
+        dynamicallyBoundResources.SetBufferBindingResource("directionalLightsBufferIndex", lightSourcesManager.GetDirectionalLightSRV());
+
         auto& assetsManager = Assets::AssetsManager<Assets::StaticMesh>::GetInstance();
         for (auto& staticMesh : assetsManager.GetAssetsStorage().GetDataStorage())
         {
-            auto& dynamicallyBoundResources = m_commandBuffer->GetCurrentRenderPipeline()->GetPipelineDescription().pipelineLayout->m_pipelineLayoutBindings.m_dynamicallyBoundResources;
             dynamicallyBoundResources.SetBufferBindingResource("perMeshDataBufferIndex", staticMesh.GetRHIBufferForPerInstanceData());
             
             for (auto& submesh : staticMesh.m_submeshes)

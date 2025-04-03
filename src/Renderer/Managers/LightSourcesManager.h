@@ -51,6 +51,7 @@ public:
 
     void Init();
     void Destroy();
+    void InitLightsRHIBuffers(std::shared_ptr<RHI::ICommandBuffer> commandBuffer);
     void UpdateLightsRHIBuffers(std::shared_ptr<RHI::ICommandBuffer> commandBuffer);
 
     void AddPointLight(Core::Entity entity);

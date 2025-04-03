@@ -14,6 +14,7 @@
 #include "../Renderer/Managers/ConstantBufferManager.h"
 #include "../Renderer/DataTypes/PerViewConstantBuffer.h"
 #include <FillPerViewBuffer.h>
+#include "../Renderer/Managers/LightSourcesManager.h"
 
 Core::FluxEngine::FluxEngine()
 {
@@ -92,6 +93,8 @@ void Core::FluxEngine::Destroy()
     ConstantBufferManager::GetInstance().Destroy();
 
     Assets::AssetsManager<Assets::StaticMesh>::GetInstance().Destroy();
+
+    LightSourcesManager::GetInstance().Destroy();
 
     entityPool.Destroy();
     renderer.Destroy();

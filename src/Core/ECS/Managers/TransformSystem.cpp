@@ -88,16 +88,16 @@ void TransformSystem::UpdateMarkedTransforms(entt::registry& registry)
             if (registry.all_of<Components::InstancedStaticMesh>(current))
             {
                 auto& meshComponent = registry.get<Components::InstancedStaticMesh>(current);
-                Assets::AssetsManager<Assets::StaticMesh>::GetInstance().GetAsset(meshComponent.staticMesh).UpdatePerInstanceData((Core::Entity)current, { accumulatedTransform.matrix });
+                Assets::AssetsManager<Assets::StaticMesh>::GetInstance().GetAsset(meshComponent.staticMesh).UpdatePerInstanceData((Core::Entity)current, { accumulatedTransform.matrix, accumulatedTransform.matrix.Invert().Transpose() });
             }
 
             if (registry.all_of<Components::PointLight>(current))
             {
-                LightSourcesManager::GetInstance().UpdateDirectionalLightTransform((Core::Entity)current, accumulatedTransform.matrix);
+                LightSourcesManager::GetInstance().UpdatePointLightTransform((Core::Entity)current, accumulatedTransform.matrix);
             }
             else if (registry.all_of<Components::SpotLight>(current))
             {
-                LightSourcesManager::GetInstance().UpdateDirectionalLightTransform((Core::Entity)current, accumulatedTransform.matrix);
+                LightSourcesManager::GetInstance().UpdateSpotLightTransform((Core::Entity)current, accumulatedTransform.matrix);
             }
             else if (registry.all_of<Components::DirectionalLight>(current))
             {

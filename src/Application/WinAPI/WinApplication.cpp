@@ -12,6 +12,9 @@
 #include <ECS/Components/Camera.h>
 #include "../../Input/MouseManager.h"
 #include "../../Input/KeyboardManager.h"
+#include <ECS/Components/LightSources.h>
+#include "../../Renderer/Managers/LightSourcesManager.h"
+#include <ECS/Managers/TransformSystem.h>
 
 Application::WinWindow Application::WinApplication::m_window;
 std::wstring Application::WinApplication::m_title;
@@ -33,6 +36,7 @@ void Application::WinApplication::Init(Core::FluxEngine* engine, HINSTANCE hInst
 
     //custom client entity-related init logic is currently executed here
     auto& entityManager = Core::EntitiesPool::GetInstance();
+    auto& transformSystem = TransformSystem::GetInstance();
 
     auto cubeEntity = entityManager.CreateEntity();
     uint32_t meshId = LoadCubeMesh();
@@ -92,6 +96,43 @@ void Application::WinApplication::Init(Core::FluxEngine* engine, HINSTANCE hInst
     cameraControlComponent.sensetivity = 0.2f;
     cameraControlComponent.speed = 1.0f;
     cameraControlComponent.isRotating = false;
+
+    auto blueLightEntity = entityManager.CreateEntity();
+    auto& blueLightTransformComponent = blueLightEntity.AddComponent<Components::Transform>();
+    blueLightTransformComponent.position = { 2, 2, 2 };
+    blueLightTransformComponent.rotationAngles = { 0.0f, 0.0f, 0.0f };
+    blueLightTransformComponent.scale = { 1, 1, 1 };
+    auto& blueLightEntityHierarchyComp = blueLightEntity.AddComponent<Components::HierarchyRelationship>();
+    blueLightEntity.AddComponent<Components::TransformFlags>();
+    blueLightEntity.AddComponent<Components::AccumulatedHierarchicalTransformMatrix>();
+    auto& blueLightPointComponent = blueLightEntity.AddComponent<Components::PointLight>();
+    blueLightPointComponent.color = { 0.15f, 0.0f, 0.9f };
+    blueLightPointComponent.intensity = 1.0f;
+
+    auto pinkLightEntity = entityManager.CreateEntity();
+    auto& pinkLightTransformComponent = pinkLightEntity.AddComponent<Components::Transform>();
+    pinkLightTransformComponent.position = { -2, 2, -2 };
+    pinkLightTransformComponent.rotationAngles = { 0.0f, 0.0f, 0.0f };
+    pinkLightTransformComponent.scale = { 1, 1, 1 };
+    auto& pinkLightEntityHierarchyComp = pinkLightEntity.AddComponent<Components::HierarchyRelationship>();
+    pinkLightEntity.AddComponent<Components::TransformFlags>();
+    pinkLightEntity.AddComponent<Components::AccumulatedHierarchicalTransformMatrix>();
+    auto& pinkLightPointComponent = pinkLightEntity.AddComponent<Components::PointLight>();
+    pinkLightPointComponent.color = { 0.65f, 0.0f, 0.1f };
+    pinkLightPointComponent.intensity = 1.0f;
+
+    auto& lightSourcesManager = LightSourcesManager::GetInstance();
+    lightSourcesManager.AddPointLight(blueLightEntity);
+    lightSourcesManager.UpdatePointLightParams(blueLightEntity, blueLightPointComponent);
+    lightSourcesManager.AddPointLight(pinkLightEntity);
+    lightSourcesManager.UpdatePointLightParams(pinkLightEntity, pinkLightPointComponent);
+
+    auto& registry = entityManager.GetRegistry();
+
+    transformSystem.MarkDirty(registry, cubeEntity);
+    transformSystem.MarkDirty(registry, cubeEntity1);
+    transformSystem.MarkDirty(registry, blueLightEntity);
+    //transformSystem.MarkDirty(registry, pinkLightEntity);
 
     InputManager& input = InputManager::GetInstance();
 

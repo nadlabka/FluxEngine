@@ -7,6 +7,7 @@ namespace Assets
 	struct MeshPerInstanceData
 	{
 		Matrix transform;
+		Matrix inverseTransposeTransform;
 	};
 
 	struct StaticMesh
