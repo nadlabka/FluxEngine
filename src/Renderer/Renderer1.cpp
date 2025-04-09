@@ -16,6 +16,7 @@
 #include "Managers/ConstantBufferManager.h"
 #include "DataTypes/PerViewConstantBuffer.h"
 #include "Managers/LightSourcesManager.h"
+#include "DataTypes/PerFrameConstantBuffer.h"
 
 void Renderer1::Init()
 {
@@ -57,7 +58,12 @@ void Renderer1::Init()
     depthStencilDesc.height = window.GetHeight();
     m_depthStencil = rhiAllocator->CreateTexture(depthStencilDesc);
 
-    ConstantBufferManager::GetInstance().RegisterBuffer<PerViewConstantBuffer>("PerView", m_commandBuffer);
+    auto& constantBufferMgr = ConstantBufferManager::GetInstance();
+    constantBufferMgr.RegisterBuffer<PerViewConstantBuffer>("PerView", m_commandBuffer);
+    constantBufferMgr.RegisterBuffer<PerFrameConstantBuffer>("PerFrame", m_commandBuffer);
+
+    auto& lightSourcesManager = LightSourcesManager::GetInstance();
+    lightSourcesManager.InitLightsRHIBuffers(m_commandBuffer);
 }
 
 void Renderer1::Render()
@@ -181,10 +187,8 @@ void Renderer1::LoadPipeline()
     pipelineStagesDesc.push_back({ vertexShader });
     pipelineStagesDesc.push_back({ fragmentShader });
 
-
     PipelineLayoutBindings pipelineLayoutDesc = {};
     std::shared_ptr<IPipelineLayout> pipelineLayout = device->CreatePipelineLayout(pipelineStagesDesc);
-
 
     std::shared_ptr<IRenderPass> renderPass = {};
     std::vector<AttachmentDesc> colorAttachmentsDesc = {};
@@ -231,6 +235,7 @@ void Renderer1::LoadPipeline()
 
     auto& constantBuffer = m_renderPipeline->GetPipelineDescription().pipelineLayout->m_pipelineLayoutBindings.m_BoundConstantBuffers;
     constantBuffer.SetBufferBindingVisibility("PerView", RHI::BindingVisibility::All);
+    constantBuffer.SetBufferBindingVisibility("PerFrame", RHI::BindingVisibility::All);
 
     dynamicallyBoundResources.SetBufferDescriptorResourceType("pointLightsBufferIndex", RHI::DescriptorResourceType::DataReadOnlyBuffer);
     dynamicallyBoundResources.SetBufferDescriptorVisibility("pointLightsBufferIndex", RHI::BindingVisibility::Fragment);
@@ -241,31 +246,7 @@ void Renderer1::LoadPipeline()
     dynamicallyBoundResources.SetBufferDescriptorResourceType("directionalLightsBufferIndex", RHI::DescriptorResourceType::DataReadOnlyBuffer);
     dynamicallyBoundResources.SetBufferDescriptorVisibility("directionalLightsBufferIndex", RHI::BindingVisibility::Fragment);
 
-
-    BufferDescription bufferDesc = 
-    {
-        .elementsNum = 3,
-        .elementStride = 28,
-        .access = BufferAccess::Upload,
-        .usage = BufferUsage::VertexBuffer,
-        .flags = { .requiredCopyStateToInit = false }
-    };
-    m_buffer = allocator->CreateBuffer(bufferDesc);
-    float aspectRatio = Application::WinApplication::GetWindow().GetAspectRatio();
-    Vertex1 triangleVertices[] =
-    {
-        { { 0.0f, 0.25f * aspectRatio, 0.5f}, {1.0f, 0.0f, 0.0f, 1.0f}},
-        { { 0.25f, -0.25f * aspectRatio, 0.5f }, { 0.0f, 1.0f, 0.0f, 1.0f } },
-        { { -0.25f, -0.25f * aspectRatio, 0.5f }, { 0.0f, 0.0f, 1.0f, 1.0f } }
-    };
-    BufferRegionCopyDescription regionCopyDesc = {};
-    regionCopyDesc.width = 84;
-    m_buffer->UploadData(triangleVertices, regionCopyDesc);
-
     m_commandQueue->WaitUntilCompleted();
-
-    auto& lightSourcesManager = LightSourcesManager::GetInstance();
-    lightSourcesManager.InitLightsRHIBuffers(m_commandBuffer);
 }
 
 void Renderer1::PopulateCommandList()
@@ -317,6 +298,8 @@ void Renderer1::ExperimentalDrawCube()
         auto& boundConstantBuffers = m_commandBuffer->GetCurrentRenderPipeline()->GetPipelineDescription().pipelineLayout->m_pipelineLayoutBindings.m_BoundConstantBuffers;
         boundConstantBuffers.SetConstantBufferBindingMapping("PerView", constantBufferManager.GetDataBufferByName("PerView"));    
         constantBufferManager.UpdateBuffer<PerViewConstantBuffer>(m_commandQueue, m_commandBuffer, "PerView");
+        boundConstantBuffers.SetConstantBufferBindingMapping("PerFrame", constantBufferManager.GetDataBufferByName("PerFrame"));
+        constantBufferManager.UpdateBuffer<PerFrameConstantBuffer>(m_commandQueue, m_commandBuffer, "PerFrame");
 
         m_commandBuffer->BeginRecording(m_commandQueue);
 

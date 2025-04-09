@@ -33,8 +33,13 @@ cbuffer PerView : register(b1)
 
     float viewportWidth;
     float viewportHeight;
+}
 
-    float2 padding;
+cbuffer PerFrame : register(b2)
+{
+    uint pointLightNum;
+    uint spotLightNum;
+    uint directionalLightNum;
 }
 
 struct PerMeshHandle
@@ -148,7 +153,7 @@ float4 PSMain(PSInput input) : SV_TARGET
     float3 finalColor = float3(0.0f, 0.0f, 0.0f);
 
     StructuredBuffer<PointLightSourceData> pointLightsBuffer = ResourceDescriptorHeap[pointLightsBufferIndex];
-    for (int i = 0; i < 2; i++)
+    for (int i = 0; i < pointLightNum; i++)
     {
         float3 lightColorIntensity = pointLightsBuffer[i].color.rgb * pointLightsBuffer[i].color.a;
         float3 lightDir = pointLightsBuffer[i].position - input.worldPosition;

@@ -132,7 +132,7 @@ void Application::WinApplication::Init(Core::FluxEngine* engine, HINSTANCE hInst
     transformSystem.MarkDirty(registry, cubeEntity);
     transformSystem.MarkDirty(registry, cubeEntity1);
     transformSystem.MarkDirty(registry, blueLightEntity);
-    //transformSystem.MarkDirty(registry, pinkLightEntity);
+    transformSystem.MarkDirty(registry, pinkLightEntity);
 
     InputManager& input = InputManager::GetInstance();
 

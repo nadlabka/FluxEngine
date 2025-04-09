@@ -150,6 +150,7 @@
   <ItemGroup>
     <ClCompile Include="src\Application\WinAPI\WinApplication.cpp" />
     <ClCompile Include="src\Application\WinAPI\WinWindow.cpp" />
+    <ClCompile Include="src\Assets\AssetsLoader.cpp" />
     <ClCompile Include="src\Assets\Mesh.cpp" />
     <ClCompile Include="src\Assets\Submesh.cpp" />
     <ClCompile Include="src\Core\ECS\Managers\EntitiesPool.cpp" />
@@ -191,6 +192,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClInclude Include="..\Portfolio\DX11Engine\Engine\DXRenderer\Utils\SolidVector\SolidVector.h" />
+    <ClInclude Include="src\Assets\AssetsLoader.h" />
     <ClInclude Include="src\Assets\Material.h" />
     <ClInclude Include="src\Assets\Mesh.h" />
     <ClInclude Include="src\Assets\Submesh.h" />
@@ -212,6 +214,7 @@
     <ClInclude Include="src\Renderer\DataTypes\PerViewConstantBuffer.h" />
     <ClInclude Include="src\Renderer\Managers\ConstantBufferManager.h" />
     <ClInclude Include="src\Renderer\Managers\LightSourcesManager.h" />
+    <ClInclude Include="src\Renderer\Managers\MaterialsManager.h" />
     <ClInclude Include="src\Renderer\Renderer1.h" />
     <ClInclude Include="src\Renderer\RHI\Allocator.h" />
     <ClInclude Include="src\Renderer\RHI\Buffer.h" />

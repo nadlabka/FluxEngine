@@ -66,6 +66,10 @@ public:
     void UpdateSpotLightTransform(Core::Entity entity, const Matrix& transform);
     void UpdateDirectionalLightTransform(Core::Entity entity, const Matrix& transform);
 
+    uint32_t GetPointLightsNum() { return perPointLightSourceData.size(); }
+    uint32_t GetSpotLightsNum() { return perSpotLightSourceData.size(); }
+    uint32_t GetDirectionalLightsNum() { return perDirectionalLightSourceData.size(); }
+
     std::shared_ptr<RHI::IBuffer> GetPointLightSRV() const { return m_pointLightBuffer.dataBuffer; }
     std::shared_ptr<RHI::IBuffer> GetSpotLightSRV() const { return m_spotLightBuffer.dataBuffer; }
     std::shared_ptr<RHI::IBuffer> GetDirectionalLightSRV() const { return m_directionalLightBuffer.dataBuffer; }

@@ -42,6 +42,7 @@ void LightSourcesManager::UpdateLightsRHIBuffers(std::shared_ptr<RHI::ICommandBu
         commandBuffer->CopyDataBetweenBuffers(m_pointLightBuffer.uploadBuffer, m_pointLightBuffer.dataBuffer, regionDesc);
     }
     m_pointLightBuffer.dirtyIndices.clear();
+    m_pointLightBufferDirtyCache.clear();
 
     // Update Spot Lights
     for (auto dirtyIndex : m_spotLightBuffer.dirtyIndices)
@@ -56,6 +57,7 @@ void LightSourcesManager::UpdateLightsRHIBuffers(std::shared_ptr<RHI::ICommandBu
         commandBuffer->CopyDataBetweenBuffers(m_spotLightBuffer.uploadBuffer, m_spotLightBuffer.dataBuffer, regionDesc);
     }
     m_spotLightBuffer.dirtyIndices.clear();
+    m_spotLightBufferDirtyCache.clear();
 
     // Update Directional Lights
     for (auto dirtyIndex : m_directionalLightBuffer.dirtyIndices)
@@ -70,6 +72,7 @@ void LightSourcesManager::UpdateLightsRHIBuffers(std::shared_ptr<RHI::ICommandBu
         commandBuffer->CopyDataBetweenBuffers(m_directionalLightBuffer.uploadBuffer, m_directionalLightBuffer.dataBuffer, regionDesc);
     }
     m_directionalLightBuffer.dirtyIndices.clear();
+    m_directionalLightBufferDirtyCache.clear();
 }
 
 void LightSourcesManager::AddPointLight(Core::Entity entity)

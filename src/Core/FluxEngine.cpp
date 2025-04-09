@@ -15,6 +15,7 @@
 #include "../Renderer/DataTypes/PerViewConstantBuffer.h"
 #include <FillPerViewBuffer.h>
 #include "../Renderer/Managers/LightSourcesManager.h"
+#include "../Renderer/DataTypes/PerFrameConstantBuffer.h"
 
 Core::FluxEngine::FluxEngine()
 {
@@ -63,14 +64,19 @@ void Core::FluxEngine::Update()
         transformSystem.MarkDirty(EntitiesPool::GetInstance().GetRegistry(), entity);
     }
 
+    auto& constantBufferManager = ConstantBufferManager::GetInstance();
     auto cameraView = EntitiesPool::GetInstance().GetRegistry().view<Components::Transform, Components::Camera>();
     for (auto entity : cameraView)
     {
-        auto& constantBufferManager = ConstantBufferManager::GetInstance();
         auto& perViewBuffer = constantBufferManager.GetCpuBuffer<PerViewConstantBuffer>("PerView");
         auto& window = Application::WinApplication::GetWindow();
         FillPerViewBuffer(perViewBuffer, cameraView.get<Components::Transform>(entity), cameraView.get<Components::Camera>(entity), window.GetWidth(), window.GetHeight());
     }
+    auto& lightSourcesMgr = LightSourcesManager::GetInstance();
+    auto& perViewBuffer = constantBufferManager.GetCpuBuffer<PerFrameConstantBuffer>("PerFrame");
+    perViewBuffer.pointLightNum = lightSourcesMgr.GetPointLightsNum();
+    perViewBuffer.spotLightNum = lightSourcesMgr.GetSpotLightsNum();
+    perViewBuffer.directionalLightNum = lightSourcesMgr.GetDirectionalLightsNum();
 }
 
 void Core::FluxEngine::Render()
