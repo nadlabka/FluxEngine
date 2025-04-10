@@ -102,8 +102,17 @@ namespace RHI
 		uint8_t clearStencilValue = 0u;
 	};
 
+	struct TextureRegionCopyDescription
+	{
+		uint32_t srcOffset;
+		uint32_t destOffset;
+		uint32_t width;
+	};
+
 	struct ITexture
 	{
+		virtual void UploadData(void* srcData, const TextureRegionCopyDescription& size) = 0;
+
 		virtual ~ITexture() {}
 	};
 }

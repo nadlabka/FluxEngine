@@ -99,9 +99,6 @@
     <ClCompile Include="src\Renderer\RHI\D3D12\D3D12ShaderCompiler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Core\ECS\Managers\EntitiesPool.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\Assets\Submesh.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -296,9 +293,6 @@
     <ClInclude Include="src\Renderer\RHI\ShaderCompiler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Core\ECS\Managers\EntitiesPool.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\Core\ECS\Entity.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -374,10 +368,10 @@
     <ClInclude Include="src\Core\CoreModules\Timer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Assets\AssetsLoader.h">
+    <ClInclude Include="src\Renderer\Managers\MaterialsManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Renderer\Managers\MaterialsManager.h">
+    <ClInclude Include="src\Assets\AssetsLoader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

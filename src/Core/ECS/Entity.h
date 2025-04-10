@@ -38,6 +38,8 @@ namespace Core
 
 		operator entt::entity() const { return m_enityId; }
 
+		bool operator==(const Entity& other) const { return m_enityId == other.m_enityId; }
+
 		entt::entity m_enityId;
 	};
 }

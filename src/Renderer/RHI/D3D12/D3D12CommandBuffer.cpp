@@ -446,3 +446,33 @@ void RHI::D3D12CommandBuffer::CopyDataBetweenBuffers(std::shared_ptr<IBuffer> fr
 		regionCopyDesc.width
 	);
 }
+
+void RHI::D3D12CommandBuffer::CopyDataFromBufferToTexture(std::shared_ptr<IBuffer> fromBuffer, std::shared_ptr<ITexture> toTexture, const TextureRegionCopyDescription& regionCopyDesc)
+{
+	auto fromD3D12Buffer = std::static_pointer_cast<D3D12Buffer>(fromBuffer);
+	auto toD3D12Texture = std::static_pointer_cast<D3D12Texture>(toTexture);
+
+	auto fromBufferPtr = fromD3D12Buffer->m_buffer.ptr() ? fromD3D12Buffer->m_buffer.ptr() : fromD3D12Buffer->m_allocation->GetResource();
+	if (fromD3D12Buffer->m_resourceState != D3D12_RESOURCE_STATE_COPY_SOURCE)
+	{
+		auto transitedRT = CD3DX12_RESOURCE_BARRIER::Transition(fromBufferPtr, fromD3D12Buffer->m_resourceState, D3D12_RESOURCE_STATE_COPY_SOURCE);
+		m_commandList->ResourceBarrier(1, &transitedRT);
+		fromD3D12Buffer->m_resourceState = D3D12_RESOURCE_STATE_COPY_SOURCE;
+	}
+
+	auto toBufferPtr = toD3D12Texture->m_texture.ptr() ? toD3D12Texture->m_texture.ptr() : toD3D12Texture->m_allocation->GetResource();
+	if (toD3D12Texture->m_resourceState != D3D12_RESOURCE_STATE_COPY_DEST)
+	{
+		auto transitedRT = CD3DX12_RESOURCE_BARRIER::Transition(toBufferPtr, toD3D12Texture->m_resourceState, D3D12_RESOURCE_STATE_COPY_DEST);
+		m_commandList->ResourceBarrier(1, &transitedRT);
+		toD3D12Texture->m_resourceState = D3D12_RESOURCE_STATE_COPY_DEST;
+	}
+
+	m_commandList->CopyBufferRegion(
+		toBufferPtr,
+		regionCopyDesc.destOffset,
+		fromBufferPtr,
+		regionCopyDesc.srcOffset,
+		regionCopyDesc.width
+	);
+}

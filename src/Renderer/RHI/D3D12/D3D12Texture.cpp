@@ -41,6 +41,23 @@ RHI::D3D12Texture::~D3D12Texture()
 	}
 }
 
+void RHI::D3D12Texture::UploadData(void* srcData, const TextureRegionCopyDescription& regionCopyDesc)
+{
+	ID3D12Resource* resourcePtr = m_texture.ptr() ? m_texture.ptr() : m_allocation->GetResource();
+
+	void* destData = nullptr;
+
+	D3D12_RANGE readRange = { 0, 0 }; // No read access
+	resourcePtr->Map(0, &readRange, &destData);
+
+	memcpy(static_cast<uint8_t*>(destData) + regionCopyDesc.destOffset,
+		static_cast<const uint8_t*>(srcData) + regionCopyDesc.srcOffset,
+		regionCopyDesc.width);
+
+	D3D12_RANGE writeRange = { regionCopyDesc.destOffset, regionCopyDesc.destOffset + regionCopyDesc.width };
+	resourcePtr->Unmap(0, &writeRange);
+}
+
 void RHI::D3D12Texture::AllocateDescriptorsInHeaps(const TextureDescription& desc)
 {
 	auto& rhiContext = RHIContext::GetInstance();

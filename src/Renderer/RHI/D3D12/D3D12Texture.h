@@ -29,6 +29,8 @@ namespace RHI
 		D3D12Texture(const TextureDimensionsInfo& dimensionsInfo, RscPtr<ID3D12Resource> texture, D3D12_RESOURCE_STATES resourceState);
 		~D3D12Texture();
 
+		void UploadData(void* srcData, const TextureRegionCopyDescription& size);
+
 		void AllocateDescriptorsInHeaps(const TextureDescription& desc);
 
 		TextureDimensionsInfo m_dimensionsInfo;
