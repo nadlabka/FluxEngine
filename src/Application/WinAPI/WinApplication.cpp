@@ -15,6 +15,7 @@
 #include <ECS/Components/LightSources.h>
 #include "../../Renderer/Managers/LightSourcesManager.h"
 #include <ECS/Managers/TransformSystem.h>
+#include "../../Assets/AssetsLoader.h"
 
 Application::WinWindow Application::WinApplication::m_window;
 std::wstring Application::WinApplication::m_title;
@@ -133,6 +134,12 @@ void Application::WinApplication::Init(Core::FluxEngine* engine, HINSTANCE hInst
     transformSystem.MarkDirty(registry, cubeEntity1);
     transformSystem.MarkDirty(registry, blueLightEntity);
     transformSystem.MarkDirty(registry, pinkLightEntity);
+
+    auto& loader = Assets::AssetsLoader::GetInstance();
+    auto& renderer = Renderer1::GetInstance();
+    auto commandQueue = renderer.m_commandQueue;
+    auto commandBuffer = renderer.m_commandBuffer;
+    loader.LoadGLTFScene(L"../../../../Assets/Models/Sponza/Sponza.gltf", commandQueue, commandBuffer);
 
     InputManager& input = InputManager::GetInstance();
 

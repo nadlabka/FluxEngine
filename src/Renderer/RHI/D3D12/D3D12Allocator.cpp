@@ -84,6 +84,7 @@ std::shared_ptr<RHI::ITexture> RHI::D3D12Allocator::CreateTexture(const TextureD
 	textureDimensions.m_height = desc.height;
 	textureDimensions.m_width = desc.width;
 	textureDimensions.m_mipLevels = desc.mipLevels;
+	textureDimensions.m_formatPixelSizeBytes = GetDXGIFormatSizeInBytes(mainResourceFormat);
 
 	auto resultTexture = std::make_shared<D3D12Texture>(textureDimensions, allocation, initialState);
 	resultTexture->AllocateDescriptorsInHeaps(desc);

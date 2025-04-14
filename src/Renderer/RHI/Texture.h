@@ -111,8 +111,6 @@ namespace RHI
 
 	struct ITexture
 	{
-		virtual void UploadData(void* srcData, const TextureRegionCopyDescription& size) = 0;
-
 		virtual ~ITexture() {}
 	};
 }

@@ -123,6 +123,9 @@
     <ClCompile Include="src\Assets\AssetsLoader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Core\ECS\Managers\EntitiesPool.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Core\stdafx.h">
@@ -372,6 +375,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Assets\AssetsLoader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\ECS\Managers\EntitiesPool.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

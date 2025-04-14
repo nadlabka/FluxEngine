@@ -460,19 +460,42 @@ void RHI::D3D12CommandBuffer::CopyDataFromBufferToTexture(std::shared_ptr<IBuffe
 		fromD3D12Buffer->m_resourceState = D3D12_RESOURCE_STATE_COPY_SOURCE;
 	}
 
-	auto toBufferPtr = toD3D12Texture->m_texture.ptr() ? toD3D12Texture->m_texture.ptr() : toD3D12Texture->m_allocation->GetResource();
+	auto toTexturePtr = toD3D12Texture->m_texture.ptr() ? toD3D12Texture->m_texture.ptr() : toD3D12Texture->m_allocation->GetResource();
 	if (toD3D12Texture->m_resourceState != D3D12_RESOURCE_STATE_COPY_DEST)
 	{
-		auto transitedRT = CD3DX12_RESOURCE_BARRIER::Transition(toBufferPtr, toD3D12Texture->m_resourceState, D3D12_RESOURCE_STATE_COPY_DEST);
+		auto transitedRT = CD3DX12_RESOURCE_BARRIER::Transition(toTexturePtr, toD3D12Texture->m_resourceState, D3D12_RESOURCE_STATE_COPY_DEST);
 		m_commandList->ResourceBarrier(1, &transitedRT);
 		toD3D12Texture->m_resourceState = D3D12_RESOURCE_STATE_COPY_DEST;
 	}
 
-	m_commandList->CopyBufferRegion(
-		toBufferPtr,
-		regionCopyDesc.destOffset,
-		fromBufferPtr,
-		regionCopyDesc.srcOffset,
-		regionCopyDesc.width
-	);
+	D3D12_TEXTURE_COPY_LOCATION srcLocation = {};
+	srcLocation.pResource = fromBufferPtr;
+	srcLocation.Type = D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT;
+	srcLocation.PlacedFootprint.Offset = regionCopyDesc.srcOffset;
+
+	D3D12_RESOURCE_DESC textureDesc = toTexturePtr->GetDesc();
+	UINT rowPitch = textureDesc.Width * toD3D12Texture->m_dimensionsInfo.m_formatPixelSizeBytes;
+	UINT height = textureDesc.Height;
+	srcLocation.PlacedFootprint.Footprint.Format = textureDesc.Format;
+	srcLocation.PlacedFootprint.Footprint.Width = static_cast<UINT>(textureDesc.Width);
+	srcLocation.PlacedFootprint.Footprint.Height = static_cast<UINT>(textureDesc.Height);
+	srcLocation.PlacedFootprint.Footprint.Depth = textureDesc.DepthOrArraySize;
+	srcLocation.PlacedFootprint.Footprint.RowPitch = rowPitch;
+		
+
+	D3D12_TEXTURE_COPY_LOCATION dstLocation = {};
+	dstLocation.pResource = toTexturePtr;
+	dstLocation.Type = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX;
+	dstLocation.SubresourceIndex = 0;
+
+
+	D3D12_BOX srcBox = {};
+	srcBox.left = 0;
+	srcBox.top = 0;
+	srcBox.front = 0;
+	srcBox.right = static_cast<UINT>(textureDesc.Width);
+	srcBox.bottom = static_cast<UINT>(textureDesc.Height);
+	srcBox.back = static_cast<UINT>(textureDesc.DepthOrArraySize);
+
+	m_commandList->CopyTextureRegion(&dstLocation, 0, 0, 0, &srcLocation, &srcBox);
 }

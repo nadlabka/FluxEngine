@@ -41,6 +41,23 @@ namespace Assets
 			return m_assetsStorage[assetId];
 		}
 
+		void AssignName(AssetId assetId, const std::string& name)
+		{
+			ASSERT(!m_assetsCacheMap.contains(name), "Name is already used");
+			m_assetsCacheMap[name] = assetId;
+		}
+
+		const AssetId& GetAssetByName(const std::string& name) const
+		{
+			ASSERT(m_assetsCacheMap.contains(name), "Asset with this name doesn't exist");
+			return m_assetsCacheMap[name];
+		}
+
+		bool IsAssetNameRegistered(const std::string& name)
+		{
+			return m_assetsCacheMap.contains(name);
+		}
+
 		void RemoveAsset(AssetId assetId)
 		{
 			m_assetsStorage.erase(assetId);
@@ -61,6 +78,6 @@ namespace Assets
 		AssetsManager() {}
 
 		SolidVector<T> m_assetsStorage;
-		std::unordered_map<std::wstring, AssetId> m_assetsCacheMap;
+		std::unordered_map<std::string, AssetId> m_assetsCacheMap;
 	};
 }

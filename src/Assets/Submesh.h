@@ -35,10 +35,12 @@ namespace Assets
 			ASSERT(!m_registry.valid(entity), "Instance for this entity has already been created");
 			m_registry.create(entity);
 
-			auto* perMaterialContextData = m_registry.ctx().find<PerMaterialContextData>(entt::type_id<T>().hash());
+			auto typeHash = entt::type_id<T>().hash();
+
+			auto* perMaterialContextData = m_registry.ctx().find<PerMaterialContextData>(typeHash);
 			if (!perMaterialContextData)
 			{
-				perMaterialContextData = &m_registry.ctx().insert_or_assign<PerMaterialContextData>(entt::type_id<T>().hash(), PerMaterialContextData{});
+				perMaterialContextData = &m_registry.ctx().insert_or_assign<PerMaterialContextData>(typeHash, PerMaterialContextData{});
 			}
 
 			perMaterialContextData->materialParamsBuffers.dirtyIndices.push_back(m_registry.storage<T>().size());
@@ -100,7 +102,8 @@ namespace Assets
 		void UpdateRHIBuffersWithPerInstanceData(std::shared_ptr<RHI::ICommandBuffer> commandBuffer)
 		{
 			auto& storage = m_registry.storage<T>();
-			PerMaterialContextData& perMaterialContextData = *m_registry.ctx().find<PerMaterialContextData>(entt::type_id<T>().hash());
+			auto typeHash = entt::type_id<T>().hash();
+			PerMaterialContextData& perMaterialContextData = *m_registry.ctx().find<PerMaterialContextData>(typeHash);
 
 			EnsureBufferCapacity<T>(perMaterialContextData, storage.size(), commandBuffer);
 			for (auto& dirtyIndex : perMaterialContextData.materialParamsBuffers.dirtyIndices)

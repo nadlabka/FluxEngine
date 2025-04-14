@@ -12,6 +12,7 @@ namespace RHI
 	D3D12_RESOURCE_DIMENSION ConvertTextureTypeToResourceDimension(TextureType type);
 	D3D12_SRV_DIMENSION  ConvertTextureTypeToSRVDimension(TextureType type);
     D3D12_RESOURCE_STATES ConvertTextureLayoutToResourceState(TextureLayout layout);
+	uint32_t GetDXGIFormatSizeInBytes(DXGI_FORMAT format);
 	
 	struct TextureDimensionsInfo
 	{
@@ -20,6 +21,7 @@ namespace RHI
 		uint32_t m_depth = 1;
 		uint32_t m_mipLevels = 1;
 		uint32_t m_arrayLayers = 1;
+		uint32_t m_formatPixelSizeBytes = 4;
 	};
 
 	struct D3D12Texture : public ITexture, public D3D12StatefulResource
@@ -28,8 +30,6 @@ namespace RHI
 		D3D12Texture(const TextureDimensionsInfo& dimensionsInfo, RscPtr<D3D12MA::Allocation> allocation, D3D12_RESOURCE_STATES resourceState);
 		D3D12Texture(const TextureDimensionsInfo& dimensionsInfo, RscPtr<ID3D12Resource> texture, D3D12_RESOURCE_STATES resourceState);
 		~D3D12Texture();
-
-		void UploadData(void* srcData, const TextureRegionCopyDescription& size);
 
 		void AllocateDescriptorsInHeaps(const TextureDescription& desc);
 

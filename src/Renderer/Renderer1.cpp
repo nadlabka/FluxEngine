@@ -324,6 +324,8 @@ void Renderer1::ExperimentalDrawCube()
             
             for (auto& submesh : staticMesh.m_submeshes)
             {
+                if (submesh.GetActiveInstancesNum<MaterialParameters::UnlitDefault>() == 0) { continue; }
+
                 submesh.UpdateRHIBuffersWithPerInstanceData<MaterialParameters::UnlitDefault>(m_commandBuffer);
 
                 // Bind all buffers
