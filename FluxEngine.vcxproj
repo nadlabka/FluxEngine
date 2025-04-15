@@ -198,6 +198,7 @@
     <ClInclude Include="src\Assets\Submesh.h" />
     <ClInclude Include="src\Assets\Vertex.h" />
     <ClInclude Include="src\Core\CoreModules\Timer.h" />
+    <ClInclude Include="src\Core\ECS\Components\BehavioralComponents.h" />
     <ClInclude Include="src\Core\ECS\Components\Camera.h" />
     <ClInclude Include="src\Core\ECS\Components\HierarchyRelationship.h" />
     <ClInclude Include="src\Core\ECS\Components\InstancedStaticMesh.h" />

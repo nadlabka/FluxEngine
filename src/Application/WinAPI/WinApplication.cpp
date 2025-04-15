@@ -16,6 +16,7 @@
 #include "../../Renderer/Managers/LightSourcesManager.h"
 #include <ECS/Managers/TransformSystem.h>
 #include "../../Assets/AssetsLoader.h"
+#include <ECS/Components/BehavioralComponents.h>
 
 Application::WinWindow Application::WinApplication::m_window;
 std::wstring Application::WinApplication::m_title;
@@ -56,6 +57,7 @@ void Application::WinApplication::Init(Core::FluxEngine* engine, HINSTANCE hInst
     hierarchyComp.first = cubeEntity1;
     cubeEntity.AddComponent<Components::TransformFlags>();
     cubeEntity.AddComponent<Components::AccumulatedHierarchicalTransformMatrix>();
+    cubeEntity.AddComponent<Components::CubeComponent>();
 
     auto& staticMesh = Assets::AssetsManager<Assets::StaticMesh>::GetInstance().GetAsset(meshId);
     staticMesh.CreatePerInstanceData(cubeEntity, Assets::MeshPerInstanceData{});
@@ -70,6 +72,7 @@ void Application::WinApplication::Init(Core::FluxEngine* engine, HINSTANCE hInst
     hierarchyComp1.parent = cubeEntity;
     cubeEntity1.AddComponent<Components::TransformFlags>();
     cubeEntity1.AddComponent<Components::AccumulatedHierarchicalTransformMatrix>();
+    cubeEntity1.AddComponent<Components::CubeComponent>();
 
     staticMesh.CreatePerInstanceData(cubeEntity1, Assets::MeshPerInstanceData{});
     staticMesh.CreateSubmeshPerInstanceData<MaterialParameters::UnlitDefault>(cubeEntity1, 0u, MaterialParameters::UnlitDefault{ 0u });

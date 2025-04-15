@@ -97,12 +97,11 @@ namespace Assets
                     .transform = nodeEntity.transform,
                     .inverseTransposeTransform = nodeEntity.transform.Invert().Transpose()
                 };
-                // Convert to Core::Entity only where required by the API
                 mesh.CreatePerInstanceData(Core::Entity{ entity }, instanceData);
 
                 if (!mesh.m_submeshes.empty())
                 {
-                    MaterialParameters::PBRMaterial material{};
+                    MaterialParameters::UnlitDefault material{};
                     if (model.meshes[nodeEntity.meshIndex].primitives[0].material >= 0)
                     {
                         const auto& mat = model.materials[model.meshes[nodeEntity.meshIndex].primitives[0].material];
@@ -111,10 +110,10 @@ namespace Assets
                             const auto& tex = model.textures[mat.pbrMetallicRoughness.baseColorTexture.index];
                             std::string texName = model.images[tex.source].name.empty() ? "texture_" + std::to_string(tex.source) : model.images[tex.source].name;
                             auto& textureManager = AssetsManager<std::shared_ptr<RHI::ITexture>>::GetInstance();
-                            material.albedoIndex = -1;
+                            //get texture
                         }
                     }
-                    mesh.CreateSubmeshPerInstanceData<MaterialParameters::PBRMaterial>(Core::Entity{ entity }, 0u, material);
+                    mesh.CreateSubmeshPerInstanceData<MaterialParameters::UnlitDefault>(Core::Entity{ entity }, 0u, material);
                 }
 
                 mesh.UpdateRHIBufferWithPerInstanceData(commandBuffer);
@@ -133,7 +132,6 @@ namespace Assets
             transformSystem.MarkDirty(registry, entity);
         }
 
-        // Build hierarchy relationships
         for (const auto& nodeEntity : entities)
         {
             auto& hierarchy = registry.get<Components::HierarchyRelationship>(nodeEntity.entity);
@@ -247,8 +245,8 @@ namespace Assets
                 commandBuffer->SubmitToQueue(commandQueue);
                 commandBuffer->ForceWaitUntilFinished(commandQueue);
 
-                ASSERT(!image.name.empty(), "TEXTURE DOESN'T HAVE A NAME");
-                std::string textureName = image.name;
+                ASSERT(!image.name.empty() || !image.uri.empty(), "TEXTURE DOESN'T HAVE A NAME");
+                std::string textureName = image.name.empty() ? image.uri : image.name;
                 auto textureAssetId = textureManager.CreateAsset(std::move(texture));
                 textureManager.AssignName(textureAssetId, textureName);
             }
@@ -266,50 +264,160 @@ namespace Assets
         for (int i = 0; i < mesh.primitives.size(); i++)
         {
             const auto& primitive = mesh.primitives[i];
-            std::vector<float> positions;
-            std::vector<float> normals;
+            std::vector<Assets::VertexPrimaryAttributes> primaryAttributes;
+            std::vector<Assets::VertexSecondaryAttributes> secondaryAttributes;
             std::vector<uint32_t> indices;
 
-            // Positions
+            // Load primary attributes
             const auto& posAccessor = model.accessors[primitive.attributes.at("POSITION")];
+            primaryAttributes.resize(posAccessor.count);
             const auto& posBufferView = model.bufferViews[posAccessor.bufferView];
             const auto& posBuffer = model.buffers[posBufferView.buffer];
-            positions.resize(posAccessor.count * 3);
-            memcpy(positions.data(), &posBuffer.data[posBufferView.byteOffset + posAccessor.byteOffset], posAccessor.count * 3 * sizeof(float));
-
-            tinygltf::Accessor normAccessor;
-            tinygltf::BufferView normBufferView;
-
-            // Normals (optional)
-            if (primitive.attributes.count("NORMAL"))
+            const float* posData = reinterpret_cast<const float*>(&posBuffer.data[posBufferView.byteOffset + posAccessor.byteOffset]);
+            for (size_t j = 0; j < posAccessor.count; ++j)
             {
-                normAccessor = model.accessors[primitive.attributes.at("NORMAL")];
-                normBufferView = model.bufferViews[normAccessor.bufferView];
-                const auto& normBuffer = model.buffers[normBufferView.buffer];
-                normals.resize(normAccessor.count * 3);
-                memcpy(normals.data(), &normBuffer.data[normBufferView.byteOffset + normAccessor.byteOffset], normAccessor.count * 3 * sizeof(float));
+                primaryAttributes[j].position = DirectX::SimpleMath::Vector3(posData[j * 3 + 0], posData[j * 3 + 1], posData[j * 3 + 2]);
             }
 
-            // Indices
-            const auto& indexAccessor = model.accessors[primitive.indices];
-            const auto& indexBufferView = model.bufferViews[indexAccessor.bufferView];
-            const auto& indexBuffer = model.buffers[indexBufferView.buffer];
-            indices.resize(indexAccessor.count);
-            if (indexAccessor.componentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT)
+            if (primitive.attributes.count("NORMAL"))
             {
-                std::vector<uint16_t> tempIndices(indexAccessor.count);
-                memcpy(tempIndices.data(), &indexBuffer.data[indexBufferView.byteOffset + indexAccessor.byteOffset], indexAccessor.count * sizeof(uint16_t));
-                for (size_t i = 0; i < indexAccessor.count; ++i) indices[i] = tempIndices[i];
+                const auto& normAccessor = model.accessors[primitive.attributes.at("NORMAL")];
+                const auto& normBufferView = model.bufferViews[normAccessor.bufferView];
+                const auto& normBuffer = model.buffers[normBufferView.buffer];
+                const float* normData = reinterpret_cast<const float*>(&normBuffer.data[normBufferView.byteOffset + normAccessor.byteOffset]);
+                for (size_t j = 0; j < normAccessor.count; ++j)
+                {
+                    primaryAttributes[j].normals = DirectX::SimpleMath::Vector3(normData[j * 3 + 0], normData[j * 3 + 1], normData[j * 3 + 2]);
+                }
+            }
+
+            if (primitive.attributes.count("TEXCOORD_0"))
+            {
+                const auto& texAccessor = model.accessors[primitive.attributes.at("TEXCOORD_0")];
+                const auto& texBufferView = model.bufferViews[texAccessor.bufferView];
+                const auto& texBuffer = model.buffers[texBufferView.buffer];
+                const float* texData = reinterpret_cast<const float*>(&texBuffer.data[texBufferView.byteOffset + texAccessor.byteOffset]);
+                for (size_t j = 0; j < texAccessor.count; ++j)
+                {
+                    primaryAttributes[j].texCoords = DirectX::SimpleMath::Vector2(texData[j * 2 + 0], texData[j * 2 + 1]);
+                }
+            }
+
+            // Load or generate secondary attributes
+            bool hasSecondary = primitive.attributes.count("TANGENT");
+            secondaryAttributes.resize(posAccessor.count);
+            if (hasSecondary)
+            {
+                const auto& tangentAccessor = model.accessors[primitive.attributes.at("TANGENT")];
+                const auto& tangentBufferView = model.bufferViews[tangentAccessor.bufferView];
+                const auto& tangentBuffer = model.buffers[tangentBufferView.buffer];
+                const float* tangentData = reinterpret_cast<const float*>(&tangentBuffer.data[tangentBufferView.byteOffset + tangentAccessor.byteOffset]);
+                for (size_t j = 0; j < tangentAccessor.count; ++j)
+                {
+                    secondaryAttributes[j].Tangent = DirectX::SimpleMath::Vector3(tangentData[j * 4 + 0], tangentData[j * 4 + 1], tangentData[j * 4 + 2]);
+                    secondaryAttributes[j].Bitangent = primaryAttributes[j].normals.Cross(secondaryAttributes[j].Tangent);
+                }
+            }
+            else if (primitive.attributes.count("TEXCOORD_0") && primitive.attributes.count("NORMAL"))
+            {
+                // Generate tangents and bitangents
+                std::vector<DirectX::SimpleMath::Vector3> tangents(posAccessor.count, DirectX::SimpleMath::Vector3::Zero);
+                std::vector<DirectX::SimpleMath::Vector3> bitangents(posAccessor.count, DirectX::SimpleMath::Vector3::Zero);
+                std::vector<uint32_t> counts(posAccessor.count, 0);
+
+                for (size_t j = 0; j < indices.size(); j += 3)
+                {
+                    uint32_t i0 = indices[j + 0];
+                    uint32_t i1 = indices[j + 1];
+                    uint32_t i2 = indices[j + 2];
+
+                    const auto& p0 = primaryAttributes[i0].position;
+                    const auto& p1 = primaryAttributes[i1].position;
+                    const auto& p2 = primaryAttributes[i2].position;
+
+                    const auto& uv0 = primaryAttributes[i0].texCoords;
+                    const auto& uv1 = primaryAttributes[i1].texCoords;
+                    const auto& uv2 = primaryAttributes[i2].texCoords;
+
+                    DirectX::SimpleMath::Vector3 e1 = p1 - p0;
+                    DirectX::SimpleMath::Vector3 e2 = p2 - p0;
+                    DirectX::SimpleMath::Vector2 duv1 = uv1 - uv0;
+                    DirectX::SimpleMath::Vector2 duv2 = uv2 - uv0;
+
+                    float r = 1.0f / (duv1.x * duv2.y - duv2.x * duv1.y + 0.0001f); // Avoid division by zero
+                    DirectX::SimpleMath::Vector3 tangent = (e1 * duv2.y - e2 * duv1.y) * r;
+                    DirectX::SimpleMath::Vector3 bitangent = (e2 * duv1.x - e1 * duv2.x) * r;
+
+                    // Accumulate for averaging
+                    tangents[i0] += tangent;
+                    tangents[i1] += tangent;
+                    tangents[i2] += tangent;
+                    bitangents[i0] += bitangent;
+                    bitangents[i1] += bitangent;
+                    bitangents[i2] += bitangent;
+                    counts[i0]++;
+                    counts[i1]++;
+                    counts[i2]++;
+                }
+
+                // Average and orthogonalize
+                for (size_t j = 0; j < posAccessor.count; ++j)
+                {
+                    if (counts[j] > 0)
+                    {
+                        secondaryAttributes[j].Tangent = tangents[j] / static_cast<float>(counts[j]);
+                        secondaryAttributes[j].Bitangent = bitangents[j] / static_cast<float>(counts[j]);
+
+                        // Orthogonalize tangent against normal
+                        const auto& normal = primaryAttributes[j].normals;
+                        secondaryAttributes[j].Tangent = (secondaryAttributes[j].Tangent - normal * normal.Dot(secondaryAttributes[j].Tangent));
+                        secondaryAttributes[j].Tangent.Normalize();
+                        secondaryAttributes[j].Bitangent = normal.Cross(secondaryAttributes[j].Tangent);
+                    }
+                    else
+                    {
+                        // Fallback for unreferenced vertices
+                        secondaryAttributes[j].Tangent = DirectX::SimpleMath::Vector3(1.0f, 0.0f, 0.0f);
+                        secondaryAttributes[j].Bitangent = DirectX::SimpleMath::Vector3(0.0f, 1.0f, 0.0f);
+                    }
+                }
             }
             else
             {
-                memcpy(indices.data(), &indexBuffer.data[indexBufferView.byteOffset + indexAccessor.byteOffset], indexAccessor.count * sizeof(uint32_t));
+                // No texCoords or normals; use defaults
+                for (size_t j = 0; j < posAccessor.count; ++j)
+                {
+                    secondaryAttributes[j].Tangent = DirectX::SimpleMath::Vector3(1.0f, 0.0f, 0.0f);
+                    secondaryAttributes[j].Bitangent = DirectX::SimpleMath::Vector3(0.0f, 1.0f, 0.0f);
+                }
             }
 
-            // RHI buffers
+            // Load indices
+            const auto& indexAccessor = model.accessors[primitive.indices];
+            indices.resize(indexAccessor.count);
+            const auto& indexBufferView = model.bufferViews[indexAccessor.bufferView];
+            const auto& indexBuffer = model.buffers[indexBufferView.buffer];
+            if (indexAccessor.componentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT)
+            {
+                const uint16_t* indexData = reinterpret_cast<const uint16_t*>(&indexBuffer.data[indexBufferView.byteOffset + indexAccessor.byteOffset]);
+                for (size_t j = 0; j < indexAccessor.count; ++j)
+                {
+                    indices[j] = static_cast<uint32_t>(indexData[j]);
+                }
+            }
+            else if (indexAccessor.componentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_INT)
+            {
+                memcpy(indices.data(), &indexBuffer.data[indexBufferView.byteOffset + indexAccessor.byteOffset], indexAccessor.count * sizeof(uint32_t));
+            }
+            else
+            {
+                ASSERT(false, "Unsupported index component type");
+            }
+
+            // Create primary vertex buffer
             RHI::BufferDescription vertexDesc = {
                 .elementsNum = static_cast<uint32_t>(posAccessor.count),
-                .elementStride = sizeof(float) * 3,
+                .elementStride = sizeof(Assets::VertexPrimaryAttributes),
                 .unstructuredSize = 0,
                 .access = RHI::BufferAccess::DefaultPrivate,
                 .usage = RHI::BufferUsage::VertexBuffer,
@@ -335,10 +443,10 @@ namespace Assets
                 m_commonUploadBuffer = allocator->CreateBuffer(newDesc);
             }
 
-            copyDesc.srcOffset = vertexData.regionDescription.offset;
+            copyDesc.srcOffset = 0;
             copyDesc.destOffset = 0;
             copyDesc.width = vertexData.regionDescription.size;
-            m_commonUploadBuffer->UploadData(positions.data(), copyDesc);
+            m_commonUploadBuffer->UploadData(primaryAttributes.data(), copyDesc);
 
             commandBuffer->BeginRecording(commandQueue);
             commandBuffer->CopyDataBetweenBuffers(m_commonUploadBuffer, vertexData.buffer, { .srcOffset = 0, .destOffset = 0, .width = copyDesc.width });
@@ -346,47 +454,47 @@ namespace Assets
             commandBuffer->SubmitToQueue(commandQueue);
             commandBuffer->ForceWaitUntilFinished(commandQueue);
 
-            RHI::BufferDescription normalDesc = {
-                .elementsNum = normals.empty() ? 0 : static_cast<uint32_t>(normAccessor.count),
-                .elementStride = sizeof(float) * 3,
+            // Create secondary vertex buffer
+            RHI::BufferDescription secondaryDesc = {
+                .elementsNum = static_cast<uint32_t>(posAccessor.count),
+                .elementStride = sizeof(Assets::VertexSecondaryAttributes),
                 .unstructuredSize = 0,
                 .access = RHI::BufferAccess::DefaultPrivate,
                 .usage = RHI::BufferUsage::VertexBuffer,
                 .flags = {.requiredCopyStateToInit = true }
             };
-            auto normalBuffer = normals.empty() ? nullptr : allocator->CreateBuffer(normalDesc);
-            RHI::BufferWithRegionDescription normalData = {
-                .buffer = normalBuffer,
-                .regionDescription = {.offset = 0, .size = normalDesc.elementsNum * normalDesc.elementStride }
+            auto secondaryBuffer = allocator->CreateBuffer(secondaryDesc);
+            RHI::BufferWithRegionDescription secondaryData = {
+                .buffer = secondaryBuffer,
+                .regionDescription = {.offset = 0, .size = secondaryDesc.elementsNum * secondaryDesc.elementStride }
             };
-            if (normalBuffer)
+
+            if (secondaryData.regionDescription.size > m_commonUploadBufferSize)
             {
-                if (normalData.regionDescription.size > m_commonUploadBufferSize)
-                {
-                    m_commonUploadBufferSize = normalData.regionDescription.size * 2;
-                    RHI::BufferDescription newDesc = {
-                        .elementsNum = 1,
-                        .elementStride = m_commonUploadBufferSize,
-                        .unstructuredSize = 0,
-                        .access = RHI::BufferAccess::Upload,
-                        .usage = RHI::BufferUsage::None,
-                        .flags = {.requiredCopyStateToInit = false }
-                    };
-                    m_commonUploadBuffer = allocator->CreateBuffer(newDesc);
-                }
-
-                copyDesc.srcOffset = normalData.regionDescription.offset;
-                copyDesc.destOffset = 0;
-                copyDesc.width = normalData.regionDescription.size;
-                m_commonUploadBuffer->UploadData(normals.data(), copyDesc);
-
-                commandBuffer->BeginRecording(commandQueue);
-                commandBuffer->CopyDataBetweenBuffers(m_commonUploadBuffer, normalData.buffer, { .srcOffset = 0, .destOffset = 0, .width = copyDesc.width });
-                commandBuffer->EndRecording();
-                commandBuffer->SubmitToQueue(commandQueue);
-                commandBuffer->ForceWaitUntilFinished(commandQueue);
+                m_commonUploadBufferSize = secondaryData.regionDescription.size * 2;
+                RHI::BufferDescription newDesc = {
+                    .elementsNum = 1,
+                    .elementStride = m_commonUploadBufferSize,
+                    .unstructuredSize = 0,
+                    .access = RHI::BufferAccess::Upload,
+                    .usage = RHI::BufferUsage::None,
+                    .flags = {.requiredCopyStateToInit = false }
+                };
+                m_commonUploadBuffer = allocator->CreateBuffer(newDesc);
             }
 
+            copyDesc.srcOffset = 0;
+            copyDesc.destOffset = 0;
+            copyDesc.width = secondaryData.regionDescription.size;
+            m_commonUploadBuffer->UploadData(secondaryAttributes.data(), copyDesc);
+
+            commandBuffer->BeginRecording(commandQueue);
+            commandBuffer->CopyDataBetweenBuffers(m_commonUploadBuffer, secondaryData.buffer, { .srcOffset = 0, .destOffset = 0, .width = copyDesc.width });
+            commandBuffer->EndRecording();
+            commandBuffer->SubmitToQueue(commandQueue);
+            commandBuffer->ForceWaitUntilFinished(commandQueue);
+
+            // Create index buffer
             RHI::BufferDescription indexDesc = {
                 .elementsNum = static_cast<uint32_t>(indexAccessor.count),
                 .elementStride = sizeof(uint32_t),
@@ -395,9 +503,9 @@ namespace Assets
                 .usage = RHI::BufferUsage::IndexBuffer,
                 .flags = {.requiredCopyStateToInit = true }
             };
-            auto rhiIndexBuffer = allocator->CreateBuffer(indexDesc);
+            auto indexRHIBuffer = allocator->CreateBuffer(indexDesc);
             RHI::BufferWithRegionDescription indexData = {
-                .buffer = rhiIndexBuffer,
+                .buffer = indexRHIBuffer,
                 .regionDescription = {.offset = 0, .size = indexDesc.elementsNum * indexDesc.elementStride }
             };
 
@@ -415,7 +523,7 @@ namespace Assets
                 m_commonUploadBuffer = allocator->CreateBuffer(newDesc);
             }
 
-            copyDesc.srcOffset = indexData.regionDescription.offset;
+            copyDesc.srcOffset = 0;
             copyDesc.destOffset = 0;
             copyDesc.width = indexData.regionDescription.size;
             m_commonUploadBuffer->UploadData(indices.data(), copyDesc);
@@ -426,7 +534,8 @@ namespace Assets
             commandBuffer->SubmitToQueue(commandQueue);
             commandBuffer->ForceWaitUntilFinished(commandQueue);
 
-            StaticSubmesh submesh(vertexData, normalData, indexData);
+            // Create submesh
+            StaticSubmesh submesh(vertexData, secondaryData, indexData);
             staticMesh.m_submeshes.push_back(std::move(submesh));
         }
 

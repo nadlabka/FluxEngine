@@ -17,6 +17,7 @@
 #include "../Renderer/Managers/LightSourcesManager.h"
 #include "../Renderer/DataTypes/PerFrameConstantBuffer.h"
 #include "../Assets/AssetsLoader.h"
+#include <ECS/Components/BehavioralComponents.h>
 
 Core::FluxEngine::FluxEngine()
 {
@@ -51,7 +52,7 @@ void Core::FluxEngine::Update()
 
     //here we want to propagate transfer to the final children to be reflected in RHI buffer
     auto& transformSystem = TransformSystem::GetInstance();
-    auto view = EntitiesPool::GetInstance().GetRegistry().view<Components::Transform, Components::InstancedStaticMesh>();
+    auto view = EntitiesPool::GetInstance().GetRegistry().view<Components::Transform, Components::InstancedStaticMesh, Components::CubeComponent>();
     for (auto entity : view)
     {
         auto& transformComponent = view.get<Components::Transform>(entity);

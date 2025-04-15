@@ -380,5 +380,8 @@
     <ClInclude Include="src\Core\ECS\Managers\EntitiesPool.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\Core\ECS\Components\BehavioralComponents.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
