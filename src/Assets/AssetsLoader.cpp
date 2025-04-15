@@ -113,10 +113,11 @@ namespace Assets
                             //get texture
                         }
                     }
-                    mesh.CreateSubmeshPerInstanceData<MaterialParameters::UnlitDefault>(Core::Entity{ entity }, 0u, material);
+                    for (int submeshIndex = 0; submeshIndex < mesh.m_submeshes.size(); submeshIndex++)
+                    {
+                        mesh.CreateSubmeshPerInstanceData<MaterialParameters::UnlitDefault>(Core::Entity{ entity }, submeshIndex, material);
+                    }
                 }
-
-                mesh.UpdateRHIBufferWithPerInstanceData(commandBuffer);
             }
             else if (nodeEntity.isLight)
             {
