@@ -101,7 +101,7 @@ namespace Assets
 
                 if (!mesh.m_submeshes.empty())
                 {
-                    MaterialParameters::UnlitDefault material{};
+                    MaterialParameters::PBRMaterial material{};
                     if (model.meshes[nodeEntity.meshIndex].primitives[0].material >= 0)
                     {
                         const auto& mat = model.materials[model.meshes[nodeEntity.meshIndex].primitives[0].material];
@@ -115,7 +115,7 @@ namespace Assets
                     }
                     for (int submeshIndex = 0; submeshIndex < mesh.m_submeshes.size(); submeshIndex++)
                     {
-                        mesh.CreateSubmeshPerInstanceData<MaterialParameters::UnlitDefault>(Core::Entity{ entity }, submeshIndex, material);
+                        mesh.CreateSubmeshPerInstanceData<MaterialParameters::PBRMaterial>(Core::Entity{ entity }, submeshIndex, material);
                     }
                 }
             }

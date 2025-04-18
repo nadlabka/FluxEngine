@@ -20,5 +20,6 @@ namespace RHI
 		virtual std::shared_ptr<IRenderPass> CreateRenderPass(const RenderPassDesc& renderPassDesc) const = 0;
 		virtual std::shared_ptr<IPipelineLayout> CreatePipelineLayout(const std::vector<PipelineStageDescription>& pipelineStages) const = 0;
 		virtual std::shared_ptr<IRenderPipeline> CreateRenderPipeline(const RenderPipelineDescription& renderPipelineDesc) const = 0;
+		virtual std::shared_ptr<ISampler> CreateSampler(const SamplerDescription& sampplerDesc) const = 0;
 	};
 }

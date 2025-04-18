@@ -40,43 +40,6 @@ void Application::WinApplication::Init(Core::FluxEngine* engine, HINSTANCE hInst
     auto& entityManager = Core::EntitiesPool::GetInstance();
     auto& transformSystem = TransformSystem::GetInstance();
 
-    auto cubeEntity = entityManager.CreateEntity();
-    uint32_t meshId = LoadCubeMesh();
-    auto& cubeMeshComponent = cubeEntity.AddComponent<Components::InstancedStaticMesh>(meshId);
-
-    auto cubeEntity1 = entityManager.CreateEntity();
-    auto& cubeMeshComponent1 = cubeEntity1.AddComponent<Components::InstancedStaticMesh>(meshId);
-
-    auto& cubeTransformComponent = cubeEntity.AddComponent<Components::Transform>();
-    cubeTransformComponent.position = { 0, 0, 0.5 };
-    cubeTransformComponent.rotationAngles = { 30.0f, 30.0f, 30.0f };
-    cubeTransformComponent.scale = { 0.1, 0.1, 0.1 };
-
-    auto& hierarchyComp = cubeEntity.AddComponent<Components::HierarchyRelationship>();
-    hierarchyComp.children = 1;
-    hierarchyComp.first = cubeEntity1;
-    cubeEntity.AddComponent<Components::TransformFlags>();
-    cubeEntity.AddComponent<Components::AccumulatedHierarchicalTransformMatrix>();
-    cubeEntity.AddComponent<Components::CubeComponent>();
-
-    auto& staticMesh = Assets::AssetsManager<Assets::StaticMesh>::GetInstance().GetAsset(meshId);
-    staticMesh.CreatePerInstanceData(cubeEntity, Assets::MeshPerInstanceData{});
-    staticMesh.CreateSubmeshPerInstanceData<MaterialParameters::UnlitDefault>(cubeEntity, 0u, MaterialParameters::UnlitDefault{0u});
-
-    auto& cubeTransformComponent1 = cubeEntity1.AddComponent<Components::Transform>();
-    cubeTransformComponent1.position = { 3, 2, 0.5 };
-    cubeTransformComponent1.rotationAngles = { 30.0f, 30.0f, 30.0f };
-    cubeTransformComponent1.scale = { 0.5, 0.5, 0.5 };
-
-    auto& hierarchyComp1 = cubeEntity1.AddComponent<Components::HierarchyRelationship>();
-    hierarchyComp1.parent = cubeEntity;
-    cubeEntity1.AddComponent<Components::TransformFlags>();
-    cubeEntity1.AddComponent<Components::AccumulatedHierarchicalTransformMatrix>();
-    cubeEntity1.AddComponent<Components::CubeComponent>();
-
-    staticMesh.CreatePerInstanceData(cubeEntity1, Assets::MeshPerInstanceData{});
-    staticMesh.CreateSubmeshPerInstanceData<MaterialParameters::UnlitDefault>(cubeEntity1, 0u, MaterialParameters::UnlitDefault{ 0u });
-
     auto camera = entityManager.CreateEntity();
     auto& cameraTransformComponent = camera.AddComponent<Components::Transform>();
     cameraTransformComponent.position = { 0, 0, 0 };
@@ -103,7 +66,7 @@ void Application::WinApplication::Init(Core::FluxEngine* engine, HINSTANCE hInst
 
     auto blueLightEntity = entityManager.CreateEntity();
     auto& blueLightTransformComponent = blueLightEntity.AddComponent<Components::Transform>();
-    blueLightTransformComponent.position = { 2, 2, 2 };
+    blueLightTransformComponent.position = { 0, 6, 0 };
     blueLightTransformComponent.rotationAngles = { 0.0f, 0.0f, 0.0f };
     blueLightTransformComponent.scale = { 1, 1, 1 };
     auto& blueLightEntityHierarchyComp = blueLightEntity.AddComponent<Components::HierarchyRelationship>();
@@ -111,11 +74,11 @@ void Application::WinApplication::Init(Core::FluxEngine* engine, HINSTANCE hInst
     blueLightEntity.AddComponent<Components::AccumulatedHierarchicalTransformMatrix>();
     auto& blueLightPointComponent = blueLightEntity.AddComponent<Components::PointLight>();
     blueLightPointComponent.color = { 0.15f, 0.0f, 0.9f };
-    blueLightPointComponent.intensity = 1.0f;
+    blueLightPointComponent.intensity = 50.0f;
 
     auto pinkLightEntity = entityManager.CreateEntity();
     auto& pinkLightTransformComponent = pinkLightEntity.AddComponent<Components::Transform>();
-    pinkLightTransformComponent.position = { -2, 2, -2 };
+    pinkLightTransformComponent.position = { 0, 4, 0 };
     pinkLightTransformComponent.rotationAngles = { 0.0f, 0.0f, 0.0f };
     pinkLightTransformComponent.scale = { 1, 1, 1 };
     auto& pinkLightEntityHierarchyComp = pinkLightEntity.AddComponent<Components::HierarchyRelationship>();
@@ -123,7 +86,7 @@ void Application::WinApplication::Init(Core::FluxEngine* engine, HINSTANCE hInst
     pinkLightEntity.AddComponent<Components::AccumulatedHierarchicalTransformMatrix>();
     auto& pinkLightPointComponent = pinkLightEntity.AddComponent<Components::PointLight>();
     pinkLightPointComponent.color = { 0.65f, 0.0f, 0.1f };
-    pinkLightPointComponent.intensity = 1.0f;
+    pinkLightPointComponent.intensity = 50.0f;
 
     auto& lightSourcesManager = LightSourcesManager::GetInstance();
     lightSourcesManager.AddPointLight(blueLightEntity);
@@ -133,8 +96,6 @@ void Application::WinApplication::Init(Core::FluxEngine* engine, HINSTANCE hInst
 
     auto& registry = entityManager.GetRegistry();
 
-    transformSystem.MarkDirty(registry, cubeEntity);
-    transformSystem.MarkDirty(registry, cubeEntity1);
     transformSystem.MarkDirty(registry, blueLightEntity);
     transformSystem.MarkDirty(registry, pinkLightEntity);
 

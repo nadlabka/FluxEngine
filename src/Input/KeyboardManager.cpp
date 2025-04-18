@@ -45,14 +45,12 @@ void KeyboardManager::InitWinApiMapping()
     keyMapping['Z'] = eKeycode_Z;
 
     keyMapping[VK_SPACE] = eKeycode_Space;
-    keyMapping[VK_LSHIFT] = eKeycode_LShift;
-    keyMapping[VK_RSHIFT] = eKeycode_RShift;
-    keyMapping[VK_LMENU] = eKeycode_LAlt;
-    keyMapping[VK_RMENU] = eKeycode_RAlt;
-    keyMapping[VK_LCONTROL] = eKeycode_LCtrl;
-    keyMapping[VK_RCONTROL] = eKeycode_RCtrl;
+    keyMapping[VK_SHIFT] = eKeycode_LShift;
+    keyMapping[VK_MENU] = eKeycode_LAlt;
+    keyMapping[VK_CONTROL] = eKeycode_LCtrl;
     keyMapping[VK_TAB] = eKeycode_Tab;
     keyMapping[VK_CAPITAL] = eKeycode_Capslock;
+    keyMapping[VK_LWIN] = eKeycode_LWin;
 
     keyMapping[VK_F1] = eKeycode_F1;
     keyMapping[VK_F2] = eKeycode_F2;

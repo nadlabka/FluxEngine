@@ -115,7 +115,7 @@ void Renderer1::LoadPipeline()
             0,
             12,
             VertexAttributeFormat::R32G32B32_SignedFloat,
-            "NORMALS",
+            "NORMAL",
             0
         });
     inputAssemblerLayoutDesc.attributeDescriptions.push_back(
@@ -124,7 +124,7 @@ void Renderer1::LoadPipeline()
             0,
             24,
             VertexAttributeFormat::R32G32_SignedFloat,
-            "TEX_COORDS",
+            "TEXCOORD",
             0
         });
     inputAssemblerLayoutDesc.attributeDescriptions.push_back(
@@ -169,14 +169,14 @@ void Renderer1::LoadPipeline()
     std::vector<PipelineStageDescription> pipelineStagesDesc = {};
     ShaderCreateDesription vertexShaderDesc =
     {
-        "../../../../Assets/Shaders/Source/shaders.hlsl",
+        "../../../../Assets/Shaders/Source/PBR.hlsl",
         L"VSMain",
         PipelineStageType::Vertex,
         "../../../../Assets/Shaders/PDB"
     };
     ShaderCreateDesription fragmentShaderDesc =
     {
-        "../../../../Assets/Shaders/Source/shaders.hlsl",
+        "../../../../Assets/Shaders/Source/PBR.hlsl",
         L"PSMain",
         PipelineStageType::Fragment,
         "../../../../Assets/Shaders/PDB"
@@ -324,13 +324,13 @@ void Renderer1::ExperimentalDrawCube()
             
             for (auto& submesh : staticMesh.m_submeshes)
             {
-                if (submesh.GetActiveInstancesNum<MaterialParameters::UnlitDefault>() == 0) { continue; }
+                if (submesh.GetActiveInstancesNum<MaterialParameters::PBRMaterial>() == 0) { continue; }
 
-                submesh.UpdateRHIBuffersWithPerInstanceData<MaterialParameters::UnlitDefault>(m_commandBuffer);
+                submesh.UpdateRHIBuffersWithPerInstanceData<MaterialParameters::PBRMaterial>(m_commandBuffer);
 
                 // Bind all buffers
-                auto perInstancePerMeshDataBuffer = submesh.GetRHIBufferForPerMeshData<MaterialParameters::UnlitDefault>();
-                auto perInstancePerMaterialDataBuffer = submesh.GetRHIBufferForPerMaterialData<MaterialParameters::UnlitDefault>();
+                auto perInstancePerMeshDataBuffer = submesh.GetRHIBufferForPerMeshData<MaterialParameters::PBRMaterial>();
+                auto perInstancePerMaterialDataBuffer = submesh.GetRHIBufferForPerMaterialData<MaterialParameters::PBRMaterial>();
 
                 dynamicallyBoundResources.SetBufferBindingResource("perInstancePerMeshHandleBufferIndex", perInstancePerMeshDataBuffer);
                 dynamicallyBoundResources.SetBufferBindingResource("perInstanceMaterialParamsBufferIndex", perInstancePerMaterialDataBuffer);
@@ -348,7 +348,7 @@ void Renderer1::ExperimentalDrawCube()
 
                 IndexedInstancedDrawInfo indexedInstancedDrawInfo = {};
                 indexedInstancedDrawInfo.indicesPerInstanceNum = submesh.GetIndicesData().buffer->GetStructuredElementsNum();
-                indexedInstancedDrawInfo.instancesNum = submesh.GetActiveInstancesNum<MaterialParameters::UnlitDefault>();
+                indexedInstancedDrawInfo.instancesNum = submesh.GetActiveInstancesNum<MaterialParameters::PBRMaterial>();
                 m_commandBuffer->DrawIndexedInstanced(indexedInstancedDrawInfo);
             }
         }

@@ -16,6 +16,7 @@ enum EKeyboardKey : uint16_t
 
     eKeycode_Space, eKeycode_Capslock, eKeycode_Tab,
     eKeycode_LCtrl, eKeycode_RCtrl, eKeycode_LShift, eKeycode_RShift, eKeycode_LAlt, eKeycode_RAlt,
+    eKeycode_LWin,
 
     eKeycode_NumKeycodes,
 };

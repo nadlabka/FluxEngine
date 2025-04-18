@@ -310,3 +310,8 @@ std::shared_ptr<RHI::IRenderPipeline> RHI::D3D12Device::CreateRenderPipeline(con
 
     return std::make_shared<D3D12RenderPipeline>(d3d12PipelineState, renderPipelineDesc);
 }
+
+std::shared_ptr<RHI::ISampler> RHI::D3D12Device::CreateSampler(const SamplerDescription& sampplerDesc) const
+{
+    return std::shared_ptr<ISampler>();
+}
