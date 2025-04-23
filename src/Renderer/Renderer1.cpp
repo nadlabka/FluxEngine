@@ -248,9 +248,9 @@ void Renderer1::LoadPipeline()
 
     SamplerDescription defaultSamplerDescription = {};
     defaultSamplerDescription.Filter = RHI::FilterMode::Linear;
-    defaultSamplerDescription.AddressU = RHI::AddressMode::Clamp;
-    defaultSamplerDescription.AddressV = RHI::AddressMode::Clamp;
-    defaultSamplerDescription.AddressW = RHI::AddressMode::Clamp;
+    defaultSamplerDescription.AddressU = RHI::AddressMode::Wrap;
+    defaultSamplerDescription.AddressV = RHI::AddressMode::Wrap;
+    defaultSamplerDescription.AddressW = RHI::AddressMode::Wrap;
     defaultSamplerDescription.ComparisonFunc = RHI::SamplerComparisonFunc::Always;
     defaultSamplerDescription.MipLODBias = 0.0f;
     defaultSamplerDescription.MaxAnisotropy = 1;

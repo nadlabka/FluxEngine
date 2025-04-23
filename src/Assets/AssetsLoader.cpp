@@ -125,8 +125,7 @@ namespace Assets
                             const auto& mat = model.materials[model.meshes[nodeEntity.meshIndex].primitives[submeshIndex].material];
                             processTexture(mat.pbrMetallicRoughness.baseColorTexture.index, material.albedoIndex);
                             processTexture(mat.normalTexture.index, material.normalIndex);
-                            processTexture(mat.pbrMetallicRoughness.metallicRoughnessTexture.index, material.metallicIndex);
-                            processTexture(mat.pbrMetallicRoughness.metallicRoughnessTexture.index, material.roughnessIndex);
+                            processTexture(mat.pbrMetallicRoughness.metallicRoughnessTexture.index, material.metallicRoughnessIndex);
                             processTexture(mat.occlusionTexture.index, material.aoIndex);
                             processTexture(mat.emissiveTexture.index, material.emissiveIndex);
                         }

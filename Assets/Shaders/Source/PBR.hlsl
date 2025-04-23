@@ -40,8 +40,7 @@ struct PBRMaterial
 {
     uint albedoIndex;
     uint normalIndex;
-    uint metallicIndex;
-    uint roughnessIndex;
+    uint metallicRoughnessIndex;
     uint aoIndex;
     uint emissiveIndex;
 };
@@ -196,15 +195,11 @@ float4 PSMain(PSInput input) : SV_TARGET
         float3 tangentNormal = normalMap.Sample(defaultSampler, input.texCoords, 0).xyz * 2.0 - 1.0;
         normal = normalize(mul(tangentNormal, input.TBN));
     }
-    if (material.metallicIndex != 0xffffffff)
+    if (material.metallicRoughnessIndex != 0xffffffff)
     {
-        Texture2D metallicMap = ResourceDescriptorHeap[material.metallicIndex];
-        metallic = metallicMap.Sample(defaultSampler, input.texCoords, 0).r;
-    }
-    if (material.roughnessIndex != 0xffffffff)
-    {
-        Texture2D roughnessMap = ResourceDescriptorHeap[material.roughnessIndex];
-        roughness = roughnessMap.Sample(defaultSampler, input.texCoords, 0).r;
+        Texture2D metallicRoughnessMap = ResourceDescriptorHeap[material.metallicRoughnessIndex];
+        metallic = metallicRoughnessMap.Sample(defaultSampler, input.texCoords, 0).r;
+        roughness = metallicRoughnessMap.Sample(defaultSampler, input.texCoords, 0).g;
     }
     if (material.aoIndex != 0xffffffff)
     {
