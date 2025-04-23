@@ -182,6 +182,7 @@
     <ClCompile Include="src\Renderer\RHI\D3D12\D3D12PipelineLayout.cpp" />
     <ClCompile Include="src\Renderer\RHI\D3D12\D3D12RenderPass.cpp" />
     <ClCompile Include="src\Renderer\RHI\D3D12\D3D12RenderPipeline.cpp" />
+    <ClCompile Include="src\Renderer\RHI\D3D12\D3D12Sampler.cpp" />
     <ClCompile Include="src\Renderer\RHI\D3D12\D3D12Shader.cpp" />
     <ClCompile Include="src\Renderer\RHI\D3D12\D3D12ShaderCompiler.cpp" />
     <ClCompile Include="src\Renderer\RHI\D3D12\D3D12Texture.cpp" />

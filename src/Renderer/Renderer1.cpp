@@ -246,6 +246,20 @@ void Renderer1::LoadPipeline()
     dynamicallyBoundResources.SetBufferDescriptorResourceType("directionalLightsBufferIndex", RHI::DescriptorResourceType::DataReadOnlyBuffer);
     dynamicallyBoundResources.SetBufferDescriptorVisibility("directionalLightsBufferIndex", RHI::BindingVisibility::Fragment);
 
+    SamplerDescription defaultSamplerDescription = {};
+    defaultSamplerDescription.Filter = RHI::FilterMode::Linear;
+    defaultSamplerDescription.AddressU = RHI::AddressMode::Clamp;
+    defaultSamplerDescription.AddressV = RHI::AddressMode::Clamp;
+    defaultSamplerDescription.AddressW = RHI::AddressMode::Clamp;
+    defaultSamplerDescription.ComparisonFunc = RHI::SamplerComparisonFunc::Always;
+    defaultSamplerDescription.MipLODBias = 0.0f;
+    defaultSamplerDescription.MaxAnisotropy = 1;
+    defaultSamplerDescription.BorderColor = { 0.0f, 0.0f, 0.0f, 0.0f };
+    defaultSamplerDescription.MinLOD = 0.0f;
+    defaultSamplerDescription.MaxLOD = 1e10f;
+    auto defaultSampler = device->CreateSampler(defaultSamplerDescription);
+    dynamicallyBoundResources.SetSamplerToBinding("samplerDescriptorIndex", defaultSampler);
+
     m_commandQueue->WaitUntilCompleted();
 }
 

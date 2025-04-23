@@ -311,7 +311,14 @@ std::shared_ptr<RHI::IRenderPipeline> RHI::D3D12Device::CreateRenderPipeline(con
     return std::make_shared<D3D12RenderPipeline>(d3d12PipelineState, renderPipelineDesc);
 }
 
-std::shared_ptr<RHI::ISampler> RHI::D3D12Device::CreateSampler(const SamplerDescription& sampplerDesc) const
+std::shared_ptr<RHI::ISampler> RHI::D3D12Device::CreateSampler(const SamplerDescription& samplerDesc) const
 {
-    return std::shared_ptr<ISampler>();
+    auto& descHeapsMgr = DescriptorsHeapsManager::GetInstance();
+    auto sampler_heap = descHeapsMgr.GetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER);
+    const auto& d3d12SamplerDescription = ConvertSamplerDescriptionToD3D12(samplerDesc);
+    uint32_t descriptorIndex = sampler_heap->AllocateIndex();
+    m_device->CreateSampler(&d3d12SamplerDescription, sampler_heap->GetCpuHandle(descriptorIndex));
+    auto d3d12Sampler = std::make_shared<D3D12Sampler>();
+    d3d12Sampler->m_descriptorIndex = descriptorIndex;
+    return d3d12Sampler;
 }

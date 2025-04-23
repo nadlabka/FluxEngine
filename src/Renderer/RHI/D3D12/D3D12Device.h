@@ -18,7 +18,7 @@ namespace RHI
 		std::shared_ptr<IRenderPass> CreateRenderPass(const RenderPassDesc& renderPassDesc) const;
 		std::shared_ptr<IPipelineLayout> CreatePipelineLayout(const std::vector<PipelineStageDescription>& pipelineStages) const;
 		std::shared_ptr<IRenderPipeline> CreateRenderPipeline(const RenderPipelineDescription& renderPipelineDesc) const;
-		std::shared_ptr<ISampler> CreateSampler(const SamplerDescription& sampplerDesc) const;
+		std::shared_ptr<ISampler> CreateSampler(const SamplerDescription& samplerDesc) const;
 
 		RscPtr<ID3D12Device> m_device;
 	};

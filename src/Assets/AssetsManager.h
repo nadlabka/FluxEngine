@@ -47,10 +47,10 @@ namespace Assets
 			m_assetsCacheMap[name] = assetId;
 		}
 
-		const AssetId& GetAssetByName(const std::string& name) const
+		T& GetAssetByName(const std::string& name)
 		{
 			ASSERT(m_assetsCacheMap.contains(name), "Asset with this name doesn't exist");
-			return m_assetsCacheMap[name];
+			return m_assetsStorage[m_assetsCacheMap[name]];
 		}
 
 		bool IsAssetNameRegistered(const std::string& name)

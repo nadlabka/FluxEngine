@@ -12,6 +12,7 @@
 
 #include <tinygltf/tiny_gltf.h>
 #include <ECS/Components/MaterialParameters.h>
+#include "../Renderer/RHI/D3D12/D3D12Texture.h"
 
 namespace Assets
 {
@@ -100,21 +101,35 @@ namespace Assets
                 mesh.CreatePerInstanceData(Core::Entity{ entity }, instanceData);
 
                 if (!mesh.m_submeshes.empty())
-                {
-                    MaterialParameters::PBRMaterial material{};
-                    if (model.meshes[nodeEntity.meshIndex].primitives[0].material >= 0)
+                {   
+                    auto processTexture = [&](int32_t texIndex, uint32_t& outIndex) 
                     {
-                        const auto& mat = model.materials[model.meshes[nodeEntity.meshIndex].primitives[0].material];
-                        if (mat.pbrMetallicRoughness.baseColorTexture.index >= 0)
+                        if (texIndex >= 0)
                         {
-                            const auto& tex = model.textures[mat.pbrMetallicRoughness.baseColorTexture.index];
-                            std::string texName = model.images[tex.source].name.empty() ? "texture_" + std::to_string(tex.source) : model.images[tex.source].name;
                             auto& textureManager = AssetsManager<std::shared_ptr<RHI::ITexture>>::GetInstance();
-                            //get texture
+
+                            const auto& tex = model.textures[texIndex];
+                            std::string texName = model.images[tex.source].name.empty() ? model.images[tex.source].uri : model.images[tex.source].name;
+
+                            std::shared_ptr<RHI::ITexture> texture = textureManager.GetAssetByName(texName);
+                            auto rhiTexture = textureManager.GetAssetByName(texName);
+                            outIndex = std::static_pointer_cast<RHI::D3D12Texture>(rhiTexture)->m_SRVDescriptorIndex;
                         }
-                    }
+                    };
+
                     for (int submeshIndex = 0; submeshIndex < mesh.m_submeshes.size(); submeshIndex++)
                     {
+                        MaterialParameters::PBRMaterial material{};
+                        if (model.meshes[nodeEntity.meshIndex].primitives[submeshIndex].material >= 0)
+                        {
+                            const auto& mat = model.materials[model.meshes[nodeEntity.meshIndex].primitives[submeshIndex].material];
+                            processTexture(mat.pbrMetallicRoughness.baseColorTexture.index, material.albedoIndex);
+                            processTexture(mat.normalTexture.index, material.normalIndex);
+                            processTexture(mat.pbrMetallicRoughness.metallicRoughnessTexture.index, material.metallicIndex);
+                            processTexture(mat.pbrMetallicRoughness.metallicRoughnessTexture.index, material.roughnessIndex);
+                            processTexture(mat.occlusionTexture.index, material.aoIndex);
+                            processTexture(mat.emissiveTexture.index, material.emissiveIndex);
+                        }
                         mesh.CreateSubmeshPerInstanceData<MaterialParameters::PBRMaterial>(Core::Entity{ entity }, submeshIndex, material);
                     }
                 }

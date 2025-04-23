@@ -75,7 +75,8 @@ namespace RHI
 		}
 		void SetSamplerToBinding(const std::string& bindingName, std::shared_ptr<ISampler> sampler)
 		{
-			m_samplersBindingsMappings.at(bindingName) = sampler;
+			ASSERT(m_parametersIndices.contains(bindingName), "No binding with this name is present in this Pipeline Layout");
+			m_samplersBindingsMappings[bindingName] = sampler;
 		}
 
 		void SetBufferDescriptorResourceType(const std::string& bindingName, DescriptorResourceType type)
