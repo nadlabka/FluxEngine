@@ -174,6 +174,18 @@ namespace Assets
         }
     }
 
+    uint32_t CalculateMipLevels(uint32_t width, uint32_t height)
+    {
+        return static_cast<uint32_t>(std::floor(std::log2(std::max(width, height)))) + 1;
+    }
+
+    uint32_t GetMipLevelSize(uint32_t width, uint32_t height, uint32_t mipLevel, uint32_t bytesPerPixel)
+    {
+        uint32_t mipWidth = std::max(width >> mipLevel, 1u);
+        uint32_t mipHeight = std::max(height >> mipLevel, 1u);
+        return mipWidth * mipHeight * bytesPerPixel;
+    }
+
     void AssetsLoader::LoadTexturesFromGLTF(const tinygltf::Model& model, const std::wstring& basePath, std::shared_ptr<RHI::ICommandQueue> commandQueue, std::shared_ptr<RHI::ICommandBuffer> commandBuffer)
     {
         RHI::BufferRegionCopyDescription copyDesc;

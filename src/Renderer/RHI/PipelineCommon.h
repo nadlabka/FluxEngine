@@ -283,6 +283,8 @@ namespace RHI
 
 	struct IComputePipeline
 	{
+		virtual ComputePipelineDescription& GetPipelineDescription() = 0;
+
 		virtual ~IComputePipeline() {}
 	};
 }

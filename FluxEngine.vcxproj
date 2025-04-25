@@ -176,6 +176,7 @@
     <ClCompile Include="src\Renderer\RHI\D3D12\D3D12Buffer.cpp" />
     <ClCompile Include="src\Renderer\RHI\D3D12\D3D12CommandBuffer.cpp" />
     <ClCompile Include="src\Renderer\RHI\D3D12\D3D12CommandQueue.cpp" />
+    <ClCompile Include="src\Renderer\RHI\D3D12\D3D12ComputePipeline.cpp" />
     <ClCompile Include="src\Renderer\RHI\D3D12\D3D12DescriptorHeap.cpp" />
     <ClCompile Include="src\Renderer\RHI\D3D12\D3D12Device.cpp" />
     <ClCompile Include="src\Renderer\RHI\D3D12\D3D12Factory.cpp" />

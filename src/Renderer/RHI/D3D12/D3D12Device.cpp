@@ -12,6 +12,7 @@
 #include "D3D12Sampler.h"
 #include <StringToWstring.h>
 #include <unordered_set>
+#include "D3D12ComputePipeline.h"
 
 RHI::D3D12Device::D3D12Device()
 {
@@ -309,6 +310,21 @@ std::shared_ptr<RHI::IRenderPipeline> RHI::D3D12Device::CreateRenderPipeline(con
     ThrowIfFailed(m_device->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&d3d12PipelineState)));
 
     return std::make_shared<D3D12RenderPipeline>(d3d12PipelineState, renderPipelineDesc);
+}
+
+std::shared_ptr<RHI::IComputePipeline> RHI::D3D12Device::CreateComputePipeline(const ComputePipelineDescription& computePipelineDesc) const
+{
+    D3D12_COMPUTE_PIPELINE_STATE_DESC d3d12PSOdesc = {};
+    d3d12PSOdesc.pRootSignature = std::static_pointer_cast<D3D12PipelineLayout>(computePipelineDesc.pipelineLayout)->m_rootSignature.ptr();
+
+    auto d3d12pipelineStage = std::static_pointer_cast<D3D12Shader>(computePipelineDesc.pipelineStage.shader);
+    d3d12PSOdesc.CS.pShaderBytecode = d3d12pipelineStage->m_compiledShader->GetBufferPointer();
+    d3d12PSOdesc.CS.BytecodeLength = d3d12pipelineStage->m_compiledShader->GetBufferSize();
+
+    RscPtr<ID3D12PipelineState> d3d12PipelineState;
+    ThrowIfFailed(m_device->CreateComputePipelineState(&d3d12PSOdesc, IID_PPV_ARGS(&d3d12PipelineState)));
+
+    return std::make_shared<D3D12ComputePipeline>(d3d12PipelineState, computePipelineDesc);
 }
 
 std::shared_ptr<RHI::ISampler> RHI::D3D12Device::CreateSampler(const SamplerDescription& samplerDesc) const
