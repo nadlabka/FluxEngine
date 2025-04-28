@@ -18,6 +18,7 @@
 #include "../Renderer/DataTypes/PerFrameConstantBuffer.h"
 #include "../Assets/AssetsLoader.h"
 #include <ECS/Components/BehavioralComponents.h>
+#include "../Renderer/Managers/MaterialsManager.h"
 
 Core::FluxEngine::FluxEngine()
 {
@@ -107,6 +108,8 @@ void Core::FluxEngine::Destroy()
     LightSourcesManager::GetInstance().Destroy();
 
     Assets::AssetsLoader::GetInstance().Destroy();
+
+    MaterialsManager::GetInstance().Destroy();
 
     entityPool.Destroy();
     renderer.Destroy();

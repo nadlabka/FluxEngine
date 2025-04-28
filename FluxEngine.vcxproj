@@ -169,6 +169,7 @@
     <ClCompile Include="src\Renderer\DataTypes\BuffersPair.cpp" />
     <ClCompile Include="src\Renderer\Managers\ConstantBufferManager.cpp" />
     <ClCompile Include="src\Renderer\Managers\LightSourcesManager.cpp" />
+    <ClCompile Include="src\Renderer\Managers\MaterialsManager.cpp" />
     <ClCompile Include="src\Renderer\Renderer.cpp" />
     <ClCompile Include="src\Renderer\Renderer1.cpp" />
     <ClCompile Include="src\Renderer\RHI\D3D12\D3D12Adapter.cpp" />

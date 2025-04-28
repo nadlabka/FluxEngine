@@ -28,6 +28,9 @@ namespace RHI
 		virtual void BindRenderPipeline(std::shared_ptr<IRenderPipeline> renderPipeline) = 0;
 		virtual std::shared_ptr<IRenderPipeline> GetCurrentRenderPipeline() = 0;
 
+		virtual void BindComputePipeline(std::shared_ptr<IComputePipeline> computePipeline) = 0;
+		virtual std::shared_ptr<IComputePipeline> GetCurrentComputePipeline() = 0;
+
 		virtual void SubmitToQueue(std::shared_ptr<ICommandQueue> commandQueue) = 0;
 
 		virtual void BeginRecording(std::shared_ptr<ICommandQueue> commandQueue) = 0;

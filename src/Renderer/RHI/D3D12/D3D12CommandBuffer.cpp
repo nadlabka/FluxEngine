@@ -21,11 +21,23 @@ RHI::D3D12CommandBuffer::~D3D12CommandBuffer()
 void RHI::D3D12CommandBuffer::BindRenderPipeline(std::shared_ptr<IRenderPipeline> renderPipeline)
 {
 	m_currentRenderPipeline = std::static_pointer_cast<D3D12RenderPipeline>(renderPipeline);
+	m_currentComputePipeline = nullptr;
 }
 
 std::shared_ptr<RHI::IRenderPipeline> RHI::D3D12CommandBuffer::GetCurrentRenderPipeline()
 {
 	return m_currentRenderPipeline;
+}
+
+void RHI::D3D12CommandBuffer::BindComputePipeline(std::shared_ptr<IComputePipeline> computePipeline)
+{
+	m_currentComputePipeline = std::static_pointer_cast<D3D12ComputePipeline>(computePipeline);
+	m_currentRenderPipeline = nullptr;
+}
+
+std::shared_ptr<RHI::IComputePipeline> RHI::D3D12CommandBuffer::GetCurrentComputePipeline()
+{
+	return m_currentComputePipeline;
 }
 
 void RHI::D3D12CommandBuffer::SubmitToQueue(std::shared_ptr<ICommandQueue> commandQueue)
@@ -45,12 +57,12 @@ void RHI::D3D12CommandBuffer::BeginRecording(std::shared_ptr<ICommandQueue> comm
     d3d12CommandQueue->WaitForFenceValue(m_fenceValue, m_fenceEvent);
 
     m_commandAllocator->Reset();
-    if (!m_currentRenderPipeline)
+    if (!m_currentRenderPipeline && !m_currentComputePipeline)
     {
         m_commandList->Reset(m_commandAllocator.ptr(), nullptr);
         return;
     }
-    m_commandList->Reset(m_commandAllocator.ptr(), m_currentRenderPipeline->m_pipelineState.ptr());
+    m_commandList->Reset(m_commandAllocator.ptr(), m_currentRenderPipeline ? m_currentRenderPipeline->m_pipelineState.ptr() : m_currentComputePipeline->m_pipelineState.ptr());
 
 	auto& descHeapsMgr = DescriptorsHeapsManager::GetInstance();
 
@@ -60,7 +72,8 @@ void RHI::D3D12CommandBuffer::BeginRecording(std::shared_ptr<ICommandQueue> comm
 	ID3D12DescriptorHeap* heaps[] = { cbv_uav_srv_heap, sampler_heap };
 	m_commandList->SetDescriptorHeaps(_countof(heaps), heaps);
 
-	auto d3d12PipelineLayout = std::static_pointer_cast<D3D12PipelineLayout>(m_currentRenderPipeline->m_description.pipelineLayout);
+	auto pipelineLayout = m_currentRenderPipeline ? m_currentRenderPipeline->m_description.pipelineLayout : m_currentComputePipeline->m_description.pipelineLayout;
+	auto d3d12PipelineLayout = std::static_pointer_cast<D3D12PipelineLayout>(pipelineLayout);
 	m_commandList->SetGraphicsRootSignature(d3d12PipelineLayout->m_rootSignature.ptr());
 }
 
@@ -71,12 +84,7 @@ void RHI::D3D12CommandBuffer::EndRecording()
 
 void RHI::D3D12CommandBuffer::BindPipelineResources()
 {
-	if (!m_currentRenderPipeline || !m_commandList)
-	{
-		return; // No pipeline or command list to bind resources for
-	}
-
-	auto d3d12PipelineLayout = std::static_pointer_cast<D3D12PipelineLayout>(m_currentRenderPipeline->m_description.pipelineLayout);
+	auto d3d12PipelineLayout = std::static_pointer_cast<D3D12PipelineLayout>(m_currentRenderPipeline ? m_currentRenderPipeline->m_description.pipelineLayout : m_currentComputePipeline->m_description.pipelineLayout);
 
 	for (const auto& constBufferName : d3d12PipelineLayout->m_pipelineLayoutBindings.m_BoundConstantBuffers.GetConstantBuffersBindingsNames())
 	{
@@ -182,11 +190,6 @@ void RHI::D3D12CommandBuffer::BindPipelineResources()
 
 void RHI::D3D12CommandBuffer::BindRenderTargets()
 {
-	if (!m_currentRenderPipeline || !m_commandList)
-	{
-		return; // No pipeline or command list to bind render targets for
-	}
-
 	auto d3d12RenderPass = std::static_pointer_cast<D3D12RenderPass>(m_currentRenderPipeline->m_description.renderPass);
 	auto& descHeapsMgr = DescriptorsHeapsManager::GetInstance();
 	auto rtv_heap = descHeapsMgr.GetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
