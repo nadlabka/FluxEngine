@@ -489,7 +489,11 @@ void RHI::D3D12CommandBuffer::CopyDataFromBufferToTexture(std::shared_ptr<IBuffe
 			UINT mipDepth = is3DTexture ? static_cast<UINT>(textureDesc.DepthOrArraySize) >> mipLevel : 1U;
 
 			UINT rowPitch = mipWidth * toD3D12Texture->m_dimensionsInfo.m_formatPixelSizeBytes;
-			rowPitch = (rowPitch + D3D12_TEXTURE_DATA_PITCH_ALIGNMENT - 1) & ~(D3D12_TEXTURE_DATA_PITCH_ALIGNMENT - 1);
+
+			if (mipWidth * toD3D12Texture->m_dimensionsInfo.m_formatPixelSizeBytes >= D3D12_TEXTURE_DATA_PITCH_ALIGNMENT)
+			{
+				rowPitch = (rowPitch + D3D12_TEXTURE_DATA_PITCH_ALIGNMENT - 1) & ~(D3D12_TEXTURE_DATA_PITCH_ALIGNMENT - 1);
+			}
 
 			D3D12_TEXTURE_COPY_LOCATION srcLocation = {};
 			srcLocation.pResource = fromBufferPtr;

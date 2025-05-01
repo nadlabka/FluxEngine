@@ -250,7 +250,7 @@ namespace Assets
                     imageData.resize(dataSize);
                     memcpy(imageData.data(), loadedData, dataSize);
                     stbi_image_free(loadedData);
-                    
+
                     isValidTexture = true;
                 }
                 else
@@ -270,6 +270,8 @@ namespace Assets
                 ? formatIt->second
                 : RHI::TextureFormat::RGBA8_UNORM;
 
+            uint32_t mipLevels = static_cast<uint32_t>(std::floor(std::log2(std::max(width, height)))) + 1;
+
             RHI::TextureDescription desc = {
                 .usage = static_cast<RHI::TextureUsage>(RHI::TextureUsage::eTextureUsage_Sampled |
                                                       RHI::TextureUsage::eTextureUsage_TransferDestination),
@@ -280,7 +282,7 @@ namespace Assets
                 .width = static_cast<uint32_t>(width),
                 .height = static_cast<uint32_t>(height),
                 .depth = 1,
-                .mipLevels = 1,
+                .mipLevels = mipLevels,
                 .arrayLayers = 1
             };
 
@@ -291,15 +293,52 @@ namespace Assets
                 continue;
             }
 
-            uint32_t bytesPerPixel = channels;
-            uint32_t textureSize = width * height * bytesPerPixel;
+            DirectX::ScratchImage scratchImage;
+            DirectX::ScratchImage mipChain;
+            DXGI_FORMAT dxgiFormat = RHI::ConvertFormatToD3D12(textureFormat);
 
-            if (textureSize > m_commonUploadBufferSize)
+            HRESULT hr = scratchImage.Initialize2D(dxgiFormat, width, height, 1, 1);
+            if (FAILED(hr))
             {
-                m_commonUploadBufferSize = textureSize * 2;
+                std::cerr << "Failed to initialize scratch image for texture: " << (image.name.empty() ? image.uri : image.name) << std::endl;
+                continue;
+            }
+
+            memcpy(scratchImage.GetPixels(), imageData.data(), imageData.size());
+
+            hr = DirectX::GenerateMipMaps(*scratchImage.GetImage(0, 0, 0), DirectX::TEX_FILTER_DEFAULT, 0, mipChain);
+            if (FAILED(hr))
+            {
+                std::cerr << "Failed to generate mipmaps for texture: " << (image.name.empty() ? image.uri : image.name) << std::endl;
+                scratchImage.Release();
+                continue;
+            }
+
+            std::vector<uint8_t> uploadData;
+            size_t totalSize = 0;
+            for (size_t i = 0; i < mipChain.GetImageCount(); ++i)
+            {
+                const DirectX::Image* mipImage = mipChain.GetImage(i, 0, 0);
+                size_t mipSize = mipImage->rowPitch * mipImage->height;
+                totalSize += mipSize;
+            }
+
+            uploadData.resize(totalSize);
+            size_t currentOffset = 0;
+            for (size_t i = 0; i < mipChain.GetImageCount(); ++i)
+            {
+                const DirectX::Image* mipImage = mipChain.GetImage(i, 0, 0);
+                size_t mipSize = mipImage->rowPitch * mipImage->height;
+                memcpy(uploadData.data() + currentOffset, mipImage->pixels, mipSize);
+                currentOffset += mipSize;
+            }
+
+            if (totalSize > m_commonUploadBufferSize)
+            {
+                m_commonUploadBufferSize = totalSize * 2;
                 RHI::BufferDescription bufferDesc = {
                     .elementsNum = 1,
-                    .elementStride = m_commonUploadBufferSize,
+                    .elementStride = static_cast<uint32_t>(m_commonUploadBufferSize),
                     .unstructuredSize = 0,
                     .access = RHI::BufferAccess::Upload,
                     .usage = RHI::BufferUsage::None,
@@ -310,15 +349,20 @@ namespace Assets
 
             copyDesc.srcOffset = 0;
             copyDesc.destOffset = 0;
-            copyDesc.width = textureSize;
-            m_commonUploadBuffer->UploadData(imageData.data(), copyDesc);
+            copyDesc.width = static_cast<uint32_t>(totalSize);
+            m_commonUploadBuffer->UploadData(uploadData.data(), copyDesc);
 
             commandBuffer->BeginRecording(commandQueue);
-            commandBuffer->CopyDataFromBufferToTexture(m_commonUploadBuffer, texture,
-                { .srcOffset = 0, .destOffset = 0, . width = textureSize });
+            RHI::TextureRegionCopyDescription regionCopyDesc = {
+                .srcOffset = 0
+            };
+            commandBuffer->CopyDataFromBufferToTexture(m_commonUploadBuffer, texture, regionCopyDesc);
             commandBuffer->EndRecording();
             commandBuffer->SubmitToQueue(commandQueue);
             commandBuffer->ForceWaitUntilFinished(commandQueue);
+
+            scratchImage.Release();
+            mipChain.Release();
 
             std::string textureName = image.name.empty() ? image.uri : image.name;
 

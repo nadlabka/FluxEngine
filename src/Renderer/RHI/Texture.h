@@ -132,8 +132,6 @@ namespace RHI
 	struct TextureRegionCopyDescription
 	{
 		uint32_t srcOffset;
-		uint32_t destOffset;
-		uint32_t width;
 	};
 
 	struct ITexture
