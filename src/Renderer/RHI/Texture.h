@@ -56,11 +56,38 @@ namespace RHI
 		RGBA16_FLOAT,
 		RGBA32_FLOAT,
 
-		R32_UINT,
+		R8_UNORM,
+		R8_SNORM,
+		R16_UNORM,
+		R16_SNORM,
+		R16_FLOAT,
 		R32_FLOAT,
+		R32_UINT,
+
+		RG8_UNORM,
+		RG8_SNORM,
+		RG16_UNORM,
+		RG16_SNORM,
+		RG16_FLOAT,
+		RG32_FLOAT,
 
 		D32_FLOAT,
-		D24_UNORM_S8_UINT
+		D24_UNORM_S8_UINT,
+
+		BC1_UNORM,        // DXT1 (RGB, 4-bit block compression)
+		BC1_UNORM_SRGB,   // DXT1 with sRGB
+		BC2_UNORM,        // DXT3 (RGBA, 8-bit block compression)
+		BC2_UNORM_SRGB,   // DXT3 with sRGB
+		BC3_UNORM,        // DXT5 (RGBA, 8-bit block compression)
+		BC3_UNORM_SRGB,   // DXT5 with sRGB
+		BC4_UNORM,        // 1-channel (red) block compression
+		BC4_SNORM,        // Signed 1-channel block compression
+		BC5_UNORM,        // 2-channel (red-green) block compression
+		BC5_SNORM,        // Signed 2-channel block compression
+		BC6H_UFLOAT,      // HDR (unsigned float) block compression
+		BC6H_SFLOAT,      // HDR (signed float) block compression
+		BC7_UNORM,        // High-quality RGBA block compression
+		BC7_UNORM_SRGB    // BC7 with sRGB
 	};
 
 	enum class TextureType : uint8_t 

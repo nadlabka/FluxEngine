@@ -450,12 +450,15 @@ void RHI::D3D12CommandBuffer::CopyDataBetweenBuffers(std::shared_ptr<IBuffer> fr
 	);
 }
 
+// i'm 99.9% sure it shouldn't issue multiple drawcalls, but I have no idea how to do it properly with respect to offset in an upload buffer. FIX LATER
 void RHI::D3D12CommandBuffer::CopyDataFromBufferToTexture(std::shared_ptr<IBuffer> fromBuffer, std::shared_ptr<ITexture> toTexture, const TextureRegionCopyDescription& regionCopyDesc)
 {
 	auto fromD3D12Buffer = std::static_pointer_cast<D3D12Buffer>(fromBuffer);
 	auto toD3D12Texture = std::static_pointer_cast<D3D12Texture>(toTexture);
 
 	auto fromBufferPtr = fromD3D12Buffer->m_buffer.ptr() ? fromD3D12Buffer->m_buffer.ptr() : fromD3D12Buffer->m_allocation->GetResource();
+	auto toTexturePtr = toD3D12Texture->m_texture.ptr() ? toD3D12Texture->m_texture.ptr() : toD3D12Texture->m_allocation->GetResource();
+
 	if (fromD3D12Buffer->m_resourceState != D3D12_RESOURCE_STATE_COPY_SOURCE)
 	{
 		auto transitedRT = CD3DX12_RESOURCE_BARRIER::Transition(fromBufferPtr, fromD3D12Buffer->m_resourceState, D3D12_RESOURCE_STATE_COPY_SOURCE);
@@ -463,7 +466,6 @@ void RHI::D3D12CommandBuffer::CopyDataFromBufferToTexture(std::shared_ptr<IBuffe
 		fromD3D12Buffer->m_resourceState = D3D12_RESOURCE_STATE_COPY_SOURCE;
 	}
 
-	auto toTexturePtr = toD3D12Texture->m_texture.ptr() ? toD3D12Texture->m_texture.ptr() : toD3D12Texture->m_allocation->GetResource();
 	if (toD3D12Texture->m_resourceState != D3D12_RESOURCE_STATE_COPY_DEST)
 	{
 		auto transitedRT = CD3DX12_RESOURCE_BARRIER::Transition(toTexturePtr, toD3D12Texture->m_resourceState, D3D12_RESOURCE_STATE_COPY_DEST);
@@ -471,34 +473,53 @@ void RHI::D3D12CommandBuffer::CopyDataFromBufferToTexture(std::shared_ptr<IBuffe
 		toD3D12Texture->m_resourceState = D3D12_RESOURCE_STATE_COPY_DEST;
 	}
 
-	D3D12_TEXTURE_COPY_LOCATION srcLocation = {};
-	srcLocation.pResource = fromBufferPtr;
-	srcLocation.Type = D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT;
-	srcLocation.PlacedFootprint.Offset = regionCopyDesc.srcOffset;
-
 	D3D12_RESOURCE_DESC textureDesc = toTexturePtr->GetDesc();
-	UINT rowPitch = textureDesc.Width * toD3D12Texture->m_dimensionsInfo.m_formatPixelSizeBytes;
-	UINT height = textureDesc.Height;
-	srcLocation.PlacedFootprint.Footprint.Format = textureDesc.Format;
-	srcLocation.PlacedFootprint.Footprint.Width = static_cast<UINT>(textureDesc.Width);
-	srcLocation.PlacedFootprint.Footprint.Height = static_cast<UINT>(textureDesc.Height);
-	srcLocation.PlacedFootprint.Footprint.Depth = textureDesc.DepthOrArraySize;
-	srcLocation.PlacedFootprint.Footprint.RowPitch = rowPitch;
-		
+	UINT numMipLevels = textureDesc.MipLevels;
+	UINT64 currentSrcOffset = regionCopyDesc.srcOffset;
+	UINT numArraySlices = textureDesc.DepthOrArraySize;
 
-	D3D12_TEXTURE_COPY_LOCATION dstLocation = {};
-	dstLocation.pResource = toTexturePtr;
-	dstLocation.Type = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX;
-	dstLocation.SubresourceIndex = 0;
+	bool is3DTexture = textureDesc.Dimension == D3D12_RESOURCE_DIMENSION_TEXTURE3D;
 
+	for (UINT arraySlice = 0; arraySlice < numArraySlices; ++arraySlice)
+	{
+		for (UINT mipLevel = 0; mipLevel < numMipLevels; ++mipLevel)
+		{
+			UINT mipWidth = static_cast<UINT>(textureDesc.Width) >> mipLevel;
+			UINT mipHeight = static_cast<UINT>(textureDesc.Height) >> mipLevel;
+			UINT mipDepth = is3DTexture ? static_cast<UINT>(textureDesc.DepthOrArraySize) >> mipLevel : 1U;
 
-	D3D12_BOX srcBox = {};
-	srcBox.left = 0;
-	srcBox.top = 0;
-	srcBox.front = 0;
-	srcBox.right = static_cast<UINT>(textureDesc.Width);
-	srcBox.bottom = static_cast<UINT>(textureDesc.Height);
-	srcBox.back = static_cast<UINT>(textureDesc.DepthOrArraySize);
+			UINT rowPitch = mipWidth * toD3D12Texture->m_dimensionsInfo.m_formatPixelSizeBytes;
+			rowPitch = (rowPitch + D3D12_TEXTURE_DATA_PITCH_ALIGNMENT - 1) & ~(D3D12_TEXTURE_DATA_PITCH_ALIGNMENT - 1);
 
-	m_commandList->CopyTextureRegion(&dstLocation, 0, 0, 0, &srcLocation, &srcBox);
+			D3D12_TEXTURE_COPY_LOCATION srcLocation = {};
+			srcLocation.pResource = fromBufferPtr;
+			srcLocation.Type = D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT;
+			srcLocation.PlacedFootprint.Offset = currentSrcOffset;
+			srcLocation.PlacedFootprint.Footprint.Format = textureDesc.Format;
+			srcLocation.PlacedFootprint.Footprint.Width = mipWidth;
+			srcLocation.PlacedFootprint.Footprint.Height = mipHeight;
+			srcLocation.PlacedFootprint.Footprint.Depth = mipDepth;
+			srcLocation.PlacedFootprint.Footprint.RowPitch = rowPitch;
+
+			UINT subresourceIndex = D3D12CalcSubresource(mipLevel, arraySlice, 0, numMipLevels, numArraySlices);
+
+			D3D12_TEXTURE_COPY_LOCATION dstLocation = {};
+			dstLocation.pResource = toTexturePtr;
+			dstLocation.Type = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX;
+			dstLocation.SubresourceIndex = subresourceIndex;
+
+			D3D12_BOX srcBox = {};
+			srcBox.left = 0;
+			srcBox.top = 0;
+			srcBox.front = 0;
+			srcBox.right = mipWidth;
+			srcBox.bottom = mipHeight;
+			srcBox.back = mipDepth;
+
+			m_commandList->CopyTextureRegion(&dstLocation, 0, 0, 0, &srcLocation, &srcBox);
+
+			UINT64 totalBytes = rowPitch * mipHeight * mipDepth;
+			currentSrcOffset += totalBytes;
+		}
+	}
 }

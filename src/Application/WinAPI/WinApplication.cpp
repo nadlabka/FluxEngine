@@ -34,7 +34,7 @@ void Application::WinApplication::Init(Core::FluxEngine* engine, HINSTANCE hInst
     m_window = Application::WinWindow(WindowProc, hInstance, nCmdShow, windowWidth, windowHeight, title, engine);
 
     engine->Init();
-    engine->GetFrameTimer().SetTargetFramerate(60.0f);
+    engine->GetFrameTimer().SetTargetFramerate(120.0f);
 
     //custom client entity-related init logic is currently executed here
     auto& entityManager = Core::EntitiesPool::GetInstance();

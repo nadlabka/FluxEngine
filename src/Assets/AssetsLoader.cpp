@@ -13,6 +13,9 @@
 #include <tinygltf/tiny_gltf.h>
 #include <ECS/Components/MaterialParameters.h>
 #include "../Renderer/RHI/D3D12/D3D12Texture.h"
+#include <DirectXTex.h>
+#include <WICTextureLoader.h>
+#include <DDSTextureLoader.h>
 
 namespace Assets
 {
@@ -174,109 +177,153 @@ namespace Assets
         }
     }
 
-    uint32_t CalculateMipLevels(uint32_t width, uint32_t height)
-    {
-        return static_cast<uint32_t>(std::floor(std::log2(std::max(width, height)))) + 1;
-    }
-
-    uint32_t GetMipLevelSize(uint32_t width, uint32_t height, uint32_t mipLevel, uint32_t bytesPerPixel)
-    {
-        uint32_t mipWidth = std::max(width >> mipLevel, 1u);
-        uint32_t mipHeight = std::max(height >> mipLevel, 1u);
-        return mipWidth * mipHeight * bytesPerPixel;
-    }
-
-    void AssetsLoader::LoadTexturesFromGLTF(const tinygltf::Model& model, const std::wstring& basePath, std::shared_ptr<RHI::ICommandQueue> commandQueue, std::shared_ptr<RHI::ICommandBuffer> commandBuffer)
+    void AssetsLoader::LoadTexturesFromGLTF(const tinygltf::Model& model, const std::wstring& basePath,
+        std::shared_ptr<RHI::ICommandQueue> commandQueue, std::shared_ptr<RHI::ICommandBuffer> commandBuffer)
     {
         RHI::BufferRegionCopyDescription copyDesc;
         auto& rhiContext = RHI::RHIContext::GetInstance();
         auto allocator = rhiContext.GetAllocator();
+        auto& textureManager = AssetsManager<std::shared_ptr<RHI::ITexture>>::GetInstance();
+
+        const std::unordered_map<int, RHI::TextureFormat> formatMap = {
+            {1, RHI::TextureFormat::R8_UNORM},
+            {2, RHI::TextureFormat::RG8_UNORM},
+            {3, RHI::TextureFormat::RGBA8_UNORM},
+            {4, RHI::TextureFormat::RGBA8_UNORM}
+        };
 
         for (const auto& texture : model.textures)
         {
-            if (texture.source >= 0 && texture.source < model.images.size())
+            if (texture.source < 0 || texture.source >= model.images.size())
+                continue;
+
+            const auto& image = model.images[texture.source];
+            if (textureManager.IsAssetNameRegistered(image.name))
+                continue;
+
+            std::vector<unsigned char> imageData;
+            int width = 0, height = 0, channels = 0;
+            bool isValidTexture = false;
+
+            if (image.uri.empty() && !image.image.empty())
             {
-                auto& textureManager = AssetsManager<std::shared_ptr<RHI::ITexture>>::GetInstance();
-                const auto& image = model.images[texture.source];
-                if (textureManager.IsAssetNameRegistered(image.name))
+                width = image.width;
+                height = image.height;
+                channels = image.component;
+                if (width > 0 && height > 0 && channels > 0)
                 {
-                    continue;
+                    if (channels == 3)
+                    {
+                        imageData.resize(width * height * 4);
+                        for (int i = 0, j = 0; i < image.image.size(); i += 3, j += 4)
+                        {
+                            imageData[j] = image.image[i];
+                            imageData[j + 1] = image.image[i + 1];
+                            imageData[j + 2] = image.image[i + 2];
+                            imageData[j + 3] = 255;
+                        }
+                        channels = 4;
+                    }
+                    else
+                    {
+                        imageData.assign(image.image.begin(), image.image.end());
+                    }
+                    isValidTexture = true;
                 }
-                std::string uri = image.uri;
+            }
+            else if (!image.uri.empty())
+            {
+                std::wstring fullPath = basePath + L"/" + std::filesystem::path(image.uri).wstring();
+                std::string utf8Path = std::filesystem::path(fullPath).string();
 
-                std::vector<unsigned char> imageData;
-                int width = 0, height = 0, channels = 0;
+                int reqChannels = (image.component >= 3) ? STBI_rgb_alpha : 0;
+                unsigned char* loadedData = stbi_load(utf8Path.c_str(), &width, &height, &channels, reqChannels);
 
-                if (uri.empty() && !image.image.empty())
+                if (loadedData && width > 0 && height > 0 && channels > 0)
                 {
-                    width = image.width;
-                    height = image.height;
-                    channels = image.component;
-                    imageData.assign(image.image.begin(), image.image.end());
-                }
-                else if (!uri.empty())
-                {
-                    std::wstring fullPath = basePath + L"/" + std::filesystem::path(uri).wstring();
-                    std::string utf8Path = std::filesystem::path(fullPath).string();
-                    unsigned char* loadedData = stbi_load(utf8Path.c_str(), &width, &height, &channels, STBI_rgb_alpha);
-                    ASSERT(loadedData, "Failed to load texture file: %s", utf8Path.c_str());
+                    if (reqChannels == STBI_rgb_alpha)
+                    {
+                        channels = 4;
+                    }
 
-                    uint32_t dataSize = width * height * 4;
+                    uint32_t dataSize = width * height * channels;
                     imageData.resize(dataSize);
                     memcpy(imageData.data(), loadedData, dataSize);
                     stbi_image_free(loadedData);
+                    
+                    isValidTexture = true;
                 }
                 else
                 {
-                    std::cerr << "Invalid texture skipped during texture loading" << std::endl;
-                    continue;
+                    std::cerr << "Failed to load texture file: " << utf8Path << std::endl;
                 }
-
-                RHI::TextureDescription desc = {
-                    .usage = static_cast<RHI::TextureUsage>(RHI::TextureUsage::eTextureUsage_Sampled | RHI::TextureUsage::eTextureUsage_TransferDestination),
-                    .aspect = RHI::TextureAspect::eTextureAspect_HasColor,
-                    .format = RHI::TextureFormat::RGBA8_UNORM,
-                    .type = RHI::TextureType::Texture2D,
-                    .layout = RHI::TextureLayout::Undefined,
-                    .width = static_cast<uint32_t>(width),
-                    .height = static_cast<uint32_t>(height),
-                    .depth = 1,
-                    .mipLevels = 1,
-                    .arrayLayers = 1
-                };
-                auto texture = allocator->CreateTexture(desc);
-
-                uint32_t textureSize = width * height * 4;
-                if (textureSize > m_commonUploadBufferSize)
-                {
-                    m_commonUploadBufferSize = textureSize * 2;
-                    RHI::BufferDescription newDesc = {
-                        .elementsNum = 1,
-                        .elementStride = m_commonUploadBufferSize,
-                        .unstructuredSize = 0,
-                        .access = RHI::BufferAccess::Upload,
-                        .usage = RHI::BufferUsage::None,
-                        .flags = {.requiredCopyStateToInit = false }
-                    };
-                    m_commonUploadBuffer = allocator->CreateBuffer(newDesc);
-                }
-
-                copyDesc.srcOffset = 0;
-                copyDesc.destOffset = 0;
-                copyDesc.width = textureSize;
-                m_commonUploadBuffer->UploadData(imageData.data(), copyDesc);
-
-                commandBuffer->BeginRecording(commandQueue);
-                commandBuffer->CopyDataFromBufferToTexture(m_commonUploadBuffer, texture, { .srcOffset = 0, .destOffset = 0, .width = textureSize });
-                commandBuffer->EndRecording();
-                commandBuffer->SubmitToQueue(commandQueue);
-                commandBuffer->ForceWaitUntilFinished(commandQueue);
-
-                ASSERT(!image.name.empty() || !image.uri.empty(), "TEXTURE DOESN'T HAVE A NAME");
-                std::string textureName = image.name.empty() ? image.uri : image.name;
-                auto textureAssetId = textureManager.CreateAsset(std::move(texture));
-                textureManager.AssignName(textureAssetId, textureName);
             }
+
+            if (!isValidTexture)
+            {
+                std::cerr << "Invalid texture skipped: " << (image.name.empty() ? image.uri : image.name) << std::endl;
+                continue;
+            }
+
+            auto formatIt = formatMap.find(channels);
+            RHI::TextureFormat textureFormat = (formatIt != formatMap.end())
+                ? formatIt->second
+                : RHI::TextureFormat::RGBA8_UNORM;
+
+            RHI::TextureDescription desc = {
+                .usage = static_cast<RHI::TextureUsage>(RHI::TextureUsage::eTextureUsage_Sampled |
+                                                      RHI::TextureUsage::eTextureUsage_TransferDestination),
+                .aspect = RHI::TextureAspect::eTextureAspect_HasColor,
+                .format = textureFormat,
+                .type = RHI::TextureType::Texture2D,
+                .layout = RHI::TextureLayout::Undefined,
+                .width = static_cast<uint32_t>(width),
+                .height = static_cast<uint32_t>(height),
+                .depth = 1,
+                .mipLevels = 1,
+                .arrayLayers = 1
+            };
+
+            auto texture = allocator->CreateTexture(desc);
+            if (!texture)
+            {
+                std::cerr << "Failed to create texture: " << (image.name.empty() ? image.uri : image.name) << std::endl;
+                continue;
+            }
+
+            uint32_t bytesPerPixel = channels;
+            uint32_t textureSize = width * height * bytesPerPixel;
+
+            if (textureSize > m_commonUploadBufferSize)
+            {
+                m_commonUploadBufferSize = textureSize * 2;
+                RHI::BufferDescription bufferDesc = {
+                    .elementsNum = 1,
+                    .elementStride = m_commonUploadBufferSize,
+                    .unstructuredSize = 0,
+                    .access = RHI::BufferAccess::Upload,
+                    .usage = RHI::BufferUsage::None,
+                    .flags = {.requiredCopyStateToInit = false }
+                };
+                m_commonUploadBuffer = allocator->CreateBuffer(bufferDesc);
+            }
+
+            copyDesc.srcOffset = 0;
+            copyDesc.destOffset = 0;
+            copyDesc.width = textureSize;
+            m_commonUploadBuffer->UploadData(imageData.data(), copyDesc);
+
+            commandBuffer->BeginRecording(commandQueue);
+            commandBuffer->CopyDataFromBufferToTexture(m_commonUploadBuffer, texture,
+                { .srcOffset = 0, .destOffset = 0, . width = textureSize });
+            commandBuffer->EndRecording();
+            commandBuffer->SubmitToQueue(commandQueue);
+            commandBuffer->ForceWaitUntilFinished(commandQueue);
+
+            std::string textureName = image.name.empty() ? image.uri : image.name;
+
+            auto textureAssetId = textureManager.CreateAsset(std::move(texture));
+            textureManager.AssignName(textureAssetId, textureName);
         }
     }
 
