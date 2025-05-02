@@ -306,7 +306,7 @@ namespace Assets
 
             memcpy(scratchImage.GetPixels(), imageData.data(), imageData.size());
 
-            hr = DirectX::GenerateMipMaps(*scratchImage.GetImage(0, 0, 0), DirectX::TEX_FILTER_DEFAULT, 0, mipChain);
+            hr = DirectX::GenerateMipMaps(*scratchImage.GetImage(0, 0, 0), DirectX::TEX_FILTER_DEFAULT, 0, mipChain); //normals must be processed separately
             if (FAILED(hr))
             {
                 std::cerr << "Failed to generate mipmaps for texture: " << (image.name.empty() ? image.uri : image.name) << std::endl;
