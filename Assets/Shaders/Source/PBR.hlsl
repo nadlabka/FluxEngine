@@ -322,7 +322,7 @@ float4 PSMain(PSInput input) : SV_TARGET
         {
             for (int n = -1; n <= 1; n++)
             {
-                float2 sampleCoord = shadowTexCoord.xy + coordOffset;
+                float2 sampleCoord = shadowTexCoord.xy + coordOffset * int2(m, n);
                 shadowed += shadowmap.SampleCmpLevelZero(shadowSampler, sampleCoord, shadowTexCoord.z);
             }
         }

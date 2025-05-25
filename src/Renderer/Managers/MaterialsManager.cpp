@@ -336,8 +336,8 @@ std::shared_ptr<RHI::IRenderPipeline> MaterialsManager::CreateOpaqueDepthOnlyPip
     rasterizerDesc.depthBias = 
     {
             .clampValue = 0.0f,
-            .constantFactor = -3.5f,
-            .slopeScaledFactor = -2.0f,
+            .constantFactor = -5.0f,
+            .slopeScaledFactor = -5.0f,
             .enable = true
     };
 

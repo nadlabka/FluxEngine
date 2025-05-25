@@ -89,9 +89,9 @@ void Application::WinApplication::Init(Core::FluxEngine* engine, HINSTANCE hInst
 
     auto directionalLightEntity = entityManager.CreateEntity();
     auto& directionalLightTransformComponent = directionalLightEntity.AddComponent<Components::Transform>();
-    directionalLightTransformComponent.position = { 0, 15, 0 };
+    directionalLightTransformComponent.position = { 0, 15, -2 };
     directionalLightTransformComponent.rotationAngles = { 0.0f, 80.0f, 0.0f };
-    directionalLightTransformComponent.scale = { 50, 30, 20 };
+    directionalLightTransformComponent.scale = { 32, 20, 20 };
     auto& directionalLightEntityHierarchyComp = directionalLightEntity.AddComponent<Components::HierarchyRelationship>();
     directionalLightEntity.AddComponent<Components::TransformFlags>();
     directionalLightEntity.AddComponent<Components::AccumulatedHierarchicalTransformMatrix>();
