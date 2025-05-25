@@ -129,6 +129,16 @@ namespace RHI
 		uint8_t clearStencilValue = 0u;
 	};
 
+	struct TextureDimensionsInfo
+	{
+		uint32_t m_width = 0;
+		uint32_t m_height = 0;
+		uint32_t m_depth = 1;
+		uint32_t m_mipLevels = 1;
+		uint32_t m_arrayLayers = 1;
+		uint32_t m_formatPixelSizeBytes = 4;
+	};
+
 	struct TextureRegionCopyDescription
 	{
 		uint32_t srcOffset;
@@ -136,6 +146,9 @@ namespace RHI
 
 	struct ITexture
 	{
+		ITexture(const TextureDimensionsInfo& dimensionsInfo) : m_dimensionsInfo(dimensionsInfo) {}
 		virtual ~ITexture() {}
+
+		TextureDimensionsInfo m_dimensionsInfo;
 	};
 }

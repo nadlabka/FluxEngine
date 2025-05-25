@@ -17,6 +17,7 @@
 #include <ECS/Managers/TransformSystem.h>
 #include "../../Assets/AssetsLoader.h"
 #include <ECS/Components/BehavioralComponents.h>
+#include <ECS/Components/LightShadow.h>
 
 Application::WinWindow Application::WinApplication::m_window;
 std::wstring Application::WinApplication::m_title;
@@ -50,21 +51,19 @@ void Application::WinApplication::Init(Core::FluxEngine* engine, HINSTANCE hInst
     cameraComponent.nearPlane = 0.01f;
     cameraComponent.farPlane = 1000.0f;
     cameraComponent.fovY = 60.0f;
-    cameraComponent.forward.x = std::cos(cameraTransformComponent.rotationAngles.y) * std::sin(cameraTransformComponent.rotationAngles.x);
-    cameraComponent.forward.y = std::sin(cameraTransformComponent.rotationAngles.y);
-    cameraComponent.forward.z = std::cos(cameraTransformComponent.rotationAngles.y) * std::cos(cameraTransformComponent.rotationAngles.x);
-    cameraComponent.forward.Normalize();
-    Vector3 globalUp{ 0.0f, 1.0f, 0.0f };
-    cameraComponent.right = globalUp.Cross(cameraComponent.forward);
-    cameraComponent.right.Normalize();
-    cameraComponent.up = cameraComponent.forward.Cross(cameraComponent.right);
-    cameraComponent.up.Normalize();
+    auto cameraTransform = Matrix::CreateFromYawPitchRoll(
+        DirectX::XMConvertToRadians(cameraTransformComponent.rotationAngles.x),
+        DirectX::XMConvertToRadians(cameraTransformComponent.rotationAngles.y),
+        DirectX::XMConvertToRadians(cameraTransformComponent.rotationAngles.z));
+    cameraComponent.forward = cameraTransform.Backward();
+    cameraComponent.right = cameraTransform.Right();
+    cameraComponent.up = cameraTransform.Up();
     auto& cameraControlComponent = camera.AddComponent<Components::CameraControl>();
-    cameraControlComponent.sensetivity = 0.2f;
-    cameraControlComponent.speed = 1.0f;
+    cameraControlComponent.sensetivity = 8.5f;
+    cameraControlComponent.speed = 2.5f;
     cameraControlComponent.isRotating = false;
 
-    auto blueLightEntity = entityManager.CreateEntity();
+    /*auto blueLightEntity = entityManager.CreateEntity();
     auto& blueLightTransformComponent = blueLightEntity.AddComponent<Components::Transform>();
     blueLightTransformComponent.position = { 0, 6, 0 };
     blueLightTransformComponent.rotationAngles = { 0.0f, 0.0f, 0.0f };
@@ -86,24 +85,42 @@ void Application::WinApplication::Init(Core::FluxEngine* engine, HINSTANCE hInst
     pinkLightEntity.AddComponent<Components::AccumulatedHierarchicalTransformMatrix>();
     auto& pinkLightPointComponent = pinkLightEntity.AddComponent<Components::PointLight>();
     pinkLightPointComponent.color = { 0.65f, 0.0f, 0.1f };
-    pinkLightPointComponent.intensity = 50.0f;
+    pinkLightPointComponent.intensity = 50.0f;*/
+
+    auto directionalLightEntity = entityManager.CreateEntity();
+    auto& directionalLightTransformComponent = directionalLightEntity.AddComponent<Components::Transform>();
+    directionalLightTransformComponent.position = { 0, 15, 0 };
+    directionalLightTransformComponent.rotationAngles = { 0.0f, 80.0f, 0.0f };
+    directionalLightTransformComponent.scale = { 50, 30, 20 };
+    auto& directionalLightEntityHierarchyComp = directionalLightEntity.AddComponent<Components::HierarchyRelationship>();
+    directionalLightEntity.AddComponent<Components::TransformFlags>();
+    directionalLightEntity.AddComponent<Components::AccumulatedHierarchicalTransformMatrix>();
+    auto& directionalLightPointComponent = directionalLightEntity.AddComponent<Components::DirectionalLight>();
+    directionalLightPointComponent.color = { 0.95f, 0.80f, 0.70f };
+    directionalLightPointComponent.irradiance = 10.0f;
+    directionalLightEntity.AddComponent<Components::LightShadowmap>();
 
     auto& lightSourcesManager = LightSourcesManager::GetInstance();
-    lightSourcesManager.AddPointLight(blueLightEntity);
-    lightSourcesManager.UpdatePointLightParams(blueLightEntity, blueLightPointComponent);
-    lightSourcesManager.AddPointLight(pinkLightEntity);
-    lightSourcesManager.UpdatePointLightParams(pinkLightEntity, pinkLightPointComponent);
+    //lightSourcesManager.AddPointLight(blueLightEntity);
+    //lightSourcesManager.UpdatePointLightParams(blueLightEntity, blueLightPointComponent);
+    //lightSourcesManager.AddPointLight(pinkLightEntity);
+    //lightSourcesManager.UpdatePointLightParams(pinkLightEntity, pinkLightPointComponent);
+    lightSourcesManager.AddDirectionalLight(directionalLightEntity);
+    lightSourcesManager.UpdateDirectionalLightParams(directionalLightEntity, directionalLightPointComponent);
 
     auto& registry = entityManager.GetRegistry();
 
-    transformSystem.MarkDirty(registry, blueLightEntity);
-    transformSystem.MarkDirty(registry, pinkLightEntity);
+    //transformSystem.MarkDirty(registry, blueLightEntity);
+    //transformSystem.MarkDirty(registry, pinkLightEntity);
+    transformSystem.MarkDirty(registry, directionalLightEntity);
 
     auto& loader = Assets::AssetsLoader::GetInstance();
     auto& renderer = Renderer1::GetInstance();
     auto commandQueue = renderer.m_commandQueue;
     auto commandBuffer = renderer.m_commandBuffer;
     loader.LoadGLTFScene(L"../../../../Assets/Models/Sponza/Sponza.gltf", commandQueue, commandBuffer);
+
+    lightSourcesManager.CreateDirectionalLightShadowMap(directionalLightEntity);
 
     InputManager& input = InputManager::GetInstance();
 
@@ -184,20 +201,18 @@ void Application::WinApplication::Init(Core::FluxEngine* engine, HINSTANCE hInst
             Vector2 delta = mouseManager.GetMouseDelta();
 
             transformComponent.rotationAngles.x += delta.x * controlComponent.sensetivity * timer.GetDeltaTime();
-            transformComponent.rotationAngles.y -= delta.y * controlComponent.sensetivity * timer.GetDeltaTime();
+            transformComponent.rotationAngles.y += delta.y * controlComponent.sensetivity * timer.GetDeltaTime();
 
             // Clamp pitch
-            transformComponent.rotationAngles.y = std::clamp(transformComponent.rotationAngles.y, -89.0f * 3.14159f / 180.0f, 89.0f * 3.14159f / 180.0f);
+            transformComponent.rotationAngles.y = std::clamp(transformComponent.rotationAngles.y, -89.9f, 89.9f);
 
-            cameraComponent.forward.x = std::cos(transformComponent.rotationAngles.y) * std::sin(transformComponent.rotationAngles.x);
-            cameraComponent.forward.y = std::sin(transformComponent.rotationAngles.y);
-            cameraComponent.forward.z = std::cos(transformComponent.rotationAngles.y) * std::cos(transformComponent.rotationAngles.x);
-            cameraComponent.forward.Normalize();
-            Vector3 globalUp{ 0.0f, 1.0f, 0.0f };
-            cameraComponent.right = globalUp.Cross(cameraComponent.forward);
-            cameraComponent.right.Normalize();
-            cameraComponent.up = cameraComponent.forward.Cross(cameraComponent.right);
-            cameraComponent.up.Normalize();
+            auto cameraTransform = Matrix::CreateFromYawPitchRoll(
+                DirectX::XMConvertToRadians(transformComponent.rotationAngles.x),
+                DirectX::XMConvertToRadians(transformComponent.rotationAngles.y),
+                DirectX::XMConvertToRadians(transformComponent.rotationAngles.z));
+            cameraComponent.forward = cameraTransform.Backward();
+            cameraComponent.right = cameraTransform.Right();
+            cameraComponent.up = cameraTransform.Up();
         });
 
     input.RegisterMouseButtonCallback(eMouseButton_Left, eMouseButtonState_Released,

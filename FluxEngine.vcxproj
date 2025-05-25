@@ -205,6 +205,7 @@
     <ClInclude Include="src\Core\ECS\Components\Camera.h" />
     <ClInclude Include="src\Core\ECS\Components\HierarchyRelationship.h" />
     <ClInclude Include="src\Core\ECS\Components\InstancedStaticMesh.h" />
+    <ClInclude Include="src\Core\ECS\Components\LightShadow.h" />
     <ClInclude Include="src\Core\ECS\Components\LightSources.h" />
     <ClInclude Include="src\Core\ECS\Components\MaterialParameters.h" />
     <ClInclude Include="src\Core\ECS\Components\Transform.h" />

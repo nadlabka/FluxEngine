@@ -4,7 +4,7 @@ cbuffer BoundResources : register(b0)
     uint pointSamplerIndex;
 };
 
-float3 ACESTonemap(const float3 rgb)
+float3 ACESTonemap(float3 rgb)
 {
     const float3x3 IN = float3x3(
         0.59719, 0.35458, 0.04823,
@@ -17,14 +17,16 @@ float3 ACESTonemap(const float3 rgb)
         -0.10208, 1.10813, -0.00605,
         -0.00327, -0.07276, 1.07602
     );
-
-    float3 col = mul(rgb, IN);
-
-    const float3 a = col * (col + 0.0245786f) - 0.000090537f;
-    const float3 b = col * (0.983729f * col + 0.4329510f) + 0.238081f;
-    col = a / b;
-
-    return clamp(mul(col, OUT), 0., 1.);
+    
+    rgb = max(0.0, rgb);
+    
+    float3 col = mul(IN, rgb);
+    
+    float3 a = col * (col + 0.0245786f) - 0.000090537f;
+    float3 b = col * (0.983729f * col + 0.4329510f) + 0.238081f;
+    col = a / max(b, 0.0001f);
+    
+    return clamp(mul(OUT, col), 0.0, 1.0);
 }
 
 float3 GammaCorrect(float3 color)

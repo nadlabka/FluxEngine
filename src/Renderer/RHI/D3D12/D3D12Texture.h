@@ -13,16 +13,6 @@ namespace RHI
 	D3D12_SRV_DIMENSION  ConvertTextureTypeToSRVDimension(TextureType type);
     D3D12_RESOURCE_STATES ConvertTextureLayoutToResourceState(TextureLayout layout);
 	uint32_t GetDXGIFormatSizeInBytes(DXGI_FORMAT format);
-	
-	struct TextureDimensionsInfo
-	{
-		uint32_t m_width = 0;
-		uint32_t m_height = 0;
-		uint32_t m_depth = 1;
-		uint32_t m_mipLevels = 1;
-		uint32_t m_arrayLayers = 1;
-		uint32_t m_formatPixelSizeBytes = 4;
-	};
 
 	struct D3D12Texture : public ITexture, public D3D12StatefulResource
 	{
@@ -32,8 +22,6 @@ namespace RHI
 		~D3D12Texture();
 
 		void AllocateDescriptorsInHeaps(const TextureDescription& desc);
-
-		TextureDimensionsInfo m_dimensionsInfo;
 
 		std::vector<uint32_t> m_UAVDescriptorsIndices;
 		std::vector<uint32_t> m_RTVDescriptorsIndices;

@@ -5,31 +5,33 @@ D3D12_SAMPLER_DESC RHI::ConvertSamplerDescriptionToD3D12(const SamplerDescriptio
 {
     D3D12_SAMPLER_DESC d3dDesc = {};
 
+    bool useComparison = desc.ComparisonFunc != SamplerComparisonFunc::Never;
+
     switch (desc.Filter)
     {
     case FilterMode::Nearest:
-        d3dDesc.Filter = D3D12_FILTER_MIN_MAG_MIP_POINT;
+        d3dDesc.Filter = useComparison ? D3D12_FILTER_COMPARISON_MIN_MAG_MIP_POINT : D3D12_FILTER_MIN_MAG_MIP_POINT;
         break;
     case FilterMode::Linear:
-        d3dDesc.Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
+        d3dDesc.Filter = useComparison ? D3D12_FILTER_COMPARISON_MIN_MAG_MIP_LINEAR : D3D12_FILTER_MIN_MAG_MIP_LINEAR;
         break;
     case FilterMode::Anisotropic:
-        d3dDesc.Filter = D3D12_FILTER_ANISOTROPIC;
+        d3dDesc.Filter = useComparison ? D3D12_FILTER_COMPARISON_ANISOTROPIC : D3D12_FILTER_ANISOTROPIC;
         break;
     }
 
     auto mapAddressMode = [](AddressMode mode) -> D3D12_TEXTURE_ADDRESS_MODE
+    {
+        switch (mode)
         {
-            switch (mode)
-            {
-            case AddressMode::Wrap: return D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-            case AddressMode::Mirror: return D3D12_TEXTURE_ADDRESS_MODE_MIRROR;
-            case AddressMode::Clamp: return D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
-            case AddressMode::Border: return D3D12_TEXTURE_ADDRESS_MODE_BORDER;
-            case AddressMode::MirrorOnce: return D3D12_TEXTURE_ADDRESS_MODE_MIRROR_ONCE;
-            default: return D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-            }
-        };
+        case AddressMode::Wrap: return D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+        case AddressMode::Mirror: return D3D12_TEXTURE_ADDRESS_MODE_MIRROR;
+        case AddressMode::Clamp: return D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
+        case AddressMode::Border: return D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+        case AddressMode::MirrorOnce: return D3D12_TEXTURE_ADDRESS_MODE_MIRROR_ONCE;
+        default: return D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+        }
+    };
     d3dDesc.AddressU = mapAddressMode(desc.AddressU);
     d3dDesc.AddressV = mapAddressMode(desc.AddressV);
     d3dDesc.AddressW = mapAddressMode(desc.AddressW);

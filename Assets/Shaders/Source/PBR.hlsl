@@ -7,6 +7,7 @@ cbuffer BoundResources : register(b0)
     uint spotLightsBufferIndex;
     uint directionalLightsBufferIndex;
     uint samplerDescriptorIndex;
+    uint shadowSamplerDescriptorIndex;
 };
 
 cbuffer PerView : register(b1)
@@ -53,8 +54,8 @@ struct PerMeshData
 
 struct PointLightSourceData
 {
-    float4x4 worldToLight;
-    float4x4 lightToWorld;
+    float4x4 worldToLightView;
+    float4x4 worldToLightClip;
     float4 color;
     float3 position;
     float padding;
@@ -62,8 +63,8 @@ struct PointLightSourceData
 
 struct SpotLightSourceData
 {
-    float4x4 worldToLight;
-    float4x4 lightToWorld;
+    float4x4 worldToLightView;
+    float4x4 worldToLightClip;
     float3 position;
     float innerConeCos;
     float4 color;
@@ -73,11 +74,11 @@ struct SpotLightSourceData
 
 struct DirectionalLightSourceData
 {
-    float4x4 worldToLight;
-    float4x4 lightToWorld;
+    float4x4 worldToLightView;
+    float4x4 worldToLightClip;
     float4 color;
     float3 direction;
-    float padding;
+    uint shadowmapDescriptorIndex;
 };
 
 struct VSInput
@@ -131,7 +132,7 @@ float3 Diffuse_Lambert(float3 albedo)
     return albedo / PI;
 }
 
-float Attenuate(float distance, float radius)
+float Attenuate(float distance)
 {
     float d = max(distance, 0.001);
     return 1.0 / (d * d);
@@ -176,8 +177,9 @@ float4 PSMain(PSInput input) : SV_TARGET
     StructuredBuffer<PBRMaterial> perInstanceMaterialParamsBuffer = ResourceDescriptorHeap[perInstanceMaterialParamsBufferIndex];
     PBRMaterial material = perInstanceMaterialParamsBuffer[input.instanceId];
     SamplerState defaultSampler = SamplerDescriptorHeap[samplerDescriptorIndex];
+    SamplerComparisonState shadowSampler = SamplerDescriptorHeap[shadowSamplerDescriptorIndex];
     
-    float3 albedo = float3(0.5, 0.5, 0.5);
+    float4 albedo = float4(0.5, 0.5, 0.5, 1.0);
     float metallic = 0.2;
     float roughness = 0.5;
     float ao = 1.0;
@@ -187,7 +189,9 @@ float4 PSMain(PSInput input) : SV_TARGET
     if (material.albedoIndex != 0xffffffff)
     {
         Texture2D albedoMap = ResourceDescriptorHeap[material.albedoIndex];
-        albedo = albedoMap.Sample(defaultSampler, input.texCoords, 0).rgb;
+        albedo = albedoMap.Sample(defaultSampler, input.texCoords, 0);
+        if (albedo.w < 0.25) discard;
+
     }
     if (material.normalIndex != 0xffffffff)
     {
@@ -218,7 +222,7 @@ float4 PSMain(PSInput input) : SV_TARGET
     float3 V = normalize(cameraPosition.xyz - input.worldPosition);
     float NdotV = max(dot(N, V), 0.0);
     
-    float3 F0 = lerp(float3(0.04, 0.04, 0.04), albedo, metallic);
+    float3 F0 = lerp(float3(0.04, 0.04, 0.04), albedo.xyz, metallic);
 
     float3 Lo = float3(0.0, 0.0, 0.0);
     
@@ -235,7 +239,7 @@ float4 PSMain(PSInput input) : SV_TARGET
         float NdotH = max(dot(N, H), 0.0);
         float HdotV = max(dot(H, V), 0.0);
         
-        float attenuation = Attenuate(distance, 10.0);
+        float attenuation = Attenuate(distance);
         float3 radiance = light.color.rgb * light.color.a * attenuation;
         
         float D = D_GGX(NdotH, roughness);
@@ -245,7 +249,7 @@ float4 PSMain(PSInput input) : SV_TARGET
         float3 specular = (D * F * G) / max(4.0 * NdotV * NdotL, 0.001);
         float3 kS = F;
         float3 kD = (1.0 - kS) * (1.0 - metallic);
-        float3 diffuse = kD * Diffuse_Lambert(albedo);
+        float3 diffuse = kD * Diffuse_Lambert(albedo.xyz);
 
         Lo += (diffuse + specular) * radiance * NdotL;
     }
@@ -267,7 +271,7 @@ float4 PSMain(PSInput input) : SV_TARGET
         float epsilon = light.innerConeCos - light.outerConeCos;
         float intensity = clamp((theta - light.outerConeCos) / epsilon, 0.0, 1.0);
         
-        float attenuation = Attenuate(distance, 10.0) * intensity;
+        float attenuation = Attenuate(distance) * intensity;
         float3 radiance = light.color.rgb * light.color.a * attenuation;
         
         float D = D_GGX(NdotH, roughness);
@@ -277,7 +281,7 @@ float4 PSMain(PSInput input) : SV_TARGET
         float3 specular = (D * F * G) / max(4.0 * NdotV * NdotL, 0.001);
         float3 kS = F;
         float3 kD = (1.0 - kS) * (1.0 - metallic);
-        float3 diffuse = kD * Diffuse_Lambert(albedo);
+        float3 diffuse = kD * Diffuse_Lambert(albedo.xyz);
 
         Lo += (diffuse + specular) * radiance * NdotL;
     }
@@ -302,12 +306,33 @@ float4 PSMain(PSInput input) : SV_TARGET
         float3 specular = (D * F * G) / max(4.0 * NdotV * NdotL, 0.001);
         float3 kS = F;
         float3 kD = (1.0 - kS) * (1.0 - metallic);
-        float3 diffuse = kD * Diffuse_Lambert(albedo);
+        float3 diffuse = kD * Diffuse_Lambert(albedo.xyz);
+        
+        float4 shadowTexCoord = mul(float4(input.worldPosition, 1.0f), light.worldToLightClip);
+        shadowTexCoord.xy = saturate(shadowTexCoord.xy / float2(2.0f, -2.0f) + 0.5f);
+        Texture2D<float> shadowmap = ResourceDescriptorHeap[light.shadowmapDescriptorIndex];
+        
+        uint2 shadowmapDimensions = uint2(0, 0);
+        shadowmap.GetDimensions(shadowmapDimensions.x, shadowmapDimensions.y);
+        
+        float shadowed = 0.0f;
+        float2 coordOffset = 1.0f / shadowmapDimensions;
 
-        Lo += (diffuse + specular) * radiance * NdotL;
+        for (int m = -1; m <= 1; m++)
+        {
+            for (int n = -1; n <= 1; n++)
+            {
+                float2 sampleCoord = shadowTexCoord.xy + coordOffset;
+                shadowed += shadowmap.SampleCmpLevelZero(shadowSampler, sampleCoord, shadowTexCoord.z);
+            }
+        }
+        shadowed /= 9.0f;
+        float shadowTerm = smoothstep(0.02f, 1.0f, shadowed);
+
+        Lo += (diffuse + specular) * radiance * NdotL * shadowTerm;
     }
     
-    float3 ambient = float3(0.03, 0.03, 0.03) * albedo * ao;
+    float3 ambient = float3(0.03, 0.03, 0.03) * albedo.xyz * ao;
     
     float3 color = ambient + Lo + emissive;
 

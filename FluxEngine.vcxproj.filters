@@ -392,5 +392,8 @@
     <ClInclude Include="src\Core\ECS\Components\BehavioralComponents.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\Core\ECS\Components\LightShadow.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

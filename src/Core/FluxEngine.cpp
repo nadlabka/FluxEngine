@@ -76,10 +76,10 @@ void Core::FluxEngine::Update()
         FillPerViewBuffer(perViewBuffer, cameraView.get<Components::Transform>(entity), cameraView.get<Components::Camera>(entity), window.GetWidth(), window.GetHeight());
     }
     auto& lightSourcesMgr = LightSourcesManager::GetInstance();
-    auto& perViewBuffer = constantBufferManager.GetCpuBuffer<PerFrameConstantBuffer>("PerFrame");
-    perViewBuffer.pointLightNum = lightSourcesMgr.GetPointLightsNum();
-    perViewBuffer.spotLightNum = lightSourcesMgr.GetSpotLightsNum();
-    perViewBuffer.directionalLightNum = lightSourcesMgr.GetDirectionalLightsNum();
+    auto& perFrameBuffer = constantBufferManager.GetCpuBuffer<PerFrameConstantBuffer>("PerFrame");
+    perFrameBuffer.pointLightNum = lightSourcesMgr.GetPointLightsNum();
+    perFrameBuffer.spotLightNum = lightSourcesMgr.GetSpotLightsNum();
+    perFrameBuffer.directionalLightNum = lightSourcesMgr.GetDirectionalLightsNum();
 }
 
 void Core::FluxEngine::Render()

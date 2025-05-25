@@ -8,10 +8,13 @@
 class LightSourcesManager
 {
 public:
+    static constexpr float lightSourceNearPlane = 0.01f;
+    static constexpr float lightSourceFarPlane = 1.0f; //scale comes from view maatrix that is computed from transform
+
     struct PerLightMatrices
     {
-        Matrix worldToLight;
-        Matrix lightToWorld;
+        Matrix worldToLightView;
+        Matrix worldToLightClip;
     };
 
     struct PointLightSourceData
@@ -37,7 +40,7 @@ public:
         PerLightMatrices matrices;
         Vector4 color;       // w contains intensity/irradiance
         Vector3 direction;
-        float padding;
+        uint32_t shadowmapDescriptorIndex = 0xffffffff;
     };
 
     static LightSourcesManager& GetInstance()
@@ -66,9 +69,15 @@ public:
     void UpdateSpotLightTransform(Core::Entity entity, const Matrix& transform);
     void UpdateDirectionalLightTransform(Core::Entity entity, const Matrix& transform);
 
-    uint32_t GetPointLightsNum() { return perPointLightSourceData.size(); }
-    uint32_t GetSpotLightsNum() { return perSpotLightSourceData.size(); }
-    uint32_t GetDirectionalLightsNum() { return perDirectionalLightSourceData.size(); }
+    PointLightSourceData& GetPointLightData(Core::Entity entity);
+    SpotLightSourceData& GetSpotLightData(Core::Entity entity);
+    DirectionalLightSourceData& GetDirectionalLightData(Core::Entity entity);
+
+    void CreateDirectionalLightShadowMap(Core::Entity entity);
+
+    uint32_t GetPointLightsNum() { return m_perPointLightSourceData.size(); }
+    uint32_t GetSpotLightsNum() { return m_perSpotLightSourceData.size(); }
+    uint32_t GetDirectionalLightsNum() { return m_perDirectionalLightSourceData.size(); }
 
     std::shared_ptr<RHI::IBuffer> GetPointLightSRV() const { return m_pointLightBuffer.dataBuffer; }
     std::shared_ptr<RHI::IBuffer> GetSpotLightSRV() const { return m_spotLightBuffer.dataBuffer; }
@@ -88,7 +97,7 @@ private:
     std::unordered_set<uint32_t> m_spotLightBufferDirtyCache;
     std::unordered_set<uint32_t> m_directionalLightBufferDirtyCache;
 
-    entt::storage<PointLightSourceData> perPointLightSourceData;
-    entt::storage<SpotLightSourceData> perSpotLightSourceData;
-    entt::storage<DirectionalLightSourceData> perDirectionalLightSourceData;
+    entt::storage<PointLightSourceData> m_perPointLightSourceData;
+    entt::storage<SpotLightSourceData> m_perSpotLightSourceData;
+    entt::storage<DirectionalLightSourceData> m_perDirectionalLightSourceData;
 };

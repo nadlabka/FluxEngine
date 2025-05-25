@@ -5,13 +5,13 @@
 #include "D3D12Device.h"
 
 RHI::D3D12Texture::D3D12Texture(const TextureDimensionsInfo& dimensionsInfo, RscPtr<D3D12MA::Allocation> allocation, D3D12_RESOURCE_STATES resourceState)
-	: m_dimensionsInfo(dimensionsInfo), m_allocation(allocation), D3D12StatefulResource(resourceState)
+	: ITexture(dimensionsInfo), m_allocation(allocation), D3D12StatefulResource(resourceState)
 {
 
 }
 
 RHI::D3D12Texture::D3D12Texture(const TextureDimensionsInfo& dimensionsInfo, RscPtr<ID3D12Resource> texture, D3D12_RESOURCE_STATES resourceState) 
-	: m_dimensionsInfo(dimensionsInfo), m_texture(texture), D3D12StatefulResource(resourceState)
+	: ITexture(dimensionsInfo), m_texture(texture), D3D12StatefulResource(resourceState)
 {
 
 }

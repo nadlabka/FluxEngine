@@ -37,9 +37,13 @@ void TransformSystem::UpdateMarkedTransforms(entt::registry& registry)
 
         auto& hierarchy = registry.get<Components::HierarchyRelationship>(rootEntity);
         auto& localTransform = registry.get<Components::Transform>(rootEntity);
-        Matrix localMatrix = Matrix::CreateScale(localTransform.scale) *
-            Matrix::CreateFromYawPitchRoll(localTransform.rotationAngles) *
-            Matrix::CreateTranslation(localTransform.position);
+        Matrix localMatrixScale = Matrix::CreateScale(localTransform.scale);
+        Matrix localMatrixRotation = Matrix::CreateFromYawPitchRoll(
+            DirectX::XMConvertToRadians(localTransform.rotationAngles.x),
+            DirectX::XMConvertToRadians(localTransform.rotationAngles.y),
+            DirectX::XMConvertToRadians(localTransform.rotationAngles.z));
+        Matrix localMatrixTranslation = Matrix::CreateTranslation(localTransform.position);
+        Matrix localMatrix = localMatrixScale * localMatrixRotation * localMatrixTranslation;
         auto& accumulatedTransform = registry.get<Components::AccumulatedHierarchicalTransformMatrix>(rootEntity);
         if (hierarchy.parent != entt::null)
         {
@@ -63,7 +67,10 @@ void TransformSystem::UpdateMarkedTransforms(entt::registry& registry)
             auto& accumulatedTransform = registry.get<Components::AccumulatedHierarchicalTransformMatrix>(current);
 
             Matrix localMatrix = Matrix::CreateScale(localTransform.scale) *
-                Matrix::CreateFromYawPitchRoll(localTransform.rotationAngles) *
+                Matrix::CreateFromYawPitchRoll(
+                    DirectX::XMConvertToRadians(localTransform.rotationAngles.x),
+                    DirectX::XMConvertToRadians(localTransform.rotationAngles.y),
+                    DirectX::XMConvertToRadians(localTransform.rotationAngles.z)) *
                 Matrix::CreateTranslation(localTransform.position);
 
             auto& hierarchy = registry.get<Components::HierarchyRelationship>(current);
@@ -74,7 +81,10 @@ void TransformSystem::UpdateMarkedTransforms(entt::registry& registry)
                 auto& childAccumulatedTransform = registry.get<Components::AccumulatedHierarchicalTransformMatrix>(child);
 
                 Matrix childLocalMatrix = Matrix::CreateScale(childLocalTransform.scale) *
-                    Matrix::CreateFromYawPitchRoll(childLocalTransform.rotationAngles) *
+                    Matrix::CreateFromYawPitchRoll(
+                        DirectX::XMConvertToRadians(localTransform.rotationAngles.x),
+                        DirectX::XMConvertToRadians(localTransform.rotationAngles.y),
+                        DirectX::XMConvertToRadians(localTransform.rotationAngles.z)) *
                     Matrix::CreateTranslation(childLocalTransform.position);
 
                 childAccumulatedTransform.matrix = childLocalMatrix * accumulatedTransform.matrix;

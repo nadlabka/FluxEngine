@@ -76,6 +76,10 @@ namespace RHI
 		void SetSamplerToBinding(const std::string& bindingName, std::shared_ptr<ISampler> sampler)
 		{
 			ASSERT(m_parametersIndices.contains(bindingName), "No binding with this name is present in this Pipeline Layout");
+			if (!m_samplersBindingsMappings.contains(bindingName))
+			{
+				m_samplersBindingsNames.push_back(bindingName);
+			}
 			m_samplersBindingsMappings[bindingName] = sampler;
 		}
 

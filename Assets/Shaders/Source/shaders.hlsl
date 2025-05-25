@@ -60,8 +60,8 @@ struct PerMeshData
 
 struct PointLightSourceData
 {
-    float4x4 worldToLight;
-    float4x4 lightToWorld;
+    float4x4 worldToLightView;
+    float4x4 worldToLightClip;
     float4 color;
     float3 position;
     float padding;
@@ -69,8 +69,8 @@ struct PointLightSourceData
 
 struct SpotLightSourceData
 {
-    float4x4 worldToLight;
-    float4x4 lightToWorld;
+    float4x4 worldToLightView;
+    float4x4 worldToLightClip;
     float3 position;
     float innerConeCos;
     float4 color;
@@ -80,8 +80,8 @@ struct SpotLightSourceData
 
 struct DirectionalLightSourceData
 {
-    float4x4 worldToLight;
-    float4x4 lightToWorld;
+    float4x4 worldToLightView;
+    float4x4 worldToLightClip;
     float4 color;
     float3 direction;
     float padding;
