@@ -188,7 +188,7 @@ void RHI::D3D12CommandBuffer::BindPipelineResources()
 	}
 }
 
-void RHI::D3D12CommandBuffer::BindRenderTargets()
+void RHI::D3D12CommandBuffer::BindRenderTargets(bool isToClear)
 {
 	auto d3d12RenderPass = std::static_pointer_cast<D3D12RenderPass>(m_currentRenderPipeline->m_description.renderPass);
 	auto& descHeapsMgr = DescriptorsHeapsManager::GetInstance();
@@ -219,22 +219,25 @@ void RHI::D3D12CommandBuffer::BindRenderTargets()
 		depthStencilHandle = dsv_heap->GetCpuHandle(d3d12DepthStencilRT->m_DSVDescriptorIndices[sliceIndex * d3d12DepthStencilRT->m_dimensionsInfo.m_mipLevels + mipIndex]);
 		depthStencilHandlePtr = &depthStencilHandle;
 
-		switch (d3d12RenderPass->m_description.depthStencilAttachment->loadOp)
+		if (isToClear)
 		{
-		case LoadAccessOperation::Load:
-			break;
-		case LoadAccessOperation::Clear:
-			m_commandList->ClearDepthStencilView(depthStencilHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL,
-				d3d12RenderPass->m_description.depthStencilAttachment->clearDepth, d3d12RenderPass->m_description.depthStencilAttachment->clearStencil, 0, nullptr);
-			break;
-		case LoadAccessOperation::DontCare:
-			D3D12_DISCARD_REGION discardRegion = {};
-			discardRegion.NumRects = 0;
-			discardRegion.pRects = nullptr;
-			discardRegion.FirstSubresource = D3D12CalcSubresource(mipIndex, sliceIndex, 0, d3d12DepthStencilRT->m_dimensionsInfo.m_mipLevels, d3d12DepthStencilRT->m_dimensionsInfo.m_arrayLayers);
-			discardRegion.NumSubresources = 1;
-			m_commandList->DiscardResource(texturePtr, &discardRegion);
-			break;
+			switch (d3d12RenderPass->m_description.depthStencilAttachment->loadOp)
+			{
+			case LoadAccessOperation::Load:
+				break;
+			case LoadAccessOperation::Clear:
+				m_commandList->ClearDepthStencilView(depthStencilHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL,
+					d3d12RenderPass->m_description.depthStencilAttachment->clearDepth, d3d12RenderPass->m_description.depthStencilAttachment->clearStencil, 0, nullptr);
+				break;
+			case LoadAccessOperation::DontCare:
+				D3D12_DISCARD_REGION discardRegion = {};
+				discardRegion.NumRects = 0;
+				discardRegion.pRects = nullptr;
+				discardRegion.FirstSubresource = D3D12CalcSubresource(mipIndex, sliceIndex, 0, d3d12DepthStencilRT->m_dimensionsInfo.m_mipLevels, d3d12DepthStencilRT->m_dimensionsInfo.m_arrayLayers);
+				discardRegion.NumSubresources = 1;
+				m_commandList->DiscardResource(texturePtr, &discardRegion);
+				break;
+			}
 		}
 	}
 
@@ -262,21 +265,24 @@ void RHI::D3D12CommandBuffer::BindRenderTargets()
 			{
 				auto rtvHandle = rtv_heap->GetCpuHandle(d3d12ColorRT->m_RTVDescriptorsIndices[sliceRT.sliceIndex * d3d12ColorRT->m_dimensionsInfo.m_mipLevels + mipRT]);
 				colorRTsHandles.push_back(rtvHandle);
-				switch (attachmentDesc.loadOp)
+				if (isToClear)
 				{
-				case LoadAccessOperation::Load:
-					break;
-				case LoadAccessOperation::Clear:
-					m_commandList->ClearRenderTargetView(rtvHandle, attachmentDesc.clearColor.data(), 0, nullptr);
-					break;
-				case LoadAccessOperation::DontCare:
-					D3D12_DISCARD_REGION discardRegion = {};
-					discardRegion.NumRects = 0;
-					discardRegion.pRects = nullptr;
-					discardRegion.FirstSubresource = D3D12CalcSubresource(mipRT, sliceRT.sliceIndex, 0, d3d12ColorRT->m_dimensionsInfo.m_mipLevels, d3d12ColorRT->m_dimensionsInfo.m_arrayLayers);
-					discardRegion.NumSubresources = 1;
-					m_commandList->DiscardResource(texturePtr, &discardRegion);
-					break;
+					switch (attachmentDesc.loadOp)
+					{
+					case LoadAccessOperation::Load:
+						break;
+					case LoadAccessOperation::Clear:
+						m_commandList->ClearRenderTargetView(rtvHandle, attachmentDesc.clearColor.data(), 0, nullptr);
+						break;
+					case LoadAccessOperation::DontCare:
+						D3D12_DISCARD_REGION discardRegion = {};
+						discardRegion.NumRects = 0;
+						discardRegion.pRects = nullptr;
+						discardRegion.FirstSubresource = D3D12CalcSubresource(mipRT, sliceRT.sliceIndex, 0, d3d12ColorRT->m_dimensionsInfo.m_mipLevels, d3d12ColorRT->m_dimensionsInfo.m_arrayLayers);
+						discardRegion.NumSubresources = 1;
+						m_commandList->DiscardResource(texturePtr, &discardRegion);
+						break;
+					}
 				}
 			}
 		}

@@ -16,6 +16,7 @@ namespace RHI
 		std::wstring entryPoint;
 		PipelineStageType pipelineStage;
 		std::filesystem::path shaderPDBPath = {};
+		std::vector<std::pair<std::wstring, std::wstring>> defines = {};
 	};
 
 	struct IShader

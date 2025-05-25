@@ -169,6 +169,215 @@ std::shared_ptr<RHI::IRenderPipeline> MaterialsManager::CreateForwardPBRPipeline
     std::optional<AttachmentDesc> depthStencilAttachmentDesc = {};
     AttachmentDesc rtAttachmentDesc = {};
     rtAttachmentDesc.format = TextureFormat::RGBA16_FLOAT;
+    rtAttachmentDesc.finalLayout = TextureLayout::ColorAttachmentOptimal;
+    rtAttachmentDesc.clearColor = { 0.0f, 0.2f, 0.4f, 1.0f };
+    colorAttachmentsDesc.push_back(rtAttachmentDesc);
+    AttachmentDesc dsAttachmentDesc = {};
+    dsAttachmentDesc.format = TextureFormat::D24_UNORM_S8_UINT;
+    dsAttachmentDesc.clearDepth = 0.0f;
+    dsAttachmentDesc.clearStencil = 0.0f;
+    dsAttachmentDesc.initialLayout = TextureLayout::DepthStencilAttachmentOptimal;
+    dsAttachmentDesc.finalLayout = TextureLayout::DepthStencilAttachmentOptimal;
+    depthStencilAttachmentDesc = dsAttachmentDesc;
+
+    RenderPassDesc renderPassDesc =
+    {
+        colorAttachmentsDesc,
+        depthStencilAttachmentDesc
+    };
+    renderPass = device->CreateRenderPass(renderPassDesc);
+
+    RenderPipelineDescription pipelineDesc;
+    pipelineDesc.inputAssemblerLayout = inputAssemblerLayoutDesc;
+    pipelineDesc.inputAssembler = inputAssemblerDesc;
+    pipelineDesc.rasterizer = rasterizerDesc;
+    pipelineDesc.colorBlend = colorBlendDesc;
+    pipelineDesc.depthStencil = depthStencilDesc;
+    pipelineDesc.pipelineStages = pipelineStagesDesc;
+    pipelineDesc.pipelineLayout = pipelineLayout;
+    pipelineDesc.renderPass = renderPass;
+
+    auto renderPipeline = device->CreateRenderPipeline(pipelineDesc);
+    auto& dynamicallyBoundResources = renderPipeline->GetPipelineDescription().pipelineLayout->m_pipelineLayoutBindings.m_dynamicallyBoundResources;
+
+    dynamicallyBoundResources.SetBufferDescriptorResourceType("perMeshDataBufferIndex", RHI::DescriptorResourceType::DataReadOnlyBuffer);
+    dynamicallyBoundResources.SetBufferDescriptorVisibility("perMeshDataBufferIndex", RHI::BindingVisibility::Vertex);
+
+    dynamicallyBoundResources.SetBufferDescriptorResourceType("perInstancePerMeshHandleBufferIndex", RHI::DescriptorResourceType::DataReadOnlyBuffer);
+    dynamicallyBoundResources.SetBufferDescriptorVisibility("perInstancePerMeshHandleBufferIndex", RHI::BindingVisibility::Vertex);
+
+    dynamicallyBoundResources.SetBufferDescriptorResourceType("perInstanceMaterialParamsBufferIndex", RHI::DescriptorResourceType::DataReadOnlyBuffer);
+    dynamicallyBoundResources.SetBufferDescriptorVisibility("perInstanceMaterialParamsBufferIndex", RHI::BindingVisibility::Vertex);
+
+    auto& constantBuffer = renderPipeline->GetPipelineDescription().pipelineLayout->m_pipelineLayoutBindings.m_BoundConstantBuffers;
+    constantBuffer.SetBufferBindingVisibility("PerView", RHI::BindingVisibility::All);
+    constantBuffer.SetBufferBindingVisibility("PerFrame", RHI::BindingVisibility::All);
+
+    dynamicallyBoundResources.SetBufferDescriptorResourceType("pointLightsBufferIndex", RHI::DescriptorResourceType::DataReadOnlyBuffer);
+    dynamicallyBoundResources.SetBufferDescriptorVisibility("pointLightsBufferIndex", RHI::BindingVisibility::Fragment);
+
+    dynamicallyBoundResources.SetBufferDescriptorResourceType("spotLightsBufferIndex", RHI::DescriptorResourceType::DataReadOnlyBuffer);
+    dynamicallyBoundResources.SetBufferDescriptorVisibility("spotLightsBufferIndex", RHI::BindingVisibility::Fragment);
+
+    dynamicallyBoundResources.SetBufferDescriptorResourceType("directionalLightsBufferIndex", RHI::DescriptorResourceType::DataReadOnlyBuffer);
+    dynamicallyBoundResources.SetBufferDescriptorVisibility("directionalLightsBufferIndex", RHI::BindingVisibility::Fragment);
+
+    SamplerDescription defaultSamplerDescription = {};
+    defaultSamplerDescription.Filter = RHI::FilterMode::Linear;
+    defaultSamplerDescription.AddressU = RHI::AddressMode::Wrap;
+    defaultSamplerDescription.AddressV = RHI::AddressMode::Wrap;
+    defaultSamplerDescription.AddressW = RHI::AddressMode::Wrap;
+    defaultSamplerDescription.ComparisonFunc = RHI::SamplerComparisonFunc::Always;
+    defaultSamplerDescription.MipLODBias = 0.0f;
+    defaultSamplerDescription.MaxAnisotropy = 1;
+    defaultSamplerDescription.BorderColor = { 0.0f, 0.0f, 0.0f, 0.0f };
+    defaultSamplerDescription.MinLOD = 0.0f;
+    defaultSamplerDescription.MaxLOD = 1e10f;
+    auto defaultSampler = device->CreateSampler(defaultSamplerDescription);
+    dynamicallyBoundResources.SetSamplerToBinding("samplerDescriptorIndex", defaultSampler);
+
+    SamplerDescription shadowSamplerDescription = {};
+    shadowSamplerDescription.Filter = RHI::FilterMode::Linear;
+    shadowSamplerDescription.AddressU = RHI::AddressMode::Wrap;
+    shadowSamplerDescription.AddressV = RHI::AddressMode::Wrap;
+    shadowSamplerDescription.AddressW = RHI::AddressMode::Wrap;
+    shadowSamplerDescription.ComparisonFunc = RHI::SamplerComparisonFunc::Greater;
+    shadowSamplerDescription.MipLODBias = 0.0f;
+    shadowSamplerDescription.MaxAnisotropy = 1;
+    shadowSamplerDescription.BorderColor = { 0.0f, 0.0f, 0.0f, 0.0f };
+    shadowSamplerDescription.MinLOD = 0.0f;
+    shadowSamplerDescription.MaxLOD = 1e10f;
+    auto shadowSampler = device->CreateSampler(shadowSamplerDescription);
+    dynamicallyBoundResources.SetSamplerToBinding("shadowSamplerDescriptorIndex", shadowSampler);
+
+    return renderPipeline;
+}
+
+std::shared_ptr<RHI::IRenderPipeline> MaterialsManager::CreateForwardMaskedPBRPipeline()
+{
+    using namespace RHI;
+
+    auto& rhiContext = RHIContext::GetInstance();
+    auto device = rhiContext.GetDevice();
+    auto allocator = rhiContext.GetAllocator();
+
+    RHI::InputAssemblerLayoutDescription inputAssemblerLayoutDesc;
+    inputAssemblerLayoutDesc.vertexBindings.push_back(
+        {
+            sizeof(Assets::VertexPrimaryAttributes),
+            0,
+            BindingInputRate::PerVertex
+        });
+    inputAssemblerLayoutDesc.vertexBindings.push_back(
+        {
+            sizeof(Assets::VertexSecondaryAttributes),
+            1,
+            BindingInputRate::PerVertex
+        });
+    inputAssemblerLayoutDesc.vertexBindings.push_back(
+        {
+            sizeof(Assets::MeshPerInstanceDataHandle),
+            2,
+            BindingInputRate::PerInstance
+        });
+    inputAssemblerLayoutDesc.attributeDescriptions.push_back(
+        {
+            0,
+            0,
+            0,
+            VertexAttributeFormat::R32G32B32_SignedFloat,
+            "POSITION",
+            0
+        });
+    inputAssemblerLayoutDesc.attributeDescriptions.push_back(
+        {
+            1,
+            0,
+            12,
+            VertexAttributeFormat::R32G32B32_SignedFloat,
+            "NORMAL",
+            0
+        });
+    inputAssemblerLayoutDesc.attributeDescriptions.push_back(
+        {
+            2,
+            0,
+            24,
+            VertexAttributeFormat::R32G32_SignedFloat,
+            "TEXCOORD",
+            0
+        });
+    inputAssemblerLayoutDesc.attributeDescriptions.push_back(
+        {
+            4,
+            1,
+            0,
+            VertexAttributeFormat::R32G32B32_SignedFloat,
+            "TANGENT",
+            0
+        });
+    inputAssemblerLayoutDesc.attributeDescriptions.push_back(
+        {
+            5,
+            1,
+            12,
+            VertexAttributeFormat::R32G32B32_SignedFloat,
+            "BITANGENT",
+            0
+        });
+
+
+    InputAssemblerDescription inputAssemblerDesc = {};
+    inputAssemblerDesc.primitiveTopology = PrimitiveTopology::TriangleList;
+
+
+    RasterizerDescription rasterizerDesc = {};
+    rasterizerDesc.windingOrder = WindingOrder::Clockwise;
+
+
+    ColorBlendDescription colorBlendDesc = {};
+    ColorBlendDescription::ColorAttachmentBlendDesc colorAttachmentBlendDesc = {};
+    colorBlendDesc.attachmentsBlends.push_back(colorAttachmentBlendDesc);
+
+
+    DepthStencilDescription depthStencilDesc = {};
+    depthStencilDesc.depthTestEnabled = true;
+    depthStencilDesc.depthCompareOperation = DepthStencilCompareOperation::GreaterOrEqual;
+    depthStencilDesc.depthWriteEnabled = true;
+
+
+    std::vector<PipelineStageDescription> pipelineStagesDesc = {};
+    ShaderCreateDesription vertexShaderDesc =
+    {
+        "../../../../Assets/Shaders/Source/PBR.hlsl",
+        L"VSMain",
+        PipelineStageType::Vertex,
+        "../../../../Assets/Shaders/PDB"
+    };
+    ShaderCreateDesription fragmentShaderDesc =
+    {
+        "../../../../Assets/Shaders/Source/PBR.hlsl",
+        L"PSMain",
+        PipelineStageType::Fragment,
+        "../../../../Assets/Shaders/PDB",
+        {
+            {L"MASKED_OPAQUE", L"1"},
+        }
+    };
+    auto shaderCompiler = rhiContext.GetShaderCompiler();
+    std::shared_ptr<IShader> vertexShader = shaderCompiler->CompileShader(vertexShaderDesc);
+    std::shared_ptr<IShader> fragmentShader = shaderCompiler->CompileShader(fragmentShaderDesc);
+    pipelineStagesDesc.push_back({ vertexShader });
+    pipelineStagesDesc.push_back({ fragmentShader });
+
+    PipelineLayoutBindings pipelineLayoutDesc = {};
+    std::shared_ptr<IPipelineLayout> pipelineLayout = device->CreatePipelineLayout(pipelineStagesDesc);
+
+    std::shared_ptr<IRenderPass> renderPass = {};
+    std::vector<AttachmentDesc> colorAttachmentsDesc = {};
+    std::optional<AttachmentDesc> depthStencilAttachmentDesc = {};
+    AttachmentDesc rtAttachmentDesc = {};
+    rtAttachmentDesc.format = TextureFormat::RGBA16_FLOAT;
     rtAttachmentDesc.finalLayout = TextureLayout::ReadOnlyOptimal;
     rtAttachmentDesc.clearColor = { 0.0f, 0.2f, 0.4f, 1.0f };
     colorAttachmentsDesc.push_back(rtAttachmentDesc);

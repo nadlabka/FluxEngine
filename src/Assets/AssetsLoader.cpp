@@ -122,17 +122,29 @@ namespace Assets
 
                     for (int submeshIndex = 0; submeshIndex < mesh.m_submeshes.size(); submeshIndex++)
                     {
-                        MaterialParameters::PBRMaterial material{};
                         if (model.meshes[nodeEntity.meshIndex].primitives[submeshIndex].material >= 0)
                         {
+                            MaterialParameters::PBRMaterial material{};
                             const auto& mat = model.materials[model.meshes[nodeEntity.meshIndex].primitives[submeshIndex].material];
                             processTexture(mat.pbrMetallicRoughness.baseColorTexture.index, material.albedoIndex);
                             processTexture(mat.normalTexture.index, material.normalIndex);
                             processTexture(mat.pbrMetallicRoughness.metallicRoughnessTexture.index, material.metallicRoughnessIndex);
                             processTexture(mat.occlusionTexture.index, material.aoIndex);
                             processTexture(mat.emissiveTexture.index, material.emissiveIndex);
+                            if (mat.alphaMode == "OPAQUE")
+                            {
+                                mesh.CreateSubmeshPerInstanceData<MaterialParameters::PBRMaterial>(Core::Entity{ entity }, submeshIndex, material);
+                            }
+                            else if (mat.alphaMode == "MASK")
+                            {
+                                mesh.CreateSubmeshPerInstanceData<MaterialParameters::MaskedPBRMaterial>(Core::Entity{ entity }, submeshIndex, MaterialParameters::MaskedPBRMaterial(material));
+                            }
                         }
-                        mesh.CreateSubmeshPerInstanceData<MaterialParameters::PBRMaterial>(Core::Entity{ entity }, submeshIndex, material);
+                        else
+                        {
+                            MaterialParameters::PBRMaterial material{};
+                            mesh.CreateSubmeshPerInstanceData<MaterialParameters::PBRMaterial>(Core::Entity{ entity }, submeshIndex, material);
+                        }
                     }
                 }
             }

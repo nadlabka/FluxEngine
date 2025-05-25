@@ -30,6 +30,13 @@ std::shared_ptr<RHI::IShader> RHI::D3D12ShaderCompiler::CompileShader(const Shad
     hr = m_library->CreateBlobFromFile(desc.shaderSourcePath.c_str(), nullptr, &sourceBlob);
     ASSERT(SUCCEEDED(hr), "Failed to create source blob from file: ", desc.shaderSourcePath);
 
+    std::vector<DxcDefine> dxcDefines = {};
+    dxcDefines.reserve(desc.defines.size());
+    for (auto& define : desc.defines)
+    {
+        dxcDefines.push_back({ define.first.data(), define.second.data() });
+    }
+
     std::vector<LPCWSTR> compileFlags = {};
     compileFlags.push_back(L"-Zpr"); // sets row-major order
 
@@ -85,7 +92,7 @@ std::shared_ptr<RHI::IShader> RHI::D3D12ShaderCompiler::CompileShader(const Shad
         desc.entryPoint.c_str(),
         shaderProfile.c_str(),
         compileFlags.data(), static_cast<UINT32>(compileFlags.size()),
-        nullptr, 0, // No defines
+        dxcDefines.data(), dxcDefines.size(),
         &compilerArgs);
 
     DxcBuffer srcBuffer = {};

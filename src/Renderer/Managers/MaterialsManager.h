@@ -29,6 +29,7 @@ public:
     void RemoveComputePipeline(const std::string& name);
 
     static std::shared_ptr<RHI::IRenderPipeline> CreateForwardPBRPipeline();
+    static std::shared_ptr<RHI::IRenderPipeline> CreateForwardMaskedPBRPipeline();
     static std::shared_ptr<RHI::IRenderPipeline> CreateOpaqueDepthOnlyPipeline();
     static std::shared_ptr<RHI::IComputePipeline> CreateMipGenerationPipeline();
     static std::shared_ptr<RHI::IRenderPipeline> CreatePostProcessPipeline();

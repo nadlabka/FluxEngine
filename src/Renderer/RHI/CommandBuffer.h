@@ -37,7 +37,7 @@ namespace RHI
 		virtual void EndRecording() = 0;
 
 		virtual void BindPipelineResources() = 0;
-		virtual void BindRenderTargets() = 0;
+		virtual void BindRenderTargets(bool isToClear) = 0;
 		virtual void FinishRenderTargets() = 0;
 
 		virtual void ForceWaitUntilFinished(std::shared_ptr<ICommandQueue> commandQueue) = 0;

@@ -26,7 +26,7 @@ namespace RHI
 		void EndRecording();
 
 		void BindPipelineResources();
-		void BindRenderTargets();
+		void BindRenderTargets(bool isToClear);
 		void FinishRenderTargets();
 
 		void ForceWaitUntilFinished(std::shared_ptr<ICommandQueue> commandQueue);

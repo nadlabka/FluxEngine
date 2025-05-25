@@ -94,6 +94,7 @@ void Renderer1::LoadPipeline()
     auto& materialsManager = MaterialsManager::GetInstance();
     materialsManager.SetRenderPipeline("OpaqueShadow", materialsManager.CreateOpaqueDepthOnlyPipeline());
     materialsManager.SetRenderPipeline("ForwardPBR", materialsManager.CreateForwardPBRPipeline());
+    materialsManager.SetRenderPipeline("MaskedForwardPBR", materialsManager.CreateForwardMaskedPBRPipeline());
     materialsManager.SetRenderPipeline("PostProcess", materialsManager.CreatePostProcessPipeline());
 
     m_commandQueue->WaitUntilCompleted();
@@ -172,7 +173,7 @@ void Renderer1::PopulateCommandList()
             m_commandBuffer->SetScissors(scissorsRect);
             m_commandBuffer->SetPrimitiveTopology(PrimitiveTopology::TriangleList);
 
-            m_commandBuffer->BindRenderTargets();
+            m_commandBuffer->BindRenderTargets(true);
 
             auto& assetsManager = Assets::AssetsManager<Assets::StaticMesh>::GetInstance();
             for (auto& staticMesh : assetsManager.GetAssetsStorage().GetDataStorage())
@@ -230,7 +231,7 @@ void Renderer1::PopulateCommandList()
         m_commandBuffer->SetScissors(m_scissorsRect);
         m_commandBuffer->SetPrimitiveTopology(PrimitiveTopology::TriangleList);
 
-        m_commandBuffer->BindRenderTargets();
+        m_commandBuffer->BindRenderTargets(true);
 
         auto& dynamicallyBoundResources = m_commandBuffer->GetCurrentRenderPipeline()->GetPipelineDescription().pipelineLayout->m_pipelineLayoutBindings.m_dynamicallyBoundResources;    
         dynamicallyBoundResources.SetBufferBindingResource("pointLightsBufferIndex", lightSourcesManager.GetPointLightSRV()); // u don't need to do it every frame
@@ -277,6 +278,68 @@ void Renderer1::PopulateCommandList()
         m_commandBuffer->SubmitToQueue(m_commandQueue);
     }
     {
+        m_commandBuffer->BindRenderPipeline(materialsManager.GetRenderPipeline("MaskedForwardPBR"));
+
+        auto& constantBufferManager = ConstantBufferManager::GetInstance();
+        auto& boundConstantBuffers = m_commandBuffer->GetCurrentRenderPipeline()->GetPipelineDescription().pipelineLayout->m_pipelineLayoutBindings.m_BoundConstantBuffers;
+        boundConstantBuffers.SetConstantBufferBindingMapping("PerView", constantBufferManager.GetDataBufferByName("PerView"));  // u don't need to do it every frame
+        constantBufferManager.UpdateBuffer<PerViewConstantBuffer>(m_commandQueue, m_commandBuffer, "PerView");
+        boundConstantBuffers.SetConstantBufferBindingMapping("PerFrame", constantBufferManager.GetDataBufferByName("PerFrame"));  // u don't need to do it every frame
+        constantBufferManager.UpdateBuffer<PerFrameConstantBuffer>(m_commandQueue, m_commandBuffer, "PerFrame");
+
+        m_commandBuffer->BeginRecording(m_commandQueue);
+
+        m_commandBuffer->SetViewport(m_viewportInfo);
+        m_commandBuffer->SetScissors(m_scissorsRect);
+        m_commandBuffer->SetPrimitiveTopology(PrimitiveTopology::TriangleList);
+
+        m_commandBuffer->BindRenderTargets(false);
+
+        auto& dynamicallyBoundResources = m_commandBuffer->GetCurrentRenderPipeline()->GetPipelineDescription().pipelineLayout->m_pipelineLayoutBindings.m_dynamicallyBoundResources;
+        dynamicallyBoundResources.SetBufferBindingResource("pointLightsBufferIndex", lightSourcesManager.GetPointLightSRV()); // u don't need to do it every frame
+        dynamicallyBoundResources.SetBufferBindingResource("spotLightsBufferIndex", lightSourcesManager.GetSpotLightSRV()); // u don't need to do it every frame
+        dynamicallyBoundResources.SetBufferBindingResource("directionalLightsBufferIndex", lightSourcesManager.GetDirectionalLightSRV()); // u don't need to do it every frame
+
+        auto& assetsManager = Assets::AssetsManager<Assets::StaticMesh>::GetInstance();
+        for (auto& staticMesh : assetsManager.GetAssetsStorage().GetDataStorage())
+        {
+            dynamicallyBoundResources.SetBufferBindingResource("perMeshDataBufferIndex", staticMesh.GetRHIBufferForPerInstanceData());
+
+            for (auto& submesh : staticMesh.m_submeshes)
+            {
+                if (submesh.GetActiveInstancesNum<MaterialParameters::MaskedPBRMaterial>() == 0) { continue; }
+
+                submesh.UpdateRHIBuffersWithPerInstanceData<MaterialParameters::MaskedPBRMaterial>(m_commandBuffer);
+
+                // Bind all buffers
+                auto perInstancePerMeshDataBuffer = submesh.GetRHIBufferForPerMeshData<MaterialParameters::MaskedPBRMaterial>();
+                auto perInstancePerMaterialDataBuffer = submesh.GetRHIBufferForPerMaterialData<MaterialParameters::MaskedPBRMaterial>();
+
+                dynamicallyBoundResources.SetBufferBindingResource("perInstancePerMeshHandleBufferIndex", perInstancePerMeshDataBuffer);
+                dynamicallyBoundResources.SetBufferBindingResource("perInstanceMaterialParamsBufferIndex", perInstancePerMaterialDataBuffer);
+
+                m_commandBuffer->BindPipelineResources();
+
+                auto bufferWithRegionDescription = submesh.GetPrimaryVertexData();
+                m_commandBuffer->SetVertexBuffer(bufferWithRegionDescription.buffer, 0, bufferWithRegionDescription.regionDescription);
+
+                bufferWithRegionDescription = submesh.GetSecondaryVertexData();
+                m_commandBuffer->SetVertexBuffer(bufferWithRegionDescription.buffer, 1, bufferWithRegionDescription.regionDescription);
+
+                bufferWithRegionDescription = submesh.GetIndicesData();
+                m_commandBuffer->SetIndexBuffer(bufferWithRegionDescription.buffer, bufferWithRegionDescription.regionDescription);
+
+                IndexedInstancedDrawInfo indexedInstancedDrawInfo = {};
+                indexedInstancedDrawInfo.indicesPerInstanceNum = submesh.GetIndicesData().buffer->GetStructuredElementsNum();
+                indexedInstancedDrawInfo.instancesNum = submesh.GetActiveInstancesNum<MaterialParameters::MaskedPBRMaterial>();
+                m_commandBuffer->DrawIndexedInstanced(indexedInstancedDrawInfo);
+            }
+        }
+        m_commandBuffer->FinishRenderTargets();
+        m_commandBuffer->EndRecording();
+        m_commandBuffer->SubmitToQueue(m_commandQueue);
+    }
+    {
 
     }
     {
@@ -290,7 +353,7 @@ void Renderer1::PopulateCommandList()
     m_commandBuffer->SetScissors(m_scissorsRect);
     m_commandBuffer->SetPrimitiveTopology(PrimitiveTopology::TriangleList);
 
-    m_commandBuffer->BindRenderTargets();
+    m_commandBuffer->BindRenderTargets(true);
 
     auto& dynamicallyBoundResources = m_commandBuffer->GetCurrentRenderPipeline()->GetPipelineDescription().pipelineLayout->m_pipelineLayoutBindings.m_dynamicallyBoundResources;
 
@@ -331,6 +394,7 @@ void Renderer1::UpdatePipelineDynamicStates()
 
         auto& materialsManager = MaterialsManager::GetInstance();
         materialsManager.GetRenderPipeline("ForwardPBR")->GetPipelineDescription().renderPass->SetAttachments(subresourceRTs, subresourceDST);
+        materialsManager.GetRenderPipeline("MaskedForwardPBR")->GetPipelineDescription().renderPass->SetAttachments(subresourceRTs, subresourceDST);
     }
 
     {

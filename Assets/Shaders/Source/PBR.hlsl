@@ -190,8 +190,9 @@ float4 PSMain(PSInput input) : SV_TARGET
     {
         Texture2D albedoMap = ResourceDescriptorHeap[material.albedoIndex];
         albedo = albedoMap.Sample(defaultSampler, input.texCoords, 0);
+        #ifdef MASKED_OPAQUE
         if (albedo.w < 0.25) discard;
-
+        #endif
     }
     if (material.normalIndex != 0xffffffff)
     {

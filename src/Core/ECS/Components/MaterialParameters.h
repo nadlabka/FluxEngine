@@ -16,4 +16,8 @@ namespace MaterialParameters
 		uint32_t aoIndex = 0xffffffff;
 		uint32_t emissiveIndex = 0xffffffff;
 	};
+
+	struct MaskedPBRMaterial : PBRMaterial
+	{
+	};
 }
