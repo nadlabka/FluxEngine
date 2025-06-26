@@ -1,12 +1,12 @@
 #pragma once
 #include <../Assets/AssetsManager.h>
 #include "../Assets/Mesh.h"
-#include "../Renderer/Renderer1.h"
+#include "../Renderer/Renderer.h"
 #include "../Assets/Material.h"
 
 static Assets::AssetsManager<Assets::StaticMesh>::AssetId LoadCubeMesh()
 {
-	auto& renderer = Renderer1::GetInstance();
+	auto& renderer = Renderer::GetInstance();
 	auto commandQueue = renderer.m_commandQueue;
 	auto commandBuffer = renderer.m_commandBuffer;
 

@@ -365,6 +365,34 @@ void RHI::D3D12CommandBuffer::SetPrimitiveTopology(PrimitiveTopology primitiveTo
 	m_commandList->IASetPrimitiveTopology(ConvertPrimitiveTopologyToD3D12(primitiveTopology));
 }
 
+void RHI::D3D12CommandBuffer::SetBindingResource(const std::string& bindingName, std::shared_ptr<IBuffer> buffer)
+{
+	auto& currentPipelineLayout = m_currentRenderPipeline ? m_currentRenderPipeline->GetPipelineDescription().pipelineLayout : m_currentComputePipeline->GetPipelineDescription().pipelineLayout;
+	auto& dynamicallyBoundResources = currentPipelineLayout->m_pipelineLayoutBindings.m_dynamicallyBoundResources;
+	dynamicallyBoundResources.SetBufferBindingResource(bindingName, buffer);
+}
+
+void RHI::D3D12CommandBuffer::SetBindingResource(const std::string& bindingName, std::shared_ptr<ITexture> texture)
+{
+	auto& currentPipelineLayout = m_currentRenderPipeline ? m_currentRenderPipeline->GetPipelineDescription().pipelineLayout : m_currentComputePipeline->GetPipelineDescription().pipelineLayout;
+	auto& dynamicallyBoundResources = currentPipelineLayout->m_pipelineLayoutBindings.m_dynamicallyBoundResources;
+	dynamicallyBoundResources.SetTextureBindingResource(bindingName, texture);
+}
+
+void RHI::D3D12CommandBuffer::SetBindingResource(const std::string& bindingName, std::shared_ptr<ISampler> sampler)
+{
+	auto& currentPipelineLayout = m_currentRenderPipeline ? m_currentRenderPipeline->GetPipelineDescription().pipelineLayout : m_currentComputePipeline->GetPipelineDescription().pipelineLayout;
+	auto& dynamicallyBoundResources = currentPipelineLayout->m_pipelineLayoutBindings.m_dynamicallyBoundResources;
+	dynamicallyBoundResources.SetSamplerToBinding(bindingName, sampler);
+}
+
+void RHI::D3D12CommandBuffer::SetConstantBufferBindingMapping(const std::string& bindingName, std::shared_ptr<IBuffer> buffer)
+{
+	auto& currentPipelineLayout = m_currentRenderPipeline ? m_currentRenderPipeline->GetPipelineDescription().pipelineLayout : m_currentComputePipeline->GetPipelineDescription().pipelineLayout;
+	auto& boundConstantBuffers = currentPipelineLayout->m_pipelineLayoutBindings.m_BoundConstantBuffers;
+	boundConstantBuffers.SetConstantBufferBindingMapping(bindingName, buffer);
+}
+
 void RHI::D3D12CommandBuffer::SetVertexBuffer(std::shared_ptr<IBuffer> buffer, uint32_t slot, const BufferRegionDescription& bufferBindDesc)
 {
 	auto& inputAssemblerLayout = m_currentRenderPipeline->m_description.inputAssemblerLayout;

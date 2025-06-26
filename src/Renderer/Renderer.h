@@ -1,70 +1,48 @@
 #pragma once
-#include <SimpleMath.h>
-#include <stdafx.h>
+#include "RHI/CommandQueue.h"
+#include "RHI/Swapchain.h"
+#include "RHI/CommandBuffer.h"
 
-struct Vertex
+using namespace RHI;
+
+struct Vertex1
 {
-    DirectX::XMFLOAT3 position;
-    DirectX::XMFLOAT4 color;
+	DirectX::XMFLOAT3 position;
+	DirectX::XMFLOAT4 color;
 };
 
 class Renderer
 {
 public:
-    static Renderer& GetInstance()
-    {
-        static Renderer instance;
-        return instance;
-    }
+	static Renderer& GetInstance()
+	{
+		static Renderer instance;
+		return instance;
+	}
 
-    Renderer(const Renderer& arg) = delete;
-    Renderer& operator=(const Renderer& arg) = delete;
+	Renderer(const Renderer& arg) = delete;
+	Renderer& operator=(const Renderer& arg) = delete;
 
-    void Init();
-    void Destroy();
+	void Init();
+	void Destroy();
 
-    void Render();
+	void Render();
 
-    void LoadPipeline();
-    void LoadAssets();
-    void PopulateCommandList();
-    void MoveToNextFrame();
-    void WaitForGpu();
+	void LoadPipeline();
+	void UpdatePipelineDynamicStates();
+	void WaitForGpu();
 
-    void GetHardwareAdapter(IDXGIFactory1* pFactory, IDXGIAdapter1** ppAdapter, bool requestHighPerformanceAdapter);
+	void RecordAndSubmitCommandBuffers();
 
-    std::wstring GetAssetFullPath(LPCWSTR assetName);
-
-    bool m_useWarpDevice;
-
-    static const UINT FrameCount = 2;
-
-    // Pipeline objects.
-    CD3DX12_VIEWPORT m_viewport;
-    CD3DX12_RECT m_scissorRect;
-    RscPtr<IDXGISwapChain3> m_swapChain;
-    RscPtr<ID3D12Device> m_device;
-    RscPtr<ID3D12Resource> m_renderTargets[FrameCount];
-    RscPtr<ID3D12CommandAllocator> m_commandAllocators[FrameCount];
-    RscPtr<ID3D12CommandQueue> m_commandQueue;
-    RscPtr<ID3D12RootSignature> m_rootSignature;
-    RscPtr<ID3D12DescriptorHeap> m_rtvHeap;
-    RscPtr<ID3D12PipelineState> m_pipelineState;
-    RscPtr<ID3D12GraphicsCommandList> m_commandList;
-    UINT m_rtvDescriptorSize;
-
-    RscPtr<ID3D12Resource> m_vertexBuffer;
-    D3D12_VERTEX_BUFFER_VIEW m_vertexBufferView;
-
-    // Synchronization objects.
-    UINT m_frameIndex;
-    HANDLE m_fenceEvent;
-    RscPtr<ID3D12Fence> m_fence;
-    UINT64 m_fenceValues[FrameCount];
-
-    std::wstring m_assetsPath;
+	std::shared_ptr<ISwapchain> m_swapchain;
+	std::shared_ptr<ICommandQueue> m_commandQueue;
+	std::shared_ptr<ICommandBuffer> m_commandBuffer;
+	std::shared_ptr<IBuffer> m_buffer;
+	ViewportInfo m_viewportInfo;
+	ScissorsRect m_scissorsRect;
+	std::shared_ptr<ITexture> m_depthStencil;
+	std::shared_ptr<ITexture> m_hdrTarget;
 
 private:
-    Renderer() {}
-
+	Renderer() {}
 };

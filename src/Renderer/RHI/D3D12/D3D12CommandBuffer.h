@@ -36,6 +36,12 @@ namespace RHI
 		void SetBlendConstants(const std::array<float, 4> constantsValues);
 		void SetPrimitiveTopology(PrimitiveTopology primitiveTopology);
 
+		void SetBindingResource(const std::string& bindingName, std::shared_ptr<IBuffer> buffer);
+		void SetBindingResource(const std::string& bindingName, std::shared_ptr<ITexture> texture);
+		void SetBindingResource(const std::string& bindingName, std::shared_ptr<ISampler> sampler);
+
+		void SetConstantBufferBindingMapping(const std::string& bindingName, std::shared_ptr<IBuffer> buffer);
+
 		void SetVertexBuffer(std::shared_ptr<IBuffer> buffer, uint32_t slot, const BufferRegionDescription& bufferBindDesc);
 		void SetIndexBuffer(std::shared_ptr<IBuffer> buffer, const BufferRegionDescription& bufferBindDesc);
 

@@ -115,7 +115,7 @@ void Application::WinApplication::Init(Core::FluxEngine* engine, HINSTANCE hInst
     transformSystem.MarkDirty(registry, directionalLightEntity);
 
     auto& loader = Assets::AssetsLoader::GetInstance();
-    auto& renderer = Renderer1::GetInstance();
+    auto& renderer = Renderer::GetInstance();
     auto commandQueue = renderer.m_commandQueue;
     auto commandBuffer = renderer.m_commandBuffer;
     loader.LoadGLTFScene(L"../../../../Assets/Models/Sponza/Sponza.gltf", commandQueue, commandBuffer);

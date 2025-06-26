@@ -3,7 +3,7 @@
 #include <DXSampleHelper.h>
 #include "../Application/WinAPI/WinApplication.h"
 #include "../Application/WinAPI/WinWindow.h"
-#include "../Renderer/Renderer1.h"
+#include "../Renderer/Renderer.h"
 #include "../Renderer/RHI/RHIContext.h"
 #include "./ECS/Entity.h"
 #include "../Assets/Mesh.h"
@@ -42,7 +42,7 @@ void Core::FluxEngine::Init()
 
     rhiContext.Init(ERHIRenderingAPI::D3D12, adapterCreateDesc, deviceCreateDesc);
 
-    auto& renderer = Renderer1::GetInstance();
+    auto& renderer = Renderer::GetInstance();
     renderer.Init();
     renderer.LoadPipeline();
 }
@@ -87,14 +87,14 @@ void Core::FluxEngine::Render()
     auto& transformSystem = TransformSystem::GetInstance();
     transformSystem.UpdateMarkedTransforms(EntitiesPool::GetInstance().GetRegistry());
 
-    auto& renderer = Renderer1::GetInstance();
+    auto& renderer = Renderer::GetInstance();
     renderer.Render();
 }
 
 void Core::FluxEngine::Destroy()
 {
     auto& entityPool = EntitiesPool::GetInstance();
-    auto& renderer = Renderer1::GetInstance();
+    auto& renderer = Renderer::GetInstance();
     // Ensure that the GPU is no longer referencing resources that are about to be
     // cleaned up by the destructor.
     renderer.WaitForGpu();

@@ -47,6 +47,12 @@ namespace RHI
 		virtual void SetBlendConstants(const std::array<float, 4> constantsValues) = 0;
 		virtual void SetPrimitiveTopology(PrimitiveTopology primitiveTopology) = 0;
 
+		virtual void SetBindingResource(const std::string& bindingName, std::shared_ptr<IBuffer> buffer) = 0;
+		virtual void SetBindingResource(const std::string& bindingName, std::shared_ptr<ITexture> texture) = 0;
+		virtual void SetBindingResource(const std::string& bindingName, std::shared_ptr<ISampler> sampler) = 0;
+
+		virtual void SetConstantBufferBindingMapping(const std::string& bindingName, std::shared_ptr<IBuffer> buffer) = 0;
+
 		//slot has to match binding index in InputAssemblerLayoutDescription
 		virtual void SetVertexBuffer(std::shared_ptr<IBuffer> buffer, uint32_t slot, const BufferRegionDescription& bufferBindDesc) = 0;
 		virtual void SetIndexBuffer(std::shared_ptr<IBuffer> buffer, const BufferRegionDescription& bufferBindDesc) = 0;
